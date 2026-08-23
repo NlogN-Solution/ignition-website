@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+
+  --color-navy: #01166f;
+  --color-navy-ink: #020f53;
+  --color-orange: #fc5a07;
+  --color-blue-link: #2450dc;
+  --color-blue-bright: #1071f6;
+
+  --color-canvas: #fbfafe;
+  --color-nav: #1f2150;
+  --color-ink: #12162f;
+  --color-ink-soft: #3a3e58;
+  --color-muted: #5f637e;
+  --color-muted-light: #7c7f9a;
+  --color-faint: #c9cad6;
+  --color-hairline: #e7e9f2;
+  --color-ring-idle: #d4d8e4;
+  --color-track: #e5eaf0;
+}
+
+/* Header height including its 1px hairline, so full-height sections can
+   subtract it exactly and never produce a stray scrollbar. */
+:root {
+  --nav-h: 69px;
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --nav-h: 91px;
+  }
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  ::selection {
+    background-color: var(--color-orange);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-blue-bright);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
