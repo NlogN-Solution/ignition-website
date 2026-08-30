@@ -82,7 +82,7 @@ export default function InterviewsPage() {
       <CtaBand
         title="Holding an offer?"
         intro="Once you accept and meet your conditions, the visa journey begins."
-        primary={{ label: "Student visa", href: "/visa" }}
+        primary={{ label: "Student visa", href: "/apply/entry-requirements#visa-journey" }}
         secondary={{ label: "How to apply", href: "/apply" }}
       />
       <ReadyToApply

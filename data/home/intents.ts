@@ -49,7 +49,7 @@ export const intents: Intent[] = [
     id: "visa",
     title: "Student visa",
     description: "Understand the UK Student visa journey.",
-    href: "/visa",
+    href: "/apply/entry-requirements#visa-journey",
     icon: "plane",
   },
   {

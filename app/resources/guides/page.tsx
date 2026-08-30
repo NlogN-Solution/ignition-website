@@ -107,7 +107,7 @@ const groups = [
         title: "Student visa",
         blurb:
           "What the application asks for, the financial requirement in detail, and the documents that most often go wrong.",
-        href: "/visa",
+        href: "/apply/entry-requirements#visa-journey",
       },
       {
         icon: Home,

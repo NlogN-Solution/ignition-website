@@ -98,7 +98,7 @@ export default function LifeInUkPage() {
         title="Still earlier in the journey?"
         intro="Work out where you are, and we'll show you what to do next."
         primary={{ label: "Your UK journey", href: "/start" }}
-        secondary={{ label: "Student visa", href: "/visa" }}
+        secondary={{ label: "Student visa", href: "/apply/entry-requirements#visa-journey" }}
       />
       <Footer />
     </>

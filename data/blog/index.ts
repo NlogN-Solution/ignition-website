@@ -291,9 +291,9 @@ export const posts: BlogPost[] = [
       href: "https://www.gov.uk/student-visa",
     },
     related: [
-      { label: "Student visa guide", href: "/visa" },
+      { label: "Student visa guide", href: "/apply/entry-requirements#visa-journey" },
       { label: "Cost calculator", href: "/money/calculator" },
-      { label: "Apply through Ignition", href: "/apply/with-ignition" },
+      { label: "Apply through Ignition", href: "/apply#ignition-what" },
     ],
   },
   {
@@ -347,7 +347,7 @@ export const posts: BlogPost[] = [
     related: [
       { label: "Courses with a placement year", href: "/courses" },
       { label: "Explore universities", href: "/universities" },
-      { label: "Student visa guide", href: "/visa" },
+      { label: "Student visa guide", href: "/apply/entry-requirements#visa-journey" },
     ],
   },
 ];

@@ -18,8 +18,6 @@ const staticPaths = [
   "/apply",
   "/apply/entry-requirements",
   "/apply/interviews",
-  "/apply/with-ignition",
-  "/visa",
   "/money",
   "/life-in-uk",
   "/resources",

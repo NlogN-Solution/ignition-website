@@ -91,7 +91,7 @@ const shelves = [
     title: "Where the real numbers live",
     blurb:
       "Fees, visa thresholds and deadlines are set by universities, UKVI and UCAS. Ignition explains them and links to them; it never restates them as fact.",
-    href: "/visa",
+    href: "/apply/entry-requirements#visa-journey",
     meta: "Sources on every page",
   },
 ];
@@ -214,7 +214,7 @@ export default function ResourcesPage() {
       <CtaBand
         title="Rather have someone walk you through it?"
         intro="An Ignition adviser will talk through your options, your grades and your budget in one conversation."
-        primary={{ label: "Apply through Ignition", href: "/apply/with-ignition" }}
+        primary={{ label: "Apply through Ignition", href: "/apply#ignition-what" }}
         secondary={{ label: "Take Career Quiz", href: "/careers/quiz" }}
       />
       <Footer />

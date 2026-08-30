@@ -11,7 +11,7 @@ import { arrivalChecklist, firstWeekChecklist } from "./life-in-uk";
 export const checklistRegistry = [
   { id: "entry-requirements", label: "Check entry requirements", href: "/apply/entry-requirements", total: requirementsChecklist.length },
   { id: "apply", label: "Apply to your courses", href: "/apply", total: applicationChecklist.length },
-  { id: "visa-documents", label: "Gather visa documents", href: "/visa", total: visaDocuments.length },
+  { id: "visa-documents", label: "Gather visa documents", href: "/apply/entry-requirements#visa-journey", total: visaDocuments.length },
   { id: "arrival", label: "Prepare to travel", href: "/life-in-uk", total: arrivalChecklist.length },
   { id: "first-week", label: "Your first week", href: "/life-in-uk", total: firstWeekChecklist.length },
 ] as const;

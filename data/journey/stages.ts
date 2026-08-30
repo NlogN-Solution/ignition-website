@@ -94,7 +94,7 @@ export const journeyStages: JourneyStage[] = [
       { label: "Understand your offer", href: "/apply" },
       { label: "Firm and insurance choices", href: "/apply" },
       { label: "Meet your conditions", href: "/apply/entry-requirements" },
-      { label: "Start the Student visa journey", href: "/visa" },
+      { label: "Start the Student visa journey", href: "/apply/entry-requirements#visa-journey" },
       { label: "Plan your finances", href: "/money/calculator" },
       { label: "Apply for scholarships", href: "/money/scholarships" },
     ],
@@ -105,8 +105,8 @@ export const journeyStages: JourneyStage[] = [
     summary:
       "The last stretch — visa, accommodation, money and the first week on the ground.",
     steps: [
-      { label: "Complete your visa application", href: "/visa" },
-      { label: "Prepare your documents", href: "/visa" },
+      { label: "Complete your visa application", href: "/apply/entry-requirements#visa-journey" },
+      { label: "Prepare your documents", href: "/apply/entry-requirements#visa-journey" },
       { label: "Sort accommodation", href: "/life-in-uk" },
       { label: "Set up banking and a phone", href: "/life-in-uk" },
       { label: "Budget your first months", href: "/money/calculator" },

@@ -13,7 +13,7 @@ export const journeyPipeline: PipelineStage[] = [
   { label: "Check requirements", description: "Understand what you need to get in.", href: "/apply/entry-requirements" },
   { label: "Apply", description: "Get the application itself right.", href: "/apply" },
   { label: "Prepare for interviews", description: "Practise before it counts.", href: "/apply/interviews" },
-  { label: "Get your visa", description: "Follow the Student visa journey.", href: "/visa" },
+  { label: "Get your visa", description: "Follow the Student visa journey.", href: "/apply/entry-requirements#visa-journey" },
   { label: "Prepare to move", description: "Money, documents and packing.", href: "/money/calculator" },
   { label: "Start life in the UK", description: "Land, settle and find your feet.", href: "/life-in-uk" },
 ];

@@ -47,10 +47,8 @@ export const navItems: NavItem[] = [
     href: "/apply",
     items: [
       { label: "How to apply", href: "/apply" },
-      { label: "Entry requirements", href: "/apply/entry-requirements" },
+      { label: "Entry requirements & visa", href: "/apply/entry-requirements" },
       { label: "Interview preparation", href: "/apply/interviews" },
-      { label: "Apply through Ignition", href: "/apply/with-ignition" },
-      { label: "Student visa", href: "/visa" },
     ],
   },
   {
@@ -101,10 +99,8 @@ export const footerGroups = [
     label: "Apply",
     items: [
       { label: "How to apply", href: "/apply" },
-      { label: "Entry requirements", href: "/apply/entry-requirements" },
+      { label: "Entry requirements & visa", href: "/apply/entry-requirements" },
       { label: "Interview preparation", href: "/apply/interviews" },
-      { label: "Apply through Ignition", href: "/apply/with-ignition" },
-      { label: "Student visa", href: "/visa" },
     ],
   },
   {

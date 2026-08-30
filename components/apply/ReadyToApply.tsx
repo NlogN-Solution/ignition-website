@@ -87,7 +87,7 @@ export function ReadyToApply({
                   : "Start my application"}
               </StartApplicationButton>
               <Link
-                href="/apply/with-ignition"
+                href="/apply#ignition-what"
                 className="inline-flex h-[52px] items-center justify-center whitespace-nowrap rounded-[10px] border border-hairline bg-white/70 px-7 text-[16px] font-semibold text-navy transition-colors duration-200 hover:border-ring-idle hover:bg-white"
               >
                 How it works
