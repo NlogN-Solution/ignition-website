@@ -9,6 +9,13 @@
   --color-blue-link: #2450dc;
   --color-blue-bright: #1071f6;
 
+  /* The two accents the "five reasons" grid needs beyond navy/orange/blue.
+     Cards 03 and 05 are the only places on the site that use them, but they
+     are tokens rather than literals because the card tint, the numeral, the
+     icon and the link colour all have to stay in step. */
+  --color-emerald: #14a05c;
+  --color-violet: #6d28e0;
+
   --color-canvas: #fbfafe;
   --color-nav: #1f2150;
   --color-ink: #12162f;

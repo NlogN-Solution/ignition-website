@@ -13,6 +13,19 @@ export const portalUrl = trimSlash(
   process.env.NEXT_PUBLIC_PORTAL_URL ?? "https://ignition-studentdashboard.onrender.com",
 );
 
+/**
+ * The Ignition API, which serves the catalogue and every word of editorial
+ * copy on this site.
+ *
+ * `NEXT_PUBLIC_` because the value is baked into the build: reads happen at
+ * build and revalidation time from the server, but the variable has to be
+ * readable wherever a module that calls the API is imported. It carries no
+ * secret — everything under `/public` is unauthenticated by design.
+ */
+export const apiBaseUrl = trimSlash(
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8001/api/v1",
+);
+
 export const portalRoutes = {
   login: `${portalUrl}/login`,
   register: `${portalUrl}/registration`,

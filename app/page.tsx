@@ -92,6 +92,7 @@ export default function Home() {
         </Section>
 
         <Section
+          id="adviser"
           eyebrow="Talk to someone"
           title="Would you rather someone walked you through it?"
           intro="Leave your number and an Ignition adviser will call. Whatever you picked above comes with them, so they open the conversation already knowing where you are."

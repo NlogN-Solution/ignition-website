@@ -1,58 +1,41 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { CtaBand } from "@/components/layout/CtaBand";
-import { PageHero } from "@/components/layout/PageHero";
-import { Container } from "@/components/ui/Container";
-import { JourneySelector } from "@/components/journey/JourneySelector";
-import { ProgressSummary } from "@/components/journey/ProgressSummary";
+import { JourneyRoute } from "@/components/journey/JourneyRoute";
+import { JourneyCta } from "@/components/journey/JourneyCta";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
-  title: "Where are you in your UK journey?",
+  title: "Your journey to the UK",
   description:
-    "Tell us where you are — exploring, choosing universities, ready to apply or preparing to move — and Ignition will show you the next steps in order.",
+    "The whole route in three chapters — plan and prepare, apply and secure your CAS, then visa and departure. Open any step to see what it actually involves.",
   path: "/start",
 });
 
+/**
+ * The route, end to end.
+ *
+ * WHAT THIS REPLACED. `/start` used to ask "where are you today?" and hand
+ * back a list of links for the answer. That worked for a student who could
+ * already name their stage, and failed for everyone else — which is most
+ * people arriving here, because not knowing what the stages *are* is the
+ * reason they came. The selector still exists and still does its job on the
+ * homepage, where it sits among other ways in; here the page shows the map
+ * first and lets the reader place themselves on it.
+ *
+ * `JourneyRoute` carries the hero as well as the stepper and the panel. That
+ * is not an accident of the client boundary — the stepper overlaps the hero
+ * photograph and shares its selection with the panel below, so the three are
+ * one component. See its header.
+ */
 export default function StartPage() {
   return (
     <>
       <Navbar />
       <main>
-        <PageHero
-          eyebrow="Your journey"
-          title="Where are you today?"
-          intro="It takes about ten seconds. We'll guide the rest — the right steps, in the right order, with nothing you don't need yet."
-          crumbs={[
-            { label: "Home", href: "/" },
-            { label: "Your journey", href: "/start" },
-          ]}
-        />
-
-        <Container className="py-[clamp(2.5rem,4.5vw,4.5rem)]">
-          <JourneySelector />
-
-          <section className="mt-16">
-            <h2 className="text-[clamp(1.5rem,2.4vw,2.125rem)] font-bold leading-[1.12] tracking-[-0.02em] text-navy">
-              Your progress so far<span className="text-orange">.</span>
-            </h2>
-            <p className="mt-3 max-w-[58ch] text-[16px] font-medium leading-[1.55] text-muted">
-              Built from what you&rsquo;ve already done across the site. Saved
-              in this browser, and yours to pick up whenever you come back.
-            </p>
-            <div className="mt-7">
-              <ProgressSummary />
-            </div>
-          </section>
-        </Container>
+        <JourneyRoute />
       </main>
 
-      <CtaBand
-        title="Still deciding what to study?"
-        intro="Start from what interests you rather than from a course list."
-        primary={{ label: "Take Career Quiz", href: "/careers/quiz" }}
-        secondary={{ label: "Browse careers", href: "/careers" }}
-      />
+      <JourneyCta />
       <Footer />
     </>
   );

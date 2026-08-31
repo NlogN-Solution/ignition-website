@@ -80,7 +80,7 @@ export const footerGroups = [
   {
     label: "Start here",
     items: [
-      { label: "Everything you need to study in the UK", href: "/study-in-uk" },
+      { label: "Why study in the UK", href: "/study-in-uk" },
       { label: "Where are you in your journey?", href: "/start" },
       { label: "Take the career quiz", href: "/careers/quiz" },
       { label: "Check what you qualify for", href: "/resources/eligibility" },
