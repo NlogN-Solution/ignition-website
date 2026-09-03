@@ -8,7 +8,13 @@ import { SpecList } from "../ui/SpecList";
 import { Timeline } from "../ui/Timeline";
 import { Checklist } from "../ui/Checklist";
 import { Accordion } from "../ui/Accordion";
-import { AwardCards, EmployerGrid, RankingCards } from "./Reputation";
+import {
+  AwardCards,
+  EmployerGrid,
+  RankingCards,
+  RecognitionSections,
+} from "./Reputation";
+import { EntryRouteCards } from "./EntryRoutes";
 import { CampusGallery } from "./CampusGallery";
 import { NepalCostTable } from "./NepalCostTable";
 import { InterviewLibrary } from "./InterviewLibrary";
@@ -181,6 +187,26 @@ export function AboutPanel({ university }: { university: University }) {
       {university.awards?.length ? (
         <Prose title="Awards and recognition">
           <AwardCards awards={university.awards} />
+        </Prose>
+      ) : null}
+
+      {/* What the university says about itself, in its own sections.
+          Deliberately last of the three reputation blocks and deliberately
+          plainer than them: the placings above carry a source and a year and
+          have been checked against one, and this has not. It is institutional
+          copy, useful and worth reading, but it is not evidence, and the
+          ordering says so without a disclaimer having to. */}
+      {university.recognition?.length ? (
+        <Prose title={`What ${university.name} highlights`}>
+          <p>
+            Published by the university itself. Unlike the placings above,
+            these are the institution&rsquo;s own descriptions of its work
+            rather than an independent measurement &mdash; read them as what
+            the university chooses to tell you about itself.
+          </p>
+          <div className="pt-2">
+            <RecognitionSections sections={university.recognition} />
+          </div>
         </Prose>
       ) : null}
 
@@ -487,6 +513,9 @@ export function ApplicationPanel({ university }: { university: University }) {
         </div>
       </Prose>
 
+      {/* The summary. It stays, because a student skimming six universities
+          wants one line, not a matrix — but it now sits above the real thing
+          rather than standing in for it. */}
       {university.entry.typical || university.entry.english ? (
       <Prose title="What this university asks for">
         <Card className="p-5 sm:p-6">
@@ -510,6 +539,31 @@ export function ApplicationPanel({ university }: { university: University }) {
           </p>
         </Card>
       </Prose>
+      ) : null}
+
+      {/* The entry-criteria matrix from the intake workbook. Requirements are
+          set per route, not per institution — a foundation year and a
+          pre-Masters at the same university ask for different things — so this
+          is one card per route rather than one list per university. */}
+      {university.entryRoutes?.length ? (
+        <Prose title="Entry criteria by route">
+          <p>
+            What {university.name} asks for depends on which route you apply
+            through. These are the criteria Ignition holds for the September
+            2026 intake, written for applicants from Nepal, and they are
+            reproduced as the university stated them &mdash; including the
+            either/or conditions, which are the part applicants most often get
+            wrong.
+          </p>
+          <div className="pt-2">
+            <EntryRouteCards routes={university.entryRoutes} />
+          </div>
+          <p className="text-[13px] font-medium leading-[1.55] text-muted-light">
+            Criteria change between intakes and are set by the university, not
+            by Ignition. Confirm the current requirement on the official course
+            page, or ask your advisor, before you rely on any figure here.
+          </p>
+        </Prose>
       ) : null}
 
       <Prose title="What the decision can be">

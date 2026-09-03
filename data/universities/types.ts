@@ -33,9 +33,72 @@ export type Ranking = {
 export type Award = {
   title: string;
   organisation: string;
-  year: number;
+  /**
+   * Optional, unlike `Ranking.year`. A placing is a measurement taken in a
+   * particular cycle and is meaningless without one. An accreditation is a
+   * standing status — "BPS accredited", "Living Wage Employer" — and most
+   * bodies publish no year against it. Requiring one here would have forced a
+   * date to be invented or the accreditation to be dropped; the attribution
+   * that matters, `organisation`, is still mandatory.
+   */
+  year?: number;
   detail?: string;
   href?: string;
+};
+
+/** One bullet of a source document's own recognition copy. */
+export type RecognitionItem = {
+  label: string;
+  detail?: string;
+  /** Nested bullets, where the source nested them. */
+  sub?: string[];
+};
+
+/**
+ * A section of institutional recognition copy, kept in the shape the source
+ * published it.
+ *
+ * `Ranking` and `Award` are deliberately narrow: they exist to make a claim
+ * unpublishable without its attribution. Most of what a university writes
+ * about itself is neither — a sustainability programme, a partner list, a
+ * mentoring scheme — and squeezing it into a ranking card would dress prose up
+ * as a measurement. This carries the remainder without that distortion, under
+ * the heading the source gave it.
+ */
+export type RecognitionSection = {
+  heading: string;
+  items: RecognitionItem[];
+};
+
+/**
+ * One column of a university's entry-criteria matrix.
+ *
+ * The September intake workbook is a matrix per institution: criteria labels
+ * down the side, entry routes across the top. This is one of those columns,
+ * and it is kept as text because the source is text — "12th Grade GPA 2.7 or
+ * 70% or above", "LOWER TIER COURSES: £12,100, £2,420 extra for placement
+ * year". Parsing those into numbers would lose the conditions that make them
+ * usable, and the conditions are the part a student gets wrong.
+ *
+ * `entry.typical` and `entry.english` on the university remain the one-line
+ * summary for a student skimming. This is the full picture behind it.
+ */
+export type EntryRoute = {
+  key: string;
+  /** The workbook's own column header, verbatim &mdash; staff recognise their own wording. */
+  label?: string;
+  academic?: string;
+  english?: string;
+  englishWaiver?: string;
+  fees?: string;
+  scholarship?: string;
+  gapPolicy?: string;
+  casDeposit?: string;
+  enrolmentFee?: string;
+  deadlines?: string;
+  previousRefusal?: string;
+  /** Criteria labels outside the eleven known ones, kept rather than dropped. */
+  extras?: Record<string, string>;
 };
 
 /** One dated step in the institution's history. */
@@ -126,6 +189,13 @@ export type University = {
   milestones?: Milestone[];
   rankings?: Ranking[];
   awards?: Award[];
+  /** Verbatim sections from the institution's own published recognition copy. */
+  recognition?: RecognitionSection[];
+  /**
+   * The entry-criteria matrix from the intake workbook, one entry per route.
+   * Real data where it exists, unlike `entry` above.
+   */
+  entryRoutes?: EntryRoute[];
   employability?: Employability;
   interview?: InterviewProfile;
 };

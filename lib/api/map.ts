@@ -3,9 +3,11 @@ import { courseLevels, subjects } from "@/data/courses/types";
 import type {
   Award,
   Employability,
+  EntryRoute,
   InterviewProfile,
   Milestone,
   Ranking,
+  RecognitionSection,
   Region,
   University,
 } from "@/data/universities/types";
@@ -20,6 +22,7 @@ import type {
   FacetsDto,
   Offering,
   OfferingDto,
+  RouteDto,
   ScholarshipDto,
   UniversityDetailDto,
   UniversitySummaryDto,
@@ -71,6 +74,92 @@ function num(source: Record<string, unknown> | null | undefined, key: string): n
 function list(source: Record<string, unknown> | null | undefined, key: string): string[] {
   const value = source?.[key];
   return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : [];
+}
+
+/**
+ * `route_key` is an enum on the wire (`international_foundation_year`), and
+ * every route also carries the workbook's own column header in `label`. The
+ * header is what staff wrote and what a student will see on the university's
+ * site, so it wins where it exists; this is the readable fallback for the
+ * handful of rows that have none.
+ */
+const routeNames: Record<string, string> = {
+  undergraduate: "Undergraduate",
+  postgraduate: "Postgraduate",
+  pre_masters: "Pre-Masters",
+  extended_masters: "Extended Masters",
+  international_foundation_year: "International Foundation Year",
+  international_year_one: "International Year One",
+  top_up: "Top-up",
+  nursing: "Nursing",
+  mres: "MRes",
+  dba: "DBA",
+};
+
+/** Title Case a route key nothing above recognises, rather than printing the enum. */
+const routeFallback = (key: string) =>
+  key.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+
+export function routeLabel(route: EntryRoute): string {
+  return route.label ?? routeNames[route.key] ?? routeFallback(route.key);
+}
+
+/**
+ * The entry-criteria matrix.
+ *
+ * The API has served these on the university detail since the catalogue
+ * import; nothing read them, so the real requirements sat in the payload while
+ * the page showed a two-line summary. Mapping them here is what puts the
+ * workbook on the site.
+ *
+ * "N/A" is dropped rather than printed. It is the spreadsheet's way of writing
+ * an empty cell, and rendering "English waiver: N/A" states a policy the
+ * university never gave — the absent-means-hidden rule this file keeps applies
+ * to a placeholder as much as to a null.
+ */
+function toEntryRoutes(routes: RouteDto[] | null | undefined): EntryRoute[] | undefined {
+  if (!routes?.length) return undefined;
+
+  const clean = (value: string | null | undefined): string | undefined => {
+    const trimmed = value?.trim();
+    if (!trimmed || trimmed.toUpperCase() === "N/A") return undefined;
+    return trimmed;
+  };
+
+  const mapped = routes.map((route) => {
+    const entry: EntryRoute = { key: route.route_key };
+
+    set(entry, "label", clean(route.label));
+    set(entry, "academic", clean(route.academic_criteria));
+    set(entry, "english", clean(route.english_criteria));
+    set(entry, "englishWaiver", clean(route.english_waiver));
+    set(entry, "fees", clean(route.fee_structure));
+    set(entry, "scholarship", clean(route.scholarship_text));
+    set(entry, "gapPolicy", clean(route.gap_policy));
+    set(entry, "casDeposit", clean(route.cas_deposit));
+    set(entry, "enrolmentFee", clean(route.enrolment_fee));
+    set(entry, "deadlines", clean(route.deadlines));
+    set(entry, "previousRefusal", clean(route.previous_refusal));
+
+    // `extras` is the importer's long tail — "PATHWAY PROGRAMME", "LONDON
+    // CAMPUS" — kept so nothing in the file is lost. Values arrive as unknown
+    // and only the string ones can be rendered.
+    const extras = Object.entries(route.extras ?? {}).reduce<Record<string, string>>(
+      (accumulator, [label, value]) => {
+        const usable = typeof value === "string" ? clean(value) : undefined;
+        if (usable) accumulator[label] = usable;
+        return accumulator;
+      },
+      {},
+    );
+    if (Object.keys(extras).length) entry.extras = extras;
+
+    return entry;
+  });
+
+  // A route whose every cell was blank or "N/A" carries no information, and an
+  // accordion row that opens onto nothing is worse than one that is not there.
+  return mapped.filter((entry) => Object.keys(entry).length > 1);
 }
 
 // ── Universities ─────────────────────────────────────────────────────────────
@@ -139,7 +228,13 @@ export function toUniversity(dto: UniversitySummaryDto | UniversityDetailDto): U
   set(university, "milestones", (detail.milestones ?? undefined) as Milestone[] | undefined);
   set(university, "rankings", (detail.rankings ?? undefined) as Ranking[] | undefined);
   set(university, "awards", (detail.awards ?? undefined) as Award[] | undefined);
+  set(
+    university,
+    "recognition",
+    (detail.recognition ?? undefined) as RecognitionSection[] | undefined,
+  );
   set(university, "employability", (detail.employability ?? undefined) as Employability | undefined);
+  set(university, "entryRoutes", toEntryRoutes(detail.routes));
   set(university, "interview", (detail.interview_profile ?? undefined) as InterviewProfile | undefined);
 
   return university;
