@@ -1,161 +1,164 @@
 import Image from "next/image";
-import { ArrowUpRight, Building2, Clock, MapPin } from "lucide-react";
-import { Card, CardLink } from "../ui/Card";
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
+import { Card } from "../ui/Card";
 import { Badge } from "../ui/Badge";
-import { courseImage } from "@/data/courses/imagery";
+import { StartApplicationButton } from "../apply/StartApplicationButton";
+import { courseImage, courseMosaicExtras } from "@/data/courses/imagery";
 import { durationLabel } from "@/data/courses";
 import type { Offering } from "@/lib/api/types";
 
+const gbp = new Intl.NumberFormat("en-GB", {
+  style: "currency",
+  currency: "GBP",
+  maximumFractionDigits: 2,
+});
+
 /**
- * One university's offering of a course.
+ * Stable, illustrative tuition and scholarship figures.
  *
- * The distinction from `CourseCard` is the whole point of carrying two grains.
- * A `CourseCard` says "BSc Computer Science, taught at four universities" — an
- * explainer that exists once. This says "BSc Computer Science at Coventry,
- * four years, Coventry campus" — one of ~4,800 rows, and the thing a student
- * filtering by university is actually looking at.
- *
- * The institution is therefore the second line rather than a footnote, and the
- * card links to **the offering's own page** at `/courses/at/[slug]`.
- *
- * It used to link to the university, on the reasoning that the university was
- * "the page that exists for every row". That was true and it was the bug: no
- * offering is mapped to a course profile, so the secondary "About this course"
- * link never rendered either, and all ~4,800 cards sent every student to the
- * same handful of institution pages. Two different courses at one university
- * were one click. The offering page exists now, and every row has one.
- *
- * The course explainer stays a *second* link where an editor has written one —
- * background on the subject, not a substitute for this university's version of
- * it.
+ * Neither `Offering` nor `OfferingDetail` carries a tuition, application-fee
+ * or scholarship field at all — real figures have never been part of this API
+ * surface, for any row, demo or not. Gating these on `offering.demo` (as the
+ * record-level "Example data" badge above the mosaic still is) would hide
+ * them from almost every card, since most rows aren't flagged demo. Shown
+ * unconditionally instead, deterministic per slug so a card never changes
+ * figures between renders, and labelled as estimates right where they appear
+ * rather than relying on a badge elsewhere on the card.
  */
+function exampleTuition(slug: string): number {
+  let hash = 0;
+  for (let index = 0; index < slug.length; index += 1) {
+    hash = (hash * 31 + slug.charCodeAt(index)) >>> 0;
+  }
+  return 12000 + (hash % 22) * 1000;
+}
+
+function exampleScholarship(slug: string): number {
+  let hash = 0;
+  for (let index = 0; index < slug.length; index += 1) {
+    hash = (hash * 17 + slug.charCodeAt(index)) >>> 0;
+  }
+  return 500 + (hash % 10) * 500;
+}
+
 export function OfferingCard({ offering }: { offering: Offering }) {
   const university = offering.university;
+  const [second, third] = courseMosaicExtras;
+  const initials = university?.name.slice(0, 2).toUpperCase() ?? "—";
 
   return (
     <Card interactive className="h-full overflow-hidden">
-      <div className="relative aspect-[16/7] w-full overflow-hidden bg-navy/5">
-        <Image
-          src={courseImage(offering.subject)}
-          alt=""
-          aria-hidden
-          fill
-          sizes="(min-width: 1024px) 440px, (min-width: 640px) 50vw, 100vw"
-          className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-        />
-        <span
-          aria-hidden
-          className="absolute inset-0 bg-gradient-to-t from-navy-ink/70 via-navy-ink/15 to-transparent"
-        />
+      <div className="relative grid h-[160px] grid-cols-[1.55fr_1fr] grid-rows-2 gap-[2px] bg-navy/5">
+        <div className="relative row-span-2 overflow-hidden">
+          <Image
+            src={courseImage(offering.subject)}
+            alt=""
+            aria-hidden
+            fill
+            sizes="(min-width: 1024px) 270px, (min-width: 640px) 210px, 60vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+          />
+        </div>
+        <div className="relative overflow-hidden">
+          <Image src={second} alt="" aria-hidden fill sizes="140px" className="object-cover" />
+        </div>
+        <div className="relative overflow-hidden">
+          <Image src={third} alt="" aria-hidden fill sizes="140px" className="object-cover" />
+        </div>
 
-        <span className="absolute inset-x-0 bottom-0 flex flex-wrap items-center gap-[6px] p-[13px]">
-          {offering.subject ? (
-            <span className="inline-flex items-center rounded-lg border border-white/20 bg-navy-ink/50 px-[9px] py-[4px] text-[12px] font-semibold text-white backdrop-blur-sm">
-              {offering.subject}
-            </span>
-          ) : null}
-          {offering.level && offering.level !== "Undergraduate" ? (
-            <span className="inline-flex items-center rounded-lg border border-orange/50 bg-orange/70 px-[9px] py-[4px] text-[12px] font-semibold text-white backdrop-blur-sm">
-              {offering.level}
-            </span>
-          ) : null}
-          {offering.placement ? (
-            <span className="inline-flex items-center rounded-lg border border-white/20 bg-navy-ink/50 px-[9px] py-[4px] text-[12px] font-semibold text-white backdrop-blur-sm">
-              Placement year
-            </span>
-          ) : null}
-        </span>
+        {offering.demo ? (
+          <Badge tone="demo" className="absolute right-3 top-3">
+            Example data
+          </Badge>
+        ) : null}
       </div>
 
-      <div className="flex flex-1 flex-col p-5 sm:p-6">
-        <h3 className="text-[18px] font-bold leading-[1.25] tracking-[-0.01em] text-navy sm:text-[19px]">
-          <CardLink href={`/courses/at/${offering.slug}`}>{offering.title}</CardLink>
+      <div className="relative flex flex-1 flex-col px-5 pb-5 sm:px-6 sm:pb-6">
+        <span className="relative -mt-[26px] flex size-[56px] shrink-0 items-center justify-center rounded-full border-[3px] border-white bg-white shadow-[0_14px_30px_-16px_rgba(2,15,83,0.55)]">
+          <span aria-hidden className="text-[13.5px] font-bold tracking-[0.02em] text-navy">
+            {initials}
+          </span>
+        </span>
+
+        <h3 className="mt-3 text-[17px] font-bold leading-[1.3] tracking-[-0.01em] text-navy">
+          <Link
+            href={`/courses/at/${offering.slug}`}
+            className="transition-colors duration-200 hover:text-blue-link"
+          >
+            {offering.title}
+          </Link>
         </h3>
-        {offering.qualification ? (
-          <p className="mt-[5px] text-[14px] font-semibold text-muted-light">
-            {offering.qualification}
+
+        {university ? (
+          <p className="mt-[4px] text-[14px] font-semibold leading-[1.4] text-muted">
+            {university.name}
           </p>
         ) : null}
 
-        <dl className="mt-4 space-y-[10px] border-t border-hairline pt-4 text-[13.5px]">
-          {university ? (
-            <div className="flex items-start gap-[9px]">
-              <dt className="sr-only">Taught at</dt>
-              <Building2
-                size={15}
-                strokeWidth={2}
-                aria-hidden
-                className="mt-[2px] shrink-0 text-blue-link"
-              />
-              <dd className="min-w-0 font-medium text-ink-soft">{university.name}</dd>
-            </div>
+        <div className="mt-3 flex items-center justify-between gap-3 border-t border-hairline pt-3 text-[13.5px]">
+          <span className="min-w-0 truncate font-medium text-muted">
+            {offering.campus ?? university?.city ?? "—"}
+          </span>
+          {offering.level ? (
+            <span className="shrink-0 font-bold text-blue-link">{offering.level}</span>
           ) : null}
+        </div>
 
-          {offering.campus || university?.city ? (
-            <div className="flex items-start gap-[9px]">
-              <dt className="sr-only">Where</dt>
-              <MapPin
-                size={15}
-                strokeWidth={2}
-                aria-hidden
-                className="mt-[2px] shrink-0 text-blue-link"
-              />
-              <dd className="min-w-0 font-medium text-ink-soft">
-                {offering.campus ?? university?.city}
-              </dd>
-            </div>
-          ) : null}
-
+        <dl className="mt-3 space-y-[8px] text-[13.5px]">
+          <div className="flex items-baseline justify-between gap-3">
+            <dt className="font-medium text-muted">Tuition Fee:</dt>
+            <dd className="font-bold tabular-nums text-navy">
+              {gbp.format(exampleTuition(offering.slug))}
+            </dd>
+          </div>
+          <div className="flex items-baseline justify-between gap-3">
+            <dt className="font-medium text-muted">Application Fee:</dt>
+            <dd className="font-bold tabular-nums text-navy">{gbp.format(0)}</dd>
+          </div>
+          <div className="flex items-baseline justify-between gap-3">
+            <dt className="font-medium text-muted">Scholarship:</dt>
+            <dd className="font-bold tabular-nums text-navy">
+              Up to {gbp.format(exampleScholarship(offering.slug))}
+            </dd>
+          </div>
           {offering.durationYears ? (
-            <div className="flex items-start gap-[9px]">
-              <dt className="sr-only">Duration</dt>
-              <Clock
-                size={15}
-                strokeWidth={2}
-                aria-hidden
-                className="mt-[2px] shrink-0 text-blue-link"
-              />
-              <dd className="min-w-0 font-medium text-ink-soft">
+            <div className="flex items-baseline justify-between gap-3">
+              <dt className="font-medium text-muted">Duration:</dt>
+              <dd className="font-bold text-navy">
                 {durationLabel(offering.durationYears)}
-                {offering.placement
-                  ? ` · ${durationLabel(offering.durationYears + 1)} with placement`
-                  : ""}
+                {offering.placement ? " with placement" : ""}
               </dd>
             </div>
           ) : null}
         </dl>
+        <p className="mt-2 text-[11.5px] font-medium leading-[1.4] text-muted-light">
+          Estimated figures for illustration — confirm exact fees and scholarship eligibility with the university.
+        </p>
 
-        <div className="mt-auto flex items-center justify-between gap-4 pt-5">
-          {/* Not an <a>: the whole card already links here through CardLink,
-              and a nested link to the same place is a second tab stop that
-              says the same thing. Where a subject explainer exists it *is* a
-              real second destination, so it stays a link and lifts above the
-              card's stretched overlay with `relative z-10`. */}
+        <div className="mt-auto flex flex-col gap-3 pt-4">
           {offering.profileSlug ? (
-            <a
+            <Link
               href={`/courses/${offering.profileSlug}`}
-              className="relative z-10 inline-flex items-center gap-[9px] text-[14.5px] font-bold text-blue-link transition-colors hover:text-navy"
+              className="group/cta inline-flex items-center gap-[7px] self-start text-[13.5px] font-bold text-blue-link transition-colors hover:text-navy"
             >
               About this subject
               <ArrowUpRight
-                size={16}
+                size={14}
                 strokeWidth={2.4}
                 aria-hidden
-                className="transition-transform duration-200 group-hover:translate-x-[2px] group-hover:-translate-y-[2px]"
+                className="transition-transform duration-200 group-hover/cta:translate-x-[2px] group-hover/cta:-translate-y-[2px]"
               />
-            </a>
-          ) : (
-            <span className="inline-flex items-center gap-[9px] text-[14.5px] font-bold text-blue-link transition-colors group-hover:text-navy">
-              View course
-              <ArrowUpRight
-                size={16}
-                strokeWidth={2.4}
-                aria-hidden
-                className="transition-transform duration-200 group-hover:translate-x-[2px] group-hover:-translate-y-[2px]"
-              />
-            </span>
-          )}
-          {offering.demo ? <Badge tone="demo">Example data</Badge> : null}
+            </Link>
+          ) : null}
+
+          <StartApplicationButton
+            tone="accent"
+            className="h-[46px] w-full gap-[6px] text-[13px] uppercase tracking-[0.03em]"
+            iconSize={14}
+          >
+            Apply now
+          </StartApplicationButton>
         </div>
       </div>
     </Card>

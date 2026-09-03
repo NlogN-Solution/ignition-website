@@ -42,3 +42,9 @@ export function courseImage(subject?: Subject | string): string {
   if (!subject) return lecture;
   return bySubject[subject as Subject] ?? lecture;
 }
+
+/** The two supplementary shots beside the subject image in a course card's mosaic header. */
+export const courseMosaicExtras: readonly [string, string] = [
+  "/images/campus-life.webp",
+  "/images/classroom1.webp",
+];
