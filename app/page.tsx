@@ -5,11 +5,13 @@ import { JourneyClose } from "@/components/apply/JourneyClose";
 import { Hero } from "@/components/home/Hero";
 import { CourseSearch } from "@/components/home/CourseSearch";
 import { WhyUk } from "@/components/home/WhyUk";
+import { WhyIgnition } from "@/components/home/WhyIgnition";
 import { IntentCards } from "@/components/home/IntentCards";
 import { JourneySelector } from "@/components/journey/JourneySelector";
 import { LeadCapture } from "@/components/lead/LeadCapture";
 import { JourneyPipeline } from "@/components/journey/JourneyPipeline";
 import { Section } from "@/components/ui/Section";
+import { trustIntro } from "@/data/home/trust";
 import { getCourses, getUniversities } from "@/lib/api/catalogue";
 import { siteName, siteTagline, siteUrl } from "@/lib/seo";
 
@@ -85,6 +87,10 @@ export default async function Home() {
           surface
         >
           <WhyUk />
+        </Section>
+
+        <Section eyebrow={trustIntro.eyebrow} title={trustIntro.title} intro={trustIntro.intro}>
+          <WhyIgnition />
         </Section>
 
         <Section

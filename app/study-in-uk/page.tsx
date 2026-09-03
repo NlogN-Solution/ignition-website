@@ -4,7 +4,8 @@ import { WhyUkHero } from "@/components/study-in-uk/WhyUkHero";
 import { FiveReasons } from "@/components/study-in-uk/FiveReasons";
 import { WorkInUk } from "@/components/study-in-uk/WorkInUk";
 import { FutureCta } from "@/components/study-in-uk/FutureCta";
-import { pageMetadata } from "@/lib/seo";
+import { workFaqs } from "@/data/study-in-uk/work";
+import { faqSchema, JsonLd, pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
   title: "Why study in the UK",
@@ -38,6 +39,8 @@ export const metadata = pageMetadata({
 export default function StudyInUkPage() {
   return (
     <>
+      <JsonLd schema={faqSchema(workFaqs)} />
+
       <Navbar />
 
       <main>
