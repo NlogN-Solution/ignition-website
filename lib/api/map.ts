@@ -21,6 +21,8 @@ import type {
   Facets,
   FacetsDto,
   Offering,
+  OfferingDetail,
+  OfferingDetailDto,
   OfferingDto,
   RouteDto,
   ScholarshipDto,
@@ -117,49 +119,60 @@ export function routeLabel(route: EntryRoute): string {
  * university never gave — the absent-means-hidden rule this file keeps applies
  * to a placeholder as much as to a null.
  */
+const cleanCriterion = (value: string | null | undefined): string | undefined => {
+  const trimmed = value?.trim();
+  if (!trimmed || trimmed.toUpperCase() === "N/A") return undefined;
+  return trimmed;
+};
+
+/**
+ * One route. Shared by the university page, which lists all of them, and the
+ * course page, which shows the single one its offering was imported under — so
+ * the same criteria cannot render two different ways on two pages.
+ *
+ * Returns `undefined` for a route whose every cell was blank or "N/A": it
+ * carries no information, and a section that opens onto nothing is worse than
+ * one that is not there.
+ */
+export function toEntryRoute(route: RouteDto | null | undefined): EntryRoute | undefined {
+  if (!route) return undefined;
+  const clean = cleanCriterion;
+  const entry: EntryRoute = { key: route.route_key };
+
+  set(entry, "label", clean(route.label));
+  set(entry, "academic", clean(route.academic_criteria));
+  set(entry, "english", clean(route.english_criteria));
+  set(entry, "englishWaiver", clean(route.english_waiver));
+  set(entry, "fees", clean(route.fee_structure));
+  set(entry, "scholarship", clean(route.scholarship_text));
+  set(entry, "gapPolicy", clean(route.gap_policy));
+  set(entry, "casDeposit", clean(route.cas_deposit));
+  set(entry, "enrolmentFee", clean(route.enrolment_fee));
+  set(entry, "deadlines", clean(route.deadlines));
+  set(entry, "previousRefusal", clean(route.previous_refusal));
+
+  // `extras` is the importer's long tail — "PATHWAY PROGRAMME", "LONDON
+  // CAMPUS" — kept so nothing in the file is lost. Values arrive as unknown
+  // and only the string ones can be rendered.
+  const extras = Object.entries(route.extras ?? {}).reduce<Record<string, string>>(
+    (accumulator, [label, value]) => {
+      const usable = typeof value === "string" ? clean(value) : undefined;
+      if (usable) accumulator[label] = usable;
+      return accumulator;
+    },
+    {},
+  );
+  if (Object.keys(extras).length) entry.extras = extras;
+
+  return Object.keys(entry).length > 1 ? entry : undefined;
+}
+
 function toEntryRoutes(routes: RouteDto[] | null | undefined): EntryRoute[] | undefined {
   if (!routes?.length) return undefined;
-
-  const clean = (value: string | null | undefined): string | undefined => {
-    const trimmed = value?.trim();
-    if (!trimmed || trimmed.toUpperCase() === "N/A") return undefined;
-    return trimmed;
-  };
-
-  const mapped = routes.map((route) => {
-    const entry: EntryRoute = { key: route.route_key };
-
-    set(entry, "label", clean(route.label));
-    set(entry, "academic", clean(route.academic_criteria));
-    set(entry, "english", clean(route.english_criteria));
-    set(entry, "englishWaiver", clean(route.english_waiver));
-    set(entry, "fees", clean(route.fee_structure));
-    set(entry, "scholarship", clean(route.scholarship_text));
-    set(entry, "gapPolicy", clean(route.gap_policy));
-    set(entry, "casDeposit", clean(route.cas_deposit));
-    set(entry, "enrolmentFee", clean(route.enrolment_fee));
-    set(entry, "deadlines", clean(route.deadlines));
-    set(entry, "previousRefusal", clean(route.previous_refusal));
-
-    // `extras` is the importer's long tail — "PATHWAY PROGRAMME", "LONDON
-    // CAMPUS" — kept so nothing in the file is lost. Values arrive as unknown
-    // and only the string ones can be rendered.
-    const extras = Object.entries(route.extras ?? {}).reduce<Record<string, string>>(
-      (accumulator, [label, value]) => {
-        const usable = typeof value === "string" ? clean(value) : undefined;
-        if (usable) accumulator[label] = usable;
-        return accumulator;
-      },
-      {},
-    );
-    if (Object.keys(extras).length) entry.extras = extras;
-
-    return entry;
-  });
-
-  // A route whose every cell was blank or "N/A" carries no information, and an
-  // accordion row that opens onto nothing is worse than one that is not there.
-  return mapped.filter((entry) => Object.keys(entry).length > 1);
+  const mapped = routes
+    .map(toEntryRoute)
+    .filter((entry): entry is EntryRoute => entry !== undefined);
+  return mapped.length ? mapped : undefined;
 }
 
 // ── Universities ─────────────────────────────────────────────────────────────
@@ -298,6 +311,29 @@ export function toOffering(dto: OfferingDto): Offering {
   set(offering, "profileSlug", dto.course_profile_slug);
 
   return offering;
+}
+
+/**
+ * One offering on its own page.
+ *
+ * Built on `toOffering` rather than beside it: the card and the page must
+ * agree on the fields they share, and two independent mappers would eventually
+ * disagree about something small — a missing qualification, a different
+ * placement default — in a way nothing would catch.
+ */
+export function toOfferingDetail(dto: OfferingDetailDto): OfferingDetail {
+  const detail: OfferingDetail = {
+    ...toOffering(dto),
+    related: (dto.related ?? []).map(toOffering),
+  };
+
+  set(detail, "city", dto.university_city);
+  set(detail, "intake", dto.intake);
+  set(detail, "extraRequirements", cleanCriterion(dto.extra_requirements));
+  set(detail, "feeTier", dto.fee_tier);
+  set(detail, "entry", toEntryRoute(dto.route));
+
+  return detail;
 }
 
 export function toFacets(dto: FacetsDto): Facets {

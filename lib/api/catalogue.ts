@@ -6,12 +6,21 @@ import type { Scholarship } from "@/data/scholarships";
 import type { University } from "@/data/universities";
 import { REVALIDATE, TAG_CATALOGUE, get } from "./client";
 import type { GetOptions } from "./client";
-import { toCourse, toFacets, toOffering, toScholarship, toUniversity } from "./map";
+import {
+  toCourse,
+  toFacets,
+  toOffering,
+  toOfferingDetail,
+  toScholarship,
+  toUniversity,
+} from "./map";
 import type {
   CourseProfileDto,
   Facets,
   FacetsDto,
   Offering,
+  OfferingDetail,
+  OfferingDetailDto,
   OfferingDto,
   ScholarshipDto,
   UniversityDetailDto,
@@ -262,6 +271,26 @@ export async function getCourse(slug: string): Promise<Course | null> {
   ];
 
   return toCourse(dto, slugs);
+}
+
+/**
+ * One offering, by slug.
+ *
+ * No fixture fallback, unlike `getUniversity` and `getCourse`. Those two fall
+ * back because the `data/` modules contain records of the same kind — six
+ * fictional universities, thirty-one course explainers — that are the right
+ * answer while the API has none of its own. There has never been a fixture
+ * offering: the ~4,800 rows only ever came from the intake workbook. An API
+ * that cannot answer here means the course does not exist, and inventing one
+ * would put a student on a page describing a course nobody teaches.
+ */
+export async function getOffering(slug: string): Promise<OfferingDetail | null> {
+  const dto = await get<OfferingDetailDto>(`/public/courses/${encodeURIComponent(slug)}`, {
+    revalidate: REVALIDATE.universities,
+    tags: [TAG_CATALOGUE],
+  });
+
+  return dto ? toOfferingDetail(dto) : null;
 }
 
 // ── Scholarships ─────────────────────────────────────────────────────────────

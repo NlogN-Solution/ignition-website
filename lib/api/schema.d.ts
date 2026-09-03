@@ -1019,6 +1019,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/public/courses/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One published course offering
+         * @description One of the ~4,800 offerings, on its own URL.
+         *
+         *     **Declared after `/courses/facets` on purpose.** Starlette matches in
+         *     declaration order, so putting this first would make `{slug}` swallow
+         *     `facets` and break the explorer's filter counts with a 404 for a course
+         *     called "facets".
+         */
+        get: operations["public_course_api_v1_public_courses__slug__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/public/course-profiles": {
         parameters: {
             query?: never;
@@ -5579,6 +5604,53 @@ export interface components {
             preferred_location?: string | null;
             /** Preferred Universities */
             preferred_universities?: string[];
+        };
+        /**
+         * CourseDetailPublic
+         * @description One offering, on its own page.
+         *
+         *     Extends the search result rather than replacing it so the card and the page
+         *     cannot drift apart on the fields they share.
+         *
+         *     `route` is the offering's inherited entry criteria — the `university_routes`
+         *     row it was imported under. It is the same shape the university detail
+         *     serves, deliberately: a student comparing the course page against the
+         *     university's "Entry criteria by route" tab must see the same words, because
+         *     they are the same row.
+         */
+        CourseDetailPublic: {
+            /** Slug */
+            slug: string;
+            /** Title */
+            title: string;
+            /** Qualification */
+            qualification?: string | null;
+            /** Subject */
+            subject?: string | null;
+            /** Course Level */
+            course_level?: string | null;
+            /** Duration Years */
+            duration_years?: number | null;
+            /** Placement */
+            placement?: boolean | null;
+            /** Campus */
+            campus?: string | null;
+            /** Extra Requirements */
+            extra_requirements?: string | null;
+            /** Fee Tier */
+            fee_tier?: string | null;
+            /** Intake */
+            intake?: string | null;
+            university?: components["schemas"]["CourseUniversity"] | null;
+            /** Course Profile Slug */
+            course_profile_slug?: string | null;
+            /** Is Example */
+            is_example?: boolean | null;
+            /** University City */
+            university_city?: string | null;
+            route?: components["schemas"]["RoutePublic"] | null;
+            /** Related */
+            related?: components["schemas"]["CoursePublic"][] | null;
         };
         /** CourseFacets */
         CourseFacets: {
@@ -14056,6 +14128,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CourseFacets"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    public_course_api_v1_public_courses__slug__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourseDetailPublic"];
                 };
             };
             /** @description Validation Error */

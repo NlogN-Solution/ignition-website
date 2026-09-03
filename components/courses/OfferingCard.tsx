@@ -16,9 +16,18 @@ import type { Offering } from "@/lib/api/types";
  * filtering by university is actually looking at.
  *
  * The institution is therefore the second line rather than a footnote, and the
- * card links to the university, since that is the page that exists for every
- * row. The course explainer is offered as a second link only where an editor
- * has written one.
+ * card links to **the offering's own page** at `/courses/at/[slug]`.
+ *
+ * It used to link to the university, on the reasoning that the university was
+ * "the page that exists for every row". That was true and it was the bug: no
+ * offering is mapped to a course profile, so the secondary "About this course"
+ * link never rendered either, and all ~4,800 cards sent every student to the
+ * same handful of institution pages. Two different courses at one university
+ * were one click. The offering page exists now, and every row has one.
+ *
+ * The course explainer stays a *second* link where an editor has written one —
+ * background on the subject, not a substitute for this university's version of
+ * it.
  */
 export function OfferingCard({ offering }: { offering: Offering }) {
   const university = offering.university;
@@ -60,11 +69,7 @@ export function OfferingCard({ offering }: { offering: Offering }) {
 
       <div className="flex flex-1 flex-col p-5 sm:p-6">
         <h3 className="text-[18px] font-bold leading-[1.25] tracking-[-0.01em] text-navy sm:text-[19px]">
-          {university ? (
-            <CardLink href={`/universities/${university.slug}`}>{offering.title}</CardLink>
-          ) : (
-            offering.title
-          )}
+          <CardLink href={`/courses/at/${offering.slug}`}>{offering.title}</CardLink>
         </h3>
         {offering.qualification ? (
           <p className="mt-[5px] text-[14px] font-semibold text-muted-light">
@@ -121,12 +126,17 @@ export function OfferingCard({ offering }: { offering: Offering }) {
         </dl>
 
         <div className="mt-auto flex items-center justify-between gap-4 pt-5">
+          {/* Not an <a>: the whole card already links here through CardLink,
+              and a nested link to the same place is a second tab stop that
+              says the same thing. Where a subject explainer exists it *is* a
+              real second destination, so it stays a link and lifts above the
+              card's stretched overlay with `relative z-10`. */}
           {offering.profileSlug ? (
             <a
               href={`/courses/${offering.profileSlug}`}
               className="relative z-10 inline-flex items-center gap-[9px] text-[14.5px] font-bold text-blue-link transition-colors hover:text-navy"
             >
-              About this course
+              About this subject
               <ArrowUpRight
                 size={16}
                 strokeWidth={2.4}
@@ -136,7 +146,7 @@ export function OfferingCard({ offering }: { offering: Offering }) {
             </a>
           ) : (
             <span className="inline-flex items-center gap-[9px] text-[14.5px] font-bold text-blue-link transition-colors group-hover:text-navy">
-              View university
+              View course
               <ArrowUpRight
                 size={16}
                 strokeWidth={2.4}

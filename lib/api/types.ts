@@ -1,10 +1,12 @@
 import type { components } from "./schema";
+import type { EntryRoute } from "@/data/universities/types";
 
 /** The generated DTOs, named once so nothing else imports `components` directly. */
 export type UniversitySummaryDto = components["schemas"]["UniversitySummary"];
 export type UniversityDetailDto = components["schemas"]["UniversityDetail"];
 export type RouteDto = components["schemas"]["RoutePublic"];
 export type OfferingDto = components["schemas"]["CoursePublic"];
+export type OfferingDetailDto = components["schemas"]["CourseDetailPublic"];
 export type CourseProfileDto = components["schemas"]["CourseProfilePublic"];
 export type ScholarshipDto = components["schemas"]["ScholarshipPublic"];
 export type ContentDto = components["schemas"]["ContentPublic"];
@@ -37,6 +39,27 @@ export interface Offering {
   university: { slug: string; name: string; city?: string; region?: string } | null;
   /** True while the record's figures are still placeholders. */
   demo: boolean;
+}
+
+/**
+ * One offering on its own page.
+ *
+ * The extra fields over `Offering` are the whole reason the page is worth
+ * having. An offering row carries no tuition, no outcomes and no prose — but
+ * it points at the `university_routes` row it was imported under, and *that*
+ * carries the real entry criteria and fee structure for this exact course. So
+ * `entry` is not a property of the course; it is the course's inherited
+ * admission column, and it is the same row the university page shows.
+ */
+export interface OfferingDetail extends Offering {
+  city?: string;
+  intake?: string;
+  qualification?: string;
+  extraRequirements?: string;
+  feeTier?: string;
+  /** The criteria this course is admitted under. Absent for the ~222 unattributed offerings. */
+  entry?: EntryRoute;
+  related: Offering[];
 }
 
 /** One option in a facet rail, with the count it would leave. */
