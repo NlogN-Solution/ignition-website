@@ -22,10 +22,10 @@ export const metadata = pageMetadata({
  * homepage, where it sits among other ways in; here the page shows the map
  * first and lets the reader place themselves on it.
  *
- * `JourneyRoute` carries the hero as well as the stepper and the panel. That
- * is not an accident of the client boundary — the stepper overlaps the hero
- * photograph and shares its selection with the panel below, so the three are
- * one component. See its header.
+ * `JourneyRoute` is the hero band and then `JourneyExplorer`, which carries
+ * the stepper, the stage index and the open topic. The explorer is the only
+ * client component on the page; the hero is static markup and ships no
+ * JavaScript. See both headers.
  */
 export default function StartPage() {
   return (

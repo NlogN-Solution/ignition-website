@@ -17,7 +17,7 @@ import {
   type QualificationId,
   type Verdict,
 } from "@/lib/eligibility";
-import { coursesAt } from "@/data/universities";
+import type { University } from "@/data/universities";
 
 const gbp = new Intl.NumberFormat("en-GB", {
   style: "currency",
@@ -73,10 +73,20 @@ const verdictStyle: Record<
  * is nothing to submit — the whole calculation runs in the browser, and none
  * of these answers leave it.
  */
-export function EligibilityCalculator() {
+export function EligibilityCalculator({
+  universities,
+  courseCounts,
+}: {
+  universities: University[];
+  /** How many courses each institution lists, by slug. */
+  courseCounts: Record<string, number>;
+}) {
   const [answers, setAnswers] = useState<Answers>(defaultAnswers);
 
-  const { tariff, results } = useMemo(() => assessAll(answers), [answers]);
+  const { tariff, results } = useMemo(
+    () => assessAll(answers, universities),
+    [answers, universities],
+  );
 
   function set<K extends keyof Answers>(key: K, value: Answers[K]) {
     setAnswers((current) => ({ ...current, [key]: value }));
@@ -265,7 +275,7 @@ export function EligibilityCalculator() {
           {results.map((result) => {
             const style = verdictStyle[result.verdict];
             const Icon = style.icon;
-            const taught = coursesAt(result.university.id);
+            const taught = courseCounts[result.university.id] ?? 0;
 
             return (
               <li key={result.university.id}>
@@ -281,9 +291,12 @@ export function EligibilityCalculator() {
                         </Link>
                       </h3>
                       <p className="mt-[5px] text-[13.5px] font-semibold text-muted-light">
-                        {result.university.city} ·{" "}
-                        {gbp.format(result.university.tuition.min)}–
-                        {gbp.format(result.university.tuition.max)} a year
+                        {result.university.city}
+                        {result.university.tuition.min > 0
+                          ? ` · ${gbp.format(result.university.tuition.min)}–${gbp.format(
+                              result.university.tuition.max,
+                            )} a year`
+                          : ""}
                       </p>
                     </div>
 
@@ -333,10 +346,10 @@ export function EligibilityCalculator() {
                         className="transition-transform duration-200 group-hover:translate-x-[2px] group-hover:-translate-y-[2px]"
                       />
                     </Link>
-                    {taught.length ? (
+                    {taught ? (
                       <span className="text-[13.5px] font-medium text-muted-light">
-                        {taught.length} {taught.length === 1 ? "course" : "courses"} in
-                        the catalogue
+                        {taught} {taught === 1 ? "course" : "courses"} in the
+                        catalogue
                       </span>
                     ) : null}
                   </div>

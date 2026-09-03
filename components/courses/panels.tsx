@@ -8,7 +8,7 @@ import { SpecList } from "../ui/SpecList";
 import { ApplyPrompt } from "../apply/ApplyPrompt";
 import { getCareer } from "@/data/careers";
 import { durationLabel, type Course } from "@/data/courses";
-import { universitiesFor } from "@/data/universities";
+import type { University } from "@/data/universities";
 
 /**
  * The six panels behind the course tabs.
@@ -148,8 +148,14 @@ export function CourseModulesPanel({ course }: { course: Course }) {
 
 /* ------------------------------------------------------ Entry requirements */
 
-export function CourseEntryPanel({ course }: { course: Course }) {
-  const taughtAt = universitiesFor(course.id);
+export function CourseEntryPanel({
+  course,
+  taughtAt,
+}: {
+  course: Course;
+  /** The universities that teach it, resolved by the page. */
+  taughtAt: University[];
+}) {
 
   return (
     <Panel>
@@ -234,8 +240,14 @@ export function CourseEntryPanel({ course }: { course: Course }) {
 
 /* -------------------------------------------------------- Fees and funding */
 
-export function CourseFeesPanel({ course }: { course: Course }) {
-  const taughtAt = universitiesFor(course.id);
+export function CourseFeesPanel({
+  course,
+  taughtAt,
+}: {
+  course: Course;
+  /** The universities that teach it, resolved by the page. */
+  taughtAt: University[];
+}) {
 
   const withScholarships = taughtAt.filter(
     (university) => university.scholarships.length > 0,
@@ -446,8 +458,14 @@ export function CourseCareersPanel({ course }: { course: Course }) {
 
 /* ------------------------------------------------------------ Universities */
 
-export function CourseUniversitiesPanel({ course }: { course: Course }) {
-  const taughtAt = universitiesFor(course.id);
+export function CourseUniversitiesPanel({
+  course,
+  taughtAt,
+}: {
+  course: Course;
+  /** The universities that teach it, resolved by the page. */
+  taughtAt: University[];
+}) {
 
   return (
     <Panel>

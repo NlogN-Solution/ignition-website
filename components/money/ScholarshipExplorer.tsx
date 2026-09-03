@@ -17,18 +17,12 @@ import { EmptyResults, ResultCount } from "../ui/ResultCount";
 import { facetCounts } from "@/lib/search/facets";
 import {
   nationalityGroups,
-  scholarships,
   studyLevels,
   type NationalityGroup,
   type Scholarship,
   type StudyLevel,
 } from "@/data/scholarships";
-import { universities } from "@/data/universities";
-
-const deadlineOptions = ["31 May", "30 June", "15 July", "31 July"] as const;
-type Deadline = (typeof deadlineOptions)[number];
-
-const universityIds = universities.map((university) => university.id);
+import type { University } from "@/data/universities";
 
 const filterKeys = ["level", "nationality", "university", "deadline"] as const;
 type FilterKey = (typeof filterKeys)[number];
@@ -37,17 +31,49 @@ type FilterKey = (typeof filterKeys)[number];
  * The scholarship list, filtered client-side, in the shared explorer chrome:
  * facets in a rail on the left, results beside them, a count on every option
  * from a leave-one-out pool. See `CourseExplorer` for how the pools work.
+ *
+ * Both lists arrive as props from the server. Filtering stays in the browser
+ * for the same reason the university explorer's does: this is a list of tens,
+ * not thousands.
  */
-export function ScholarshipExplorer() {
+export function ScholarshipExplorer({
+  scholarships,
+  universities,
+}: {
+  scholarships: Scholarship[];
+  universities: University[];
+}) {
   const [query, setQuery] = useState("");
   const [level, setLevel] = useState<StudyLevel | null>(null);
   const [nationality, setNationality] = useState<NationalityGroup | null>(null);
   const [university, setUniversity] = useState<string | null>(null);
-  const [deadline, setDeadline] = useState<Deadline | null>(null);
+  const [deadline, setDeadline] = useState<string | null>(null);
 
   const universityNames = useMemo(
     () => Object.fromEntries(universities.map((u) => [u.id, u.name])),
-    [],
+    [universities],
+  );
+
+  /**
+   * The deadline facet is built from the awards themselves.
+   *
+   * It used to be four fixed dates, which was safe while every deadline came
+   * from the same fictional generator. Real deadlines are prose — "31 July",
+   * "Rolling", "Two weeks after offer" — so a hardcoded list would silently
+   * omit most of them. Only universities named on an award can appear in the
+   * university facet, for the same reason.
+   */
+  const deadlineOptions = useMemo(
+    () => [...new Set(scholarships.map((s) => s.deadline).filter((d): d is string => Boolean(d)))].sort(),
+    [scholarships],
+  );
+
+  const universityIds = useMemo(
+    () =>
+      universities
+        .map((u) => u.id)
+        .filter((id) => scholarships.some((s) => s.universityId === id)),
+    [universities, scholarships],
   );
 
   const pools = useMemo(() => {
@@ -80,7 +106,7 @@ export function ScholarshipExplorer() {
       university: subset("university"),
       deadline: subset("deadline"),
     };
-  }, [query, level, nationality, university, deadline]);
+  }, [scholarships, query, level, nationality, university, deadline]);
 
   const results = pools.results;
 
@@ -99,7 +125,7 @@ export function ScholarshipExplorer() {
       ),
       deadline: facetCounts(pools.deadline, deadlineOptions, (s, d) => s.deadline === d),
     }),
-    [pools],
+    [pools, deadlineOptions, universityIds],
   );
 
   /**
@@ -172,6 +198,7 @@ export function ScholarshipExplorer() {
             />
           </FilterGroup>
 
+          {universityIds.length > 1 ? (
           <FilterGroup
             label="University"
             activeLabel={university ? universityNames[university] : null}
@@ -185,15 +212,18 @@ export function ScholarshipExplorer() {
               format={(id) => universityNames[id] ?? id}
             />
           </FilterGroup>
+          ) : null}
 
-          <FilterGroup label="Deadline" activeLabel={deadline} defaultOpen={false}>
-            <OptionList
-              options={deadlineOptions}
-              value={deadline}
-              onChange={setDeadline}
-              counts={counts.deadline}
-            />
-          </FilterGroup>
+          {deadlineOptions.length > 1 ? (
+            <FilterGroup label="Deadline" activeLabel={deadline} defaultOpen={false}>
+              <OptionList
+                options={deadlineOptions}
+                value={deadline}
+                onChange={setDeadline}
+                counts={counts.deadline}
+              />
+            </FilterGroup>
+          ) : null}
         </FilterSidebar>
       }
     >

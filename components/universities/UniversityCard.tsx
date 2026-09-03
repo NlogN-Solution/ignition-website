@@ -5,6 +5,7 @@ import { Badge } from "../ui/Badge";
 import { UniversityLogo } from "./UniversityLogo";
 import { universityImagery } from "@/data/universities/imagery";
 import type { University } from "@/data/universities";
+import { isExampleRecord } from "@/lib/api/catalogue";
 
 const gbp = new Intl.NumberFormat("en-GB", {
   style: "currency",
@@ -84,24 +85,32 @@ export function UniversityCard({ university }: { university: University }) {
           </span>
         </p>
 
-        <p className="mt-[10px] line-clamp-2 text-[14.5px] font-medium leading-[1.5] text-muted">
-          {university.tagline}
-        </p>
+        {university.tagline ? (
+          <p className="mt-[10px] line-clamp-2 text-[14.5px] font-medium leading-[1.5] text-muted">
+            {university.tagline}
+          </p>
+        ) : null}
 
-        <dl className="mt-4 flex flex-wrap items-baseline gap-x-5 gap-y-1 border-t border-hairline pt-4 text-[13.5px]">
-          <div className="flex min-w-0 items-baseline gap-[7px]">
-            <dt className="shrink-0 font-medium text-muted">Tuition</dt>
-            <dd className="truncate font-semibold text-ink">
-              {gbp.format(university.tuition.min)}–{gbp.format(university.tuition.max)}
-            </dd>
-          </div>
-          <div className="flex min-w-0 items-baseline gap-[7px]">
-            <dt className="shrink-0 font-medium text-muted">Scholarships</dt>
-            <dd className="font-semibold text-ink">
-              {university.scholarships.length}
-            </dd>
-          </div>
-        </dl>
+        {/* Two figures, and only where there is a figure. A card reading
+            "Tuition £0–£0" is worse than a card that says nothing about fees. */}
+        {university.tuition.min > 0 || university.scholarships.length > 0 ? (
+          <dl className="mt-4 flex flex-wrap items-baseline gap-x-5 gap-y-1 border-t border-hairline pt-4 text-[13.5px]">
+            {university.tuition.min > 0 ? (
+              <div className="flex min-w-0 items-baseline gap-[7px]">
+                <dt className="shrink-0 font-medium text-muted">Tuition</dt>
+                <dd className="truncate font-semibold text-ink">
+                  {gbp.format(university.tuition.min)}–{gbp.format(university.tuition.max)}
+                </dd>
+              </div>
+            ) : null}
+            {university.scholarships.length > 0 ? (
+              <div className="flex min-w-0 items-baseline gap-[7px]">
+                <dt className="shrink-0 font-medium text-muted">Scholarships</dt>
+                <dd className="font-semibold text-ink">{university.scholarships.length}</dd>
+              </div>
+            ) : null}
+          </dl>
+        ) : null}
 
         <div className="mt-auto flex items-center justify-between gap-4 pt-5">
           <span className="inline-flex items-center gap-[9px] text-[14.5px] font-bold text-blue-link transition-colors group-hover:text-navy">
@@ -113,7 +122,7 @@ export function UniversityCard({ university }: { university: University }) {
               className="transition-transform duration-200 group-hover:translate-x-[2px] group-hover:-translate-y-[2px]"
             />
           </span>
-          <Badge tone="demo">Example data</Badge>
+          {isExampleRecord(university) ? <Badge tone="demo">Example data</Badge> : null}
         </div>
       </div>
     </Card>

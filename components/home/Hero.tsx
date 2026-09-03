@@ -53,11 +53,14 @@ export function Hero() {
           >
             Start Your Journey
           </ArrowButton>
+          {/* The career quiz already has a permanent home in the navbar, so
+              the hero's second slot goes to the thing a visitor who is further
+              along wants: a straight answer about whether they can apply. */}
           <GhostButton
-            href="/careers/quiz"
+            href="/resources/eligibility"
             className="h-[54px] w-full px-7 text-[17px] sm:h-[62px] sm:w-auto sm:text-[19px] lg:h-[calc(var(--hs)*0.654)] lg:px-[calc(var(--hs)*0.42)] lg:text-[length:calc(var(--hs)*0.192)]"
           >
-            Take Career Quiz
+            Check Your Eligibility
           </GhostButton>
         </motion.div>
       </motion.div>

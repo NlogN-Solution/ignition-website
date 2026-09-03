@@ -20,10 +20,13 @@ import {
   CourseOverviewPanel,
   CourseUniversitiesPanel,
 } from "@/components/courses/panels";
-import { courses, getCourse } from "@/data/courses";
+import { getCourse, getCourses, getUniversities } from "@/lib/api/catalogue";
 import { pageMetadata } from "@/lib/seo";
 
-export function generateStaticParams() {
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const courses = await getCourses();
   return courses.map((course) => ({ course: course.id }));
 }
 
@@ -32,7 +35,7 @@ export async function generateMetadata({
 }: {
   params: Promise<{ course: string }>;
 }) {
-  const course = getCourse((await params).course);
+  const course = await getCourse((await params).course);
   if (!course) return {};
 
   return pageMetadata({
@@ -62,8 +65,13 @@ export default async function CoursePage({
 }: {
   params: Promise<{ course: string }>;
 }) {
-  const course = getCourse((await params).course);
+  const course = await getCourse((await params).course);
   if (!course) notFound();
+
+  // The join is by slug over one cached list rather than a request per
+  // university: 44 records is a single call the whole site already makes.
+  const catalogue = await getUniversities();
+  const taughtAt = catalogue.filter((university) => course.universities.includes(university.id));
 
   const icon = { size: 15, strokeWidth: 2.2, "aria-hidden": true } as const;
 
@@ -87,14 +95,14 @@ export default async function CoursePage({
       label: "Entry requirements",
       hint: "What you need to get in",
       icon: <FileCheck2 {...icon} />,
-      panel: <CourseEntryPanel course={course} />,
+      panel: <CourseEntryPanel course={course} taughtAt={taughtAt} />,
     },
     {
       id: "fees",
       label: "Fees and funding",
       hint: "Tuition where it is taught, and what is available",
       icon: <PoundSterling {...icon} />,
-      panel: <CourseFeesPanel course={course} />,
+      panel: <CourseFeesPanel course={course} taughtAt={taughtAt} />,
     },
     {
       id: "careers",
@@ -108,7 +116,7 @@ export default async function CoursePage({
       label: "Universities",
       hint: "Where you can study it",
       icon: <Building2 {...icon} />,
-      panel: <CourseUniversitiesPanel course={course} />,
+      panel: <CourseUniversitiesPanel course={course} taughtAt={taughtAt} />,
     },
   ];
 

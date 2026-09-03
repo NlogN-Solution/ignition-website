@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { UniversityCard } from "./UniversityCard";
 import { SearchField } from "../ui/SearchField";
 import {
@@ -15,12 +14,7 @@ import {
 import { EmptyResults, ResultCount } from "../ui/ResultCount";
 import { facetCounts } from "@/lib/search/facets";
 import { subjects, type Subject } from "@/data/courses";
-import {
-  regions,
-  universities,
-  type Region,
-  type University,
-} from "@/data/universities";
+import { regions, type Region, type University } from "@/data/universities";
 
 const tuitionBands = ["Under £18,000", "£18,000–£25,000", "Over £25,000"] as const;
 type TuitionBand = (typeof tuitionBands)[number];
@@ -45,10 +39,13 @@ type FilterKey = (typeof filterKeys)[number];
  * every other explorer: facets in a rail on the left, results beside them,
  * option counts from a leave-one-out pool per facet. See `CourseExplorer` for
  * why the counts are built that way.
+ *
+ * The records arrive as a prop from the server rather than being imported:
+ * they come from the API now. Filtering stays here — 44 records is nothing,
+ * and a round trip per keystroke would only add latency, which is the
+ * opposite of the call made for `CourseExplorer` and its ~4,800 offerings.
  */
-export function UniversityExplorer() {
-  const params = useSearchParams();
-
+export function UniversityExplorer({ universities }: { universities: University[] }) {
   const [query, setQuery] = useState("");
   const [region, setRegion] = useState<Region | null>(null);
   const [subject, setSubject] = useState<Subject | null>(null);
@@ -57,17 +54,34 @@ export function UniversityExplorer() {
   const [scholarshipsOnly, setScholarshipsOnly] = useState(false);
 
   /**
-   * The URL seeds the search and is then let go of, exactly as CourseExplorer
-   * does. Added so the homepage search can send a student here with their
-   * words intact — before this, switching that search to "Universities" threw
-   * the query away and dropped them on an unfiltered list.
+   * The URL seeds the search and is then let go of. Added so the homepage
+   * search can send a student here with their words intact — before this,
+   * switching that search to "Universities" threw the query away and dropped
+   * them on an unfiltered list.
+   *
+   * Read from `location` in an effect rather than through `useSearchParams`,
+   * which would put this whole subtree — the 44 cards included — behind a
+   * Suspense boundary that only fills in on the client. The seed is a
+   * convenience; the list is the page, and the list belongs in the HTML.
    */
   useEffect(() => {
-    const incoming = params.get("q");
+    const incoming = new URLSearchParams(window.location.search).get("q");
     if (incoming) setQuery(incoming.slice(0, 80));
-    // Seeded once, from the URL that opened the page.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /**
+   * Hide the tuition rail when nothing has a fee on it.
+   *
+   * Fees are the one figure the spreadsheet states as prose rather than a
+   * number, so they reach a record only once someone confirms them in the
+   * admin. A band list where every option reads zero is not a filter, it is a
+   * dead end — and this is the same hide-when-absent rule the detail page's
+   * sections follow.
+   */
+  const hasTuition = useMemo(
+    () => universities.some((university) => university.tuition.min > 0),
+    [universities],
+  );
 
   const pools = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -102,7 +116,7 @@ export function UniversityExplorer() {
       placement: subset("placement"),
       scholarships: subset("scholarships"),
     };
-  }, [query, region, subject, tuition, placementOnly, scholarshipsOnly]);
+  }, [universities, query, region, subject, tuition, placementOnly, scholarshipsOnly]);
 
   const results = pools.results;
 
@@ -185,14 +199,16 @@ export function UniversityExplorer() {
             />
           </FilterGroup>
 
-          <FilterGroup label="Tuition, per year" activeLabel={tuition}>
-            <OptionList
-              options={tuitionBands}
-              value={tuition}
-              onChange={setTuition}
-              counts={counts.tuition}
-            />
-          </FilterGroup>
+          {hasTuition ? (
+            <FilterGroup label="Tuition, per year" activeLabel={tuition}>
+              <OptionList
+                options={tuitionBands}
+                value={tuition}
+                onChange={setTuition}
+                counts={counts.tuition}
+              />
+            </FilterGroup>
+          ) : null}
 
           <FilterGroup label="Also show only" activeLabel={extras || null}>
             <div className="-mx-2 space-y-px">
@@ -245,8 +261,8 @@ export function UniversityExplorer() {
       ) : (
         <div className="mt-4">
           <EmptyResults>
-            Nothing matched that combination. Try widening the tuition band or
-            clearing the location filter.
+            Nothing matched that combination. Try clearing the location filter
+            or choosing a different subject.
           </EmptyResults>
         </div>
       )}

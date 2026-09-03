@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
@@ -7,8 +8,12 @@ import { PageHero } from "@/components/layout/PageHero";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { formatPostDate, postsByDate } from "@/data/blog";
+import { formatPostDate } from "@/data/blog";
+import { getBlogPosts } from "@/lib/api/content";
 import { pageMetadata } from "@/lib/seo";
+
+/** Editorial copy an editor expects to see soon after publishing. */
+export const revalidate = 300;
 
 export const metadata = pageMetadata({
   title: "Blog",
@@ -22,8 +27,13 @@ export const metadata = pageMetadata({
  * A uniform grid would say every post is equally current, which is the one
  * thing an index of dated writing should never say.
  */
-export default function BlogIndexPage() {
-  const [lead, ...rest] = postsByDate;
+export default async function BlogIndexPage() {
+  const posts = await getBlogPosts();
+  // Newest first: an index of dated writing that is not ordered by date is
+  // saying every post is equally current.
+  const [lead, ...rest] = [...posts].sort((a, b) => b.published.localeCompare(a.published));
+
+  if (!lead) notFound();
 
   return (
     <>

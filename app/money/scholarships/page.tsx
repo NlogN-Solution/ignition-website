@@ -6,7 +6,10 @@ import { Container } from "@/components/ui/Container";
 import { Callout } from "@/components/ui/Callout";
 import { ScholarshipExplorer } from "@/components/money/ScholarshipExplorer";
 import { scholarshipPolicy } from "@/data/scholarships";
+import { getScholarships, getUniversities } from "@/lib/api/catalogue";
 import { pageMetadata } from "@/lib/seo";
+
+export const revalidate = 3600;
 
 export const metadata = pageMetadata({
   title: "Scholarships",
@@ -15,7 +18,9 @@ export const metadata = pageMetadata({
   path: "/money/scholarships",
 });
 
-export default function ScholarshipsPage() {
+export default async function ScholarshipsPage() {
+  const [scholarships, universities] = await Promise.all([getScholarships(), getUniversities()]);
+
   return (
     <>
       <Navbar />
@@ -37,7 +42,7 @@ export default function ScholarshipsPage() {
             <Callout compact tone="official">{scholarshipPolicy}</Callout>
           </div>
 
-          <ScholarshipExplorer />
+          <ScholarshipExplorer scholarships={scholarships} universities={universities} />
         </Container>
       </main>
 

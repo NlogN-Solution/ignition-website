@@ -70,7 +70,7 @@ export const whyUkPoints: WhyUkPoint[] = [
     // which is exactly the claim being made.
     // NOTE: the filename is misspelled on disk ("univeristy"). It is written
     // here as it actually is — correct the file and this string together.
-    image: "/images/london-univeristy.webp",
+    image: "/images/london-university.webp",
     href: "/universities",
     linkLabel: "Explore universities",
   },

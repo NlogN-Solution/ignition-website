@@ -18,6 +18,16 @@ export const storageKeys = {
    * endpoint the student submitted it to.
    */
   leadContact: "ignition:lead-contact:v1",
+  /**
+   * The eligibility assessment in progress.
+   *
+   * Kept because the assessment is three or four minutes of typing and a
+   * refresh part-way through is the single most likely way it is abandoned.
+   * Cleared the moment the server confirms the submission — a draft that
+   * outlived its own submission would greet a returning student with a form
+   * they have already sent.
+   */
+  eligibilityDraft: "ignition:eligibility-draft:v1",
 } as const;
 
 /**

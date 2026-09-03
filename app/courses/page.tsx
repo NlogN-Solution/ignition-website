@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CtaBand } from "@/components/layout/CtaBand";
@@ -6,7 +5,20 @@ import { PageHero } from "@/components/layout/PageHero";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { CourseExplorer } from "@/components/courses/CourseExplorer";
+import type { ExplorerParams } from "@/components/courses/CourseExplorer";
+import { getFacets, searchOfferings } from "@/lib/api/catalogue";
 import { pageMetadata } from "@/lib/seo";
+
+/** Search results move with every import. */
+export const revalidate = 300;
+
+const PAGE_SIZE = 24;
+
+/** Read one value out of the query string, ignoring repeats. */
+function one(value: string | string[] | undefined): string | undefined {
+  const first = Array.isArray(value) ? value[0] : value;
+  return first && first.length > 0 ? first : undefined;
+}
 
 export const metadata = pageMetadata({
   title: "Explore courses",
@@ -15,7 +27,32 @@ export const metadata = pageMetadata({
   path: "/courses",
 });
 
-export default function CoursesPage() {
+export default async function CoursesPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const raw = await searchParams;
+
+  const params: ExplorerParams = {
+    q: one(raw.q),
+    route: one(raw.route),
+    level: one(raw.level),
+    subject: one(raw.subject),
+    duration: one(raw.duration),
+    university: one(raw.university),
+    placement: one(raw.placement) === "true",
+    page: Math.max(1, Number(one(raw.page) ?? 1) || 1),
+  };
+
+  // Results and counts are one round trip each rather than one combined call:
+  // they cache under different keys, and a page change reuses the facets it
+  // already has instead of recomputing every count.
+  const [results, facets] = await Promise.all([
+    searchOfferings({ ...params, limit: PAGE_SIZE }),
+    getFacets(params),
+  ]);
+
   return (
     <>
       <Navbar />
@@ -29,16 +66,19 @@ export default function CoursesPage() {
             { label: "Courses", href: "/courses" },
           ]}
         >
-          <Badge tone="demo">Example data</Badge>
+          {results.items.some((offering) => offering.demo) ? (
+            <Badge tone="demo">Example data</Badge>
+          ) : null}
         </PageHero>
 
         <Container className="pb-[clamp(2.5rem,4.5vw,4.5rem)] pt-[clamp(1.125rem,1.8vw,1.625rem)]">
-          {/* The explorer seeds its filters from `?route=` and `?q=`, which
-              `useSearchParams` cannot read during static rendering — the
-              boundary is what lets the rest of this page stay static. */}
-          <Suspense fallback={<div className="min-h-[60svh]" />}>
-            <CourseExplorer />
-          </Suspense>
+          <CourseExplorer
+            offerings={results.items}
+            facets={facets}
+            total={results.total}
+            page={params.page ?? 1}
+            params={params}
+          />
         </Container>
       </main>
 

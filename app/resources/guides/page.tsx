@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react";
 import {
   ArrowUpRight,
   Banknote,
@@ -17,7 +18,10 @@ import { PageHero } from "@/components/layout/PageHero";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
 import { Callout } from "@/components/ui/Callout";
+import { getContentIndex } from "@/lib/api/content";
 import { pageMetadata } from "@/lib/seo";
+
+export const revalidate = 300;
 
 export const metadata = pageMetadata({
   title: "Guides",
@@ -33,10 +37,42 @@ export const metadata = pageMetadata({
  * The navigation groups these by journey stage, which is right for a student
  * who knows their stage. A student who wants to read the whole thing through,
  * or who half-remembers a page and cannot find it again, needs one list. This
- * is that list, and it is the only place all nine appear together.
+ * is that list, and it is the only place they appear together.
+ *
+ * The groups below are the nine guides still written in code. Once staff have
+ * written guides in the admin, this index is built from those instead — one
+ * source, not two lists a reader has to reconcile. `tag` is the group heading,
+ * which is why it is a plain string rather than an enum: an editor adding a
+ * group should not need a deploy.
  */
 
-const groups = [
+type Group = {
+  title: string;
+  blurb: string;
+  guides: { icon: LucideIcon; title: string; blurb: string; href: string }[];
+};
+
+/** Guides written in the admin, grouped by their tag. */
+function fromCms(pages: { title: string; slug?: string; excerpt?: string; tag?: string }[]): Group[] {
+  const byTag = new Map<string, Group>();
+
+  for (const page of pages) {
+    if (!page.slug) continue;
+    const title = page.tag ?? "Guides";
+    const group = byTag.get(title) ?? { title, blurb: "", guides: [] };
+    group.guides.push({
+      icon: BookOpen,
+      title: page.title,
+      blurb: page.excerpt ?? "",
+      href: `/${page.slug}`,
+    });
+    byTag.set(title, group);
+  }
+
+  return [...byTag.values()];
+}
+
+const codedGroups: Group[] = [
   {
     title: "Before you choose",
     blurb: "The case for the UK, and how a degree here is actually built.",
@@ -120,7 +156,11 @@ const groups = [
   },
 ];
 
-export default function GuidesPage() {
+export default async function GuidesPage() {
+  const published = await getContentIndex("guide");
+
+  const groups = published.length ? fromCms(published) : codedGroups;
+
   return (
     <>
       <Navbar />

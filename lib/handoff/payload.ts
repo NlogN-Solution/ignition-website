@@ -8,14 +8,25 @@
  * can. It never becomes an application on its own — only a counsellor opens
  * one (see `backend/app/routes/application.py`).
  *
- * Ids are the public catalogue's slugs (`example-metropolitan`,
- * `computer-science`), which are NOT the backend catalogue's UUIDs. Labels
- * travel alongside every id so the portal can render the handoff without
- * resolving anything, and so a stale slug degrades to readable text rather
- * than a blank row.
+ * **Ids are catalogue slugs, and since the catalogue import they are the
+ * *shared* catalogue's slugs** — `essex` here is `universities.slug` there.
+ * That is what `v2` records. A `v1` payload was minted when this site ran on
+ * six invented institutions, so its ids look identical in shape and mean
+ * nothing on the other side; the version is how the portal tells them apart
+ * and refuses to resolve the old ones.
+ *
+ * What still does not travel is a decision. A shortlist is "these are the ones
+ * I was looking at", and the portal presents it as exactly that. Only a
+ * counsellor opens an application (`backend/app/routes/application.py`) —
+ * resolving a slug to a row makes that conversation faster, it does not
+ * replace it.
  */
 
-export const HANDOFF_VERSION = 1;
+/**
+ * 2 — ids are the shared catalogue's slugs, and resolve.
+ * 1 — ids were the fictional catalogue's slugs. Still parsed, never resolved.
+ */
+export const HANDOFF_VERSION = 2;
 
 /** Fragment key on the portal URL. See `handoffHref` for why the fragment. */
 export const HANDOFF_PARAM = "ignition-research";
@@ -64,7 +75,17 @@ export type ResearchHandoff = {
    */
   courses: HandoffCourse[];
   universities: HandoffUniversity[];
-  /** Slugs of universities put side by side on /compare. */
+  /**
+   * Slugs of universities put side by side on /compare — the actionable part
+   * of the payload.
+   *
+   * Slugs alone, with no names beside them: the names live in the catalogue
+   * the backend already owns, and it resolves them
+   * (`GET /users/{id}/research`). Shipping a 44-record name index to every
+   * page so that a URL could carry a label the receiver can look up would be
+   * paying twice for one fact — and the URL is the one place where a label
+   * can go stale without anything noticing.
+   */
   compared: string[];
   /** Whatever the student modelled on /money/calculator, if anything. */
   budget?: { annualTuition?: number; monthlyLiving?: number; currency: "GBP" };

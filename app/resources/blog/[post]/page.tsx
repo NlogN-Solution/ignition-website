@@ -9,10 +9,14 @@ import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Callout } from "@/components/ui/Callout";
-import { formatPostDate, getPost, posts, postsByDate } from "@/data/blog";
+import { formatPostDate } from "@/data/blog";
+import { getBlogPost, getBlogPosts } from "@/lib/api/content";
 import { pageMetadata } from "@/lib/seo";
 
-export function generateStaticParams() {
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const posts = await getBlogPosts();
   return posts.map((post) => ({ post: post.id }));
 }
 
@@ -21,7 +25,7 @@ export async function generateMetadata({
 }: {
   params: Promise<{ post: string }>;
 }) {
-  const post = getPost((await params).post);
+  const post = await getBlogPost((await params).post);
   if (!post) return {};
 
   return pageMetadata({
@@ -43,10 +47,13 @@ export default async function BlogPostPage({
 }: {
   params: Promise<{ post: string }>;
 }) {
-  const post = getPost((await params).post);
+  const post = await getBlogPost((await params).post);
   if (!post) notFound();
 
-  const more = postsByDate.filter((other) => other.id !== post.id).slice(0, 3);
+  const more = (await getBlogPosts())
+    .filter((other) => other.id !== post.id)
+    .sort((a, b) => b.published.localeCompare(a.published))
+    .slice(0, 3);
 
   return (
     <>

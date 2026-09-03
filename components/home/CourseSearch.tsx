@@ -13,8 +13,7 @@ import {
 } from "lucide-react";
 import { useReveal } from "../ui/motion";
 import { Container } from "../ui/Container";
-import { courses, studyRoute, studyRoutes, type StudyRouteId } from "@/data/courses";
-import { universities } from "@/data/universities";
+import { studyRoute, studyRoutes, type CourseLevel, type StudyRouteId } from "@/data/courses";
 
 /**
  * One search line, not a section.
@@ -44,6 +43,30 @@ type Suggestion = {
   href: string;
   title: string;
   meta: string;
+};
+
+/**
+ * Just enough of each record to suggest it.
+ *
+ * The homepage is the heaviest page on the site to hydrate and this field sits
+ * in the hero, so it is handed the four or five fields it matches on rather
+ * than the full catalogue — a `University` carries several paragraphs of prose
+ * that this component would ship to the browser and never read.
+ */
+export type UniversitySuggestion = {
+  id: string;
+  name: string;
+  city: string;
+  region: string;
+};
+
+export type CourseSuggestion = {
+  id: string;
+  title: string;
+  qualification: string;
+  subject: string;
+  level: CourseLevel;
+  outcomes: string[];
 };
 
 const MAX_SUGGESTIONS = 6;
@@ -84,7 +107,13 @@ function Highlight({ text, needle }: { text: string; needle: string }) {
   );
 }
 
-export function CourseSearch() {
+export function CourseSearch({
+  universities,
+  courses,
+}: {
+  universities: UniversitySuggestion[];
+  courses: CourseSuggestion[];
+}) {
   const router = useRouter();
   const { container, item } = useReveal(0.09);
   const listId = useId();
@@ -128,7 +157,7 @@ export function CourseSearch() {
           course.title.toLowerCase().includes(needle) ||
           course.subject.toLowerCase().includes(needle) ||
           course.qualification.toLowerCase().includes(needle) ||
-          course.careerOutcomes.some((outcome) => outcome.toLowerCase().includes(needle))
+          course.outcomes.some((outcome) => outcome.toLowerCase().includes(needle))
         );
       })
       .slice(0, MAX_SUGGESTIONS)
@@ -138,7 +167,7 @@ export function CourseSearch() {
         title: `${course.title} ${course.qualification}`,
         meta: `${course.subject} · ${course.level}`,
       }));
-  }, [needle, target, route]);
+  }, [needle, target, route, universities, courses]);
 
   /* A stale highlight would send Return to the wrong row after the list under
      it changed, so it resets whenever the list is rebuilt. */

@@ -67,7 +67,7 @@ export const navItems: NavItem[] = [
     items: [
       { label: "Blog", href: "/resources/blog" },
       { label: "Guides", href: "/resources/guides" },
-      { label: "Eligibility calculator", href: "/resources/eligibility" },
+      { label: "Check your eligibility", href: "/resources/eligibility" },
       { label: "Cost calculator", href: "/money/calculator" },
       { label: "Scholarship finder", href: "/money/scholarships" },
       { label: "Interview practice", href: "/apply/interviews" },
@@ -117,7 +117,7 @@ export const footerGroups = [
     items: [
       { label: "Blog", href: "/resources/blog" },
       { label: "Guides", href: "/resources/guides" },
-      { label: "Eligibility calculator", href: "/resources/eligibility" },
+      { label: "Check your eligibility", href: "/resources/eligibility" },
       { label: "All resources", href: "/resources" },
     ],
   },

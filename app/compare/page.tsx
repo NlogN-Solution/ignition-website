@@ -5,8 +5,11 @@ import { PageHero } from "@/components/layout/PageHero";
 import { Container } from "@/components/ui/Container";
 import { Callout } from "@/components/ui/Callout";
 import { CompareBoard } from "@/components/universities/CompareBoard";
+import { getUniversitiesWithCounts, isExampleCatalogue } from "@/lib/api/catalogue";
 import { rankingPolicy } from "@/data/universities";
 import { pageMetadata } from "@/lib/seo";
+
+export const revalidate = 3600;
 
 export const metadata = pageMetadata({
   title: "Compare universities",
@@ -15,7 +18,10 @@ export const metadata = pageMetadata({
   path: "/compare",
 });
 
-export default function ComparePage() {
+export default async function ComparePage() {
+  const { universities, courseCounts } = await getUniversitiesWithCounts();
+  const isExample = isExampleCatalogue(universities);
+
   return (
     <>
       <Navbar />
@@ -35,13 +41,13 @@ export default function ComparePage() {
           <div className="mb-10 space-y-4">
             <Callout>{rankingPolicy}</Callout>
             <Callout tone="official">
-              Every figure below is example data from fictional universities,
-              shown to demonstrate the comparison. Confirm real fees, costs and
-              requirements with each university directly.
+              {isExample
+                ? "Every figure below is example data from fictional universities, shown to demonstrate the comparison. Confirm real fees, costs and requirements with each university directly."
+                : "Fees, costs and requirements change every intake. Confirm them with each university directly before you commit to an application."}
             </Callout>
           </div>
 
-          <CompareBoard />
+          <CompareBoard universities={universities} courseCounts={courseCounts} />
         </Container>
       </main>
 

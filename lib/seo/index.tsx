@@ -1,7 +1,23 @@
 import type { Metadata } from "next";
 
 export const siteName = "Ignition";
-export const siteUrl = "https://ignition.example";
+
+/**
+ * The canonical origin, used for every `canonical`, `og:url`, the sitemap and
+ * the JSON-LD.
+ *
+ * It has to be configured rather than hardcoded, because it is wrong in two
+ * different ways otherwise: a preview deployment that claims the production
+ * canonical asks Google to index the wrong host, and a production deployment
+ * still carrying `ignition.example` emits canonicals to a domain that does not
+ * resolve. The placeholder remains the default so local development and this
+ * repository's own build keep working — set `NEXT_PUBLIC_SITE_URL` before any
+ * deploy a search engine can reach.
+ */
+export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://ignition.example").replace(
+  /\/+$/,
+  "",
+);
 export const siteTagline = "Everything you need to study in the UK.";
 
 /**

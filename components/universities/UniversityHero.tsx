@@ -5,6 +5,7 @@ import { Breadcrumbs } from "../layout/Breadcrumbs";
 import { UniversityLogo } from "./UniversityLogo";
 import { universityImagery } from "@/data/universities/imagery";
 import type { University } from "@/data/universities";
+import { isExampleRecord } from "@/lib/api/catalogue";
 
 /**
  * The page header, on a photograph of the place.
@@ -99,9 +100,11 @@ export function UniversityHero({ university }: { university: University }) {
               {university.name}
             </h1>
 
-            <p className="mt-3 max-w-[62ch] text-[clamp(0.9375rem,1.1vw,1.0625rem)] font-medium leading-[1.55] text-white/85 [text-shadow:0_1px_12px_rgba(2,15,83,0.55)]">
-              {university.tagline}
-            </p>
+            {university.tagline ? (
+              <p className="mt-3 max-w-[62ch] text-[clamp(0.9375rem,1.1vw,1.0625rem)] font-medium leading-[1.55] text-white/85 [text-shadow:0_1px_12px_rgba(2,15,83,0.55)]">
+                {university.tagline}
+              </p>
+            ) : null}
           </div>
         </div>
 
@@ -109,10 +112,12 @@ export function UniversityHero({ university }: { university: University }) {
           {university.placementYear ? (
             <HeroChip>Placement year</HeroChip>
           ) : null}
-          <HeroChip>
-            {university.scholarships.length}{" "}
-            {university.scholarships.length === 1 ? "scholarship" : "scholarships"}
-          </HeroChip>
+          {university.scholarships.length ? (
+            <HeroChip>
+              {university.scholarships.length}{" "}
+              {university.scholarships.length === 1 ? "scholarship" : "scholarships"}
+            </HeroChip>
+          ) : null}
           {university.studentPopulation ? (
             <HeroChip>{university.studentPopulation} students</HeroChip>
           ) : null}
@@ -120,9 +125,11 @@ export function UniversityHero({ university }: { university: University }) {
               photograph, so the marker is restated in the same language as the
               chips beside it. It still has to be here: the figures behind
               every tab are placeholders. */}
-          <span className="inline-flex items-center rounded-lg border border-orange/50 bg-orange/25 px-[11px] py-[5px] text-[13px] font-semibold text-white backdrop-blur-sm">
-            Example data
-          </span>
+          {isExampleRecord(university) ? (
+            <span className="inline-flex items-center rounded-lg border border-orange/50 bg-orange/25 px-[11px] py-[5px] text-[13px] font-semibold text-white backdrop-blur-sm">
+              Example data
+            </span>
+          ) : null}
         </div>
       </Container>
     </header>

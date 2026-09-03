@@ -1,4 +1,4 @@
-import { universities, type University } from "@/data/universities";
+import type { University } from "@/data/universities";
 
 /**
  * An indicative check, not an offer.
@@ -178,10 +178,11 @@ function assess(university: University, answers: Answers, tariff: number): Asses
   return { university, verdict, notes, margin };
 }
 
-export function assessAll(answers: Answers) {
+/** `catalogue` is passed in because the records come from the API now. */
+export function assessAll(answers: Answers, catalogue: University[]) {
   const tariff = toTariff(answers);
 
-  const results = universities
+  const results = catalogue
     .map((university) => assess(university, answers, tariff))
     .sort(
       (a, b) =>

@@ -10,7 +10,10 @@ import { JourneySelector } from "@/components/journey/JourneySelector";
 import { LeadCapture } from "@/components/lead/LeadCapture";
 import { JourneyPipeline } from "@/components/journey/JourneyPipeline";
 import { Section } from "@/components/ui/Section";
+import { getCourses, getUniversities } from "@/lib/api/catalogue";
 import { siteName, siteTagline, siteUrl } from "@/lib/seo";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: { absolute: `${siteName} — ${siteTagline}` },
@@ -47,14 +50,33 @@ export const metadata: Metadata = {
  * does that job better, and offering the same destination twice on one screen
  * makes the second offer read as a different thing than it is.
  */
-export default function Home() {
+export default async function Home() {
+  const [catalogue, courses] = await Promise.all([getUniversities(), getCourses()]);
+
+  // Slimmed here rather than in the component: what crosses to the browser is
+  // what the search box matches on, not the records behind it.
+  const universitySuggestions = catalogue.map((university) => ({
+    id: university.id,
+    name: university.name,
+    city: university.city,
+    region: university.region,
+  }));
+  const courseSuggestions = courses.map((course) => ({
+    id: course.id,
+    title: course.title,
+    qualification: course.qualification,
+    subject: course.subject,
+    level: course.level,
+    outcomes: course.careerOutcomes,
+  }));
+
   return (
     <>
       <Navbar />
       <main>
         <Hero />
 
-        <CourseSearch />
+        <CourseSearch universities={universitySuggestions} courses={courseSuggestions} />
 
         <Section
           eyebrow="Why the UK"

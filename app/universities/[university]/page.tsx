@@ -20,10 +20,14 @@ import {
   FinancialsPanel,
   InterviewPanel,
 } from "@/components/universities/panels";
-import { getUniversity, universities } from "@/data/universities";
+import { getOfferingsAt, getUniversities, getUniversity } from "@/lib/api/catalogue";
 import { pageMetadata } from "@/lib/seo";
 
-export function generateStaticParams() {
+/** Institutional records change rarely, and by hand. */
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const universities = await getUniversities();
   return universities.map((university) => ({ university: university.id }));
 }
 
@@ -32,12 +36,26 @@ export async function generateMetadata({
 }: {
   params: Promise<{ university: string }>;
 }) {
-  const university = getUniversity((await params).university);
+  const university = await getUniversity((await params).university);
   if (!university) return {};
+
+  // The description names what this record actually has. The old one promised
+  // rankings and graduate outcomes on every university, which is a search
+  // result that does not deliver for the many that carry neither yet.
+  const sections = [
+    "courses",
+    "the application process",
+    ...(university.rankings?.length ? ["rankings"] : []),
+    ...(university.employability ? ["graduate outcomes"] : []),
+    "what it costs from Nepal",
+    "the documents you need",
+  ];
+
+  const lead = university.tagline || `${university.name} in ${university.city}.`;
 
   return pageMetadata({
     title: university.name,
-    description: `${university.tagline} Rankings, graduate outcomes, courses, the application process, what it costs from Nepal, the documents you need and how to prepare for interview.`,
+    description: `${lead} ${sections.join(", ")}.`,
     path: `/universities/${university.id}`,
   });
 }
@@ -73,8 +91,13 @@ export default async function UniversityPage({
 }: {
   params: Promise<{ university: string }>;
 }) {
-  const university = getUniversity((await params).university);
+  const slug = (await params).university;
+  const university = await getUniversity(slug);
   if (!university) notFound();
+
+  // What this university teaches is its own offerings — the real ~4,800-row
+  // grain — not the editorial course explainers.
+  const offerings = await getOfferingsAt(slug);
 
   const icon = { size: 15, strokeWidth: 2.2, "aria-hidden": true } as const;
 
@@ -91,7 +114,7 @@ export default async function UniversityPage({
       label: "Courses",
       hint: "Everything this university teaches",
       icon: <GraduationCap {...icon} />,
-      panel: <CoursesPanel university={university} />,
+      panel: <CoursesPanel university={university} offerings={offerings} />,
     },
     {
       id: "applying",

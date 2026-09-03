@@ -14,7 +14,9 @@ import { NepalCostTable } from "./NepalCostTable";
 import { InterviewLibrary } from "./InterviewLibrary";
 import { nepalCostNotice } from "@/data/universities/nepal";
 import { universityImagery } from "@/data/universities/imagery";
-import { coursesAt, type University } from "@/data/universities";
+import type { University } from "@/data/universities";
+import { isExampleRecord } from "@/lib/api/catalogue";
+import type { Offering } from "@/lib/api/types";
 import {
   applicationChecklist,
   applicationTimeline,
@@ -58,22 +60,29 @@ function Panel({ children }: { children: React.ReactNode }) {
 
 export function AboutPanel({ university }: { university: University }) {
   const { gallery } = universityImagery(university.id);
+  const isExample = isExampleRecord(university);
 
   return (
     <Panel>
       {/* The notice used to sit in the page header, above the fold on every
           university. It belongs with the facts it qualifies rather than in
           front of the photograph, and this is the first panel a student
-          opens, so it is still the first thing they read. */}
-      <Callout tone="official">
-        This is a fictional university created to demonstrate the interface.
-        Every figure on this page &mdash; fees, rankings, graduate outcomes and
-        processing costs &mdash; is a placeholder, and the photographs are
-        stock imagery.
-      </Callout>
+          opens, so it is still the first thing they read.
+
+          It is shown only for the example records. Printing "this is a
+          fictional university" above a real one would be a worse lie than the
+          one the notice exists to prevent. */}
+      {isExample ? (
+        <Callout tone="official">
+          This is a fictional university created to demonstrate the interface.
+          Every figure on this page &mdash; fees, rankings, graduate outcomes and
+          processing costs &mdash; is a placeholder, and the photographs are
+          stock imagery.
+        </Callout>
+      ) : null}
 
       <Prose title="Overview">
-        <p>{university.overview}</p>
+        {university.overview ? <p>{university.overview}</p> : null}
         <div className="pt-2">
           <Card className="p-5 sm:p-6">
             <SpecList
@@ -118,12 +127,20 @@ export function AboutPanel({ university }: { university: University }) {
         </div>
       </Prose>
 
-      <Prose title="Campus and student life">
-        <p>{university.studentExperience}</p>
-        <div className="pt-2">
-          <CampusGallery images={gallery} name={university.name} />
-        </div>
-      </Prose>
+      {/* The gallery is stock photography with captions that describe a
+          specific place — "the original quadrangle and its colonnades". That
+          is honest beneath a fictional institution and a fabrication beneath a
+          real one, so it renders only for the example records. */}
+      {university.studentExperience || isExample ? (
+        <Prose title="Campus and student life">
+          {university.studentExperience ? <p>{university.studentExperience}</p> : null}
+          {isExample ? (
+            <div className="pt-2">
+              <CampusGallery images={gallery} name={university.name} />
+            </div>
+          ) : null}
+        </Prose>
+      ) : null}
 
       {university.history?.length ? (
         <Prose title="History">
@@ -245,6 +262,9 @@ export function AboutPanel({ university }: { university: University }) {
         </Prose>
       ) : null}
 
+      {university.accommodation.note ||
+      university.accommodation.weeklyFrom > 0 ||
+      university.accommodation.guaranteed ? (
       <Prose title="Where you would live">
         <div>
           <Card className="p-5 sm:p-6">
@@ -262,13 +282,17 @@ export function AboutPanel({ university }: { university: University }) {
                 },
               ]}
             />
-            <p className="mt-5 border-t border-hairline pt-4 text-[14px] font-medium leading-[1.6] text-muted">
-              {university.accommodation.note}
-            </p>
+            {university.accommodation.note ? (
+              <p className="mt-5 border-t border-hairline pt-4 text-[14px] font-medium leading-[1.6] text-muted">
+                {university.accommodation.note}
+              </p>
+            ) : null}
           </Card>
         </div>
       </Prose>
+      ) : null}
 
+      {university.internationalSupport.length ? (
       <Prose title="Support for international students">
         <ul className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
           {university.internationalSupport.map((item) => (
@@ -287,7 +311,9 @@ export function AboutPanel({ university }: { university: University }) {
           ))}
         </ul>
       </Prose>
+      ) : null}
 
+      {university.facilities.length ? (
       <Prose title="Facilities">
         <ul className="flex flex-wrap gap-2">
           {university.facilities.map((facility) => (
@@ -299,6 +325,7 @@ export function AboutPanel({ university }: { university: University }) {
           ))}
         </ul>
       </Prose>
+      ) : null}
 
     </Panel>
   );
@@ -315,16 +342,22 @@ export function AboutPanel({ university }: { university: University }) {
  * grouped by subject because a student arrives knowing the subject and not the
  * course title.
  */
-export function CoursesPanel({ university }: { university: University }) {
-  const taught = coursesAt(university.id);
+export function CoursesPanel({
+  university,
+  offerings,
+}: {
+  university: University;
+  offerings: Offering[];
+}) {
+  const taught = offerings;
 
   if (taught.length === 0) {
     return (
       <Panel>
         <Prose title="Courses">
           <p>
-            No courses from the example catalogue are listed against{" "}
-            {university.name} yet. The full catalogue is on{" "}
+            No courses are listed against {university.name} yet. The full
+            catalogue is on{" "}
             <Link
               href="/courses"
               className="font-bold text-blue-link transition-colors hover:text-navy"
@@ -340,21 +373,25 @@ export function CoursesPanel({ university }: { university: University }) {
 
   // Subject order follows the catalogue rather than the alphabet, so the
   // grouping matches the order of the filters on /courses.
+  // An offering whose subject the classifier could not place is still a real
+  // course this university teaches, so it is grouped rather than dropped.
   const bySubject = new Map<string, typeof taught>();
   for (const course of taught) {
-    const group = bySubject.get(course.subject) ?? [];
+    const key = course.subject ?? "Other";
+    const group = bySubject.get(key) ?? [];
     group.push(course);
-    bySubject.set(course.subject, group);
+    bySubject.set(key, group);
   }
 
   return (
     <Panel>
       <Prose title={`What ${university.name} teaches`}>
         <p>
-          {taught.length} {taught.length === 1 ? "course" : "courses"} from the
-          example catalogue across {bySubject.size}{" "}
-          {bySubject.size === 1 ? "subject area" : "subject areas"}. Each one
-          opens onto its modules, entry requirements and where it leads.
+          {taught.length} {taught.length === 1 ? "course" : "courses"} across{" "}
+          {bySubject.size}{" "}
+          {bySubject.size === 1 ? "subject area" : "subject areas"}. Where a
+          course has a written guide, it opens onto the modules, entry
+          requirements and where it leads.
         </p>
       </Prose>
 
@@ -371,11 +408,14 @@ export function CoursesPanel({ university }: { university: University }) {
 
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {group.map((course) => (
-              <li key={course.id} className="min-w-0">
-                <Card href={`/courses/${course.id}`} className="h-full p-5">
+              <li key={course.slug} className="min-w-0">
+                <Card
+                  href={course.profileSlug ? `/courses/${course.profileSlug}` : undefined}
+                  className="h-full p-5"
+                >
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge tone="navy">{course.qualification}</Badge>
-                    {course.level !== "Undergraduate" ? (
+                    {course.qualification ? <Badge tone="navy">{course.qualification}</Badge> : null}
+                    {course.level && course.level !== "Undergraduate" ? (
                       <Badge tone="orange">{course.level}</Badge>
                     ) : null}
                     {course.placement ? (
@@ -386,22 +426,31 @@ export function CoursesPanel({ university }: { university: University }) {
                   <h3 className="mt-3 text-[16.5px] font-bold leading-[1.3] tracking-[-0.01em] text-navy">
                     {course.title}
                   </h3>
-                  <p className="mt-[6px] text-[14px] font-medium leading-[1.5] text-muted">
-                    {course.durationYears} years
-                    {course.placement
-                      ? ` · ${course.durationYears + 1} with placement`
-                      : ""}
-                  </p>
+                  {course.durationYears ? (
+                    <p className="mt-[6px] text-[14px] font-medium leading-[1.5] text-muted">
+                      {course.durationYears} years
+                      {course.placement
+                        ? ` · ${course.durationYears + 1} with placement`
+                        : ""}
+                    </p>
+                  ) : null}
+                  {course.campus ? (
+                    <p className="mt-[6px] text-[13px] font-medium leading-[1.5] text-muted-light">
+                      {course.campus}
+                    </p>
+                  ) : null}
 
-                  <span className="mt-auto inline-flex items-center gap-[8px] pt-5 text-[14px] font-bold text-blue-link transition-colors group-hover:text-navy">
-                    View course
-                    <ArrowUpRight
-                      size={15}
-                      strokeWidth={2.4}
-                      aria-hidden
-                      className="transition-transform duration-200 group-hover:translate-x-[2px] group-hover:-translate-y-[2px]"
-                    />
-                  </span>
+                  {course.profileSlug ? (
+                    <span className="mt-auto inline-flex items-center gap-[8px] pt-5 text-[14px] font-bold text-blue-link transition-colors group-hover:text-navy">
+                      View course
+                      <ArrowUpRight
+                        size={15}
+                        strokeWidth={2.4}
+                        aria-hidden
+                        className="transition-transform duration-200 group-hover:translate-x-[2px] group-hover:-translate-y-[2px]"
+                      />
+                    </span>
+                  ) : null}
                 </Card>
               </li>
             ))}
@@ -438,13 +487,14 @@ export function ApplicationPanel({ university }: { university: University }) {
         </div>
       </Prose>
 
+      {university.entry.typical || university.entry.english ? (
       <Prose title="What this university asks for">
         <Card className="p-5 sm:p-6">
           <div className="flex items-start justify-between gap-3">
             <h3 className="text-[16px] font-bold tracking-[-0.01em] text-navy">
               Entry requirements
             </h3>
-            <Badge tone="demo">Example data</Badge>
+            {isExampleRecord(university) ? <Badge tone="demo">Example data</Badge> : null}
           </div>
           <div className="mt-5">
             <SpecList
@@ -460,6 +510,7 @@ export function ApplicationPanel({ university }: { university: University }) {
           </p>
         </Card>
       </Prose>
+      ) : null}
 
       <Prose title="What the decision can be">
         <ul className="grid gap-3 sm:grid-cols-2">
@@ -500,34 +551,56 @@ export function FinancialsPanel({ university }: { university: University }) {
     <Panel>
       <Prose title="Tuition and living costs">
         <Callout>{moneyNotice}</Callout>
-        <div className="pt-2">
-          <Card className="p-5 sm:p-6">
-            <div className="flex items-start justify-between gap-3">
-              <h3 className="text-[16px] font-bold tracking-[-0.01em] text-navy">
-                At {university.name}
-              </h3>
-              <Badge tone="demo">Example data</Badge>
-            </div>
-            <div className="mt-5">
-              <SpecList
-                specs={[
-                  {
-                    label: "Tuition, per year",
-                    value: `${gbp.format(university.tuition.min)}–${gbp.format(university.tuition.max)}`,
-                  },
-                  {
-                    label: "Living costs, per month",
-                    value: gbp.format(university.livingCostMonthly),
-                  },
-                  {
-                    label: "Halls, per week",
-                    value: `${gbp.format(university.accommodation.weeklyFrom)}–${gbp.format(university.accommodation.weeklyTo)}`,
-                  },
-                ]}
-              />
-            </div>
-          </Card>
-        </div>
+        {/* Fees are the one figure the source spreadsheet states as prose
+            rather than as a number, so they reach a record only once someone
+            has confirmed them. A card of £0s would read as free tuition. */}
+        {university.tuition.min > 0 || university.livingCostMonthly > 0 ? (
+          <div className="pt-2">
+            <Card className="p-5 sm:p-6">
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="text-[16px] font-bold tracking-[-0.01em] text-navy">
+                  At {university.name}
+                </h3>
+                {isExampleRecord(university) ? <Badge tone="demo">Example data</Badge> : null}
+              </div>
+              <div className="mt-5">
+                <SpecList
+                  specs={[
+                    ...(university.tuition.min > 0
+                      ? [
+                          {
+                            label: "Tuition, per year",
+                            value: `${gbp.format(university.tuition.min)}–${gbp.format(university.tuition.max)}`,
+                          },
+                        ]
+                      : []),
+                    ...(university.livingCostMonthly > 0
+                      ? [
+                          {
+                            label: "Living costs, per month",
+                            value: gbp.format(university.livingCostMonthly),
+                          },
+                        ]
+                      : []),
+                    ...(university.accommodation.weeklyFrom > 0
+                      ? [
+                          {
+                            label: "Halls, per week",
+                            value: `${gbp.format(university.accommodation.weeklyFrom)}–${gbp.format(university.accommodation.weeklyTo)}`,
+                          },
+                        ]
+                      : []),
+                  ]}
+                />
+              </div>
+            </Card>
+          </div>
+        ) : (
+          <p>
+            Fees for {university.name} are not published here yet. Confirm them on the
+            university&rsquo;s own course pages.
+          </p>
+        )}
       </Prose>
 
       <Prose title="Where the monthly money goes">

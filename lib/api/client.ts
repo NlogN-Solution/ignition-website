@@ -15,6 +15,13 @@ import { apiBaseUrl } from "@/lib/config";
  * shipped with instead of turning it into an error page — which matters most
  * at build time, when a 500 from the API would otherwise fail the deploy.
  *
+ * One consequence of the timeout worth knowing: passing an `AbortSignal` opts
+ * a request out of Next's per-render memoization, so two components fetching
+ * the same URL in one render each make the call. They still share the
+ * persistent cache entry, and nothing here fetches the same URL twice in a
+ * render, but a bound timeout is worth more than deduplication that is not
+ * being relied on.
+ *
  * **Cache tags are attached here.** Tagging at the call site is what makes the
  * admin's publish webhook (`/api/revalidate`) able to expire exactly the pages
  * that read the thing that changed.
@@ -54,6 +61,13 @@ export async function get<T>(path: string, options: GetOptions): Promise<T | nul
   try {
     const response = await fetch(url, {
       signal: AbortSignal.timeout(TIMEOUT_MS),
+      // `force-cache` is stated rather than left to the default. Fetches
+      // reached *after* a request-time API — `await searchParams` on the
+      // course explorer, say — are not cached under the default policy, and a
+      // catalogue search that hit the API on every request is exactly what the
+      // revalidate window exists to prevent. `next.revalidate` then sets how
+      // long an entry stays fresh.
+      cache: "force-cache",
       next: { revalidate: options.revalidate, tags: options.tags },
       headers: { accept: "application/json" },
     });

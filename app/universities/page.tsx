@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CtaBand } from "@/components/layout/CtaBand";
@@ -6,7 +5,10 @@ import { PageHero } from "@/components/layout/PageHero";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { UniversityExplorer } from "@/components/universities/UniversityExplorer";
+import { getUniversities, isExampleCatalogue } from "@/lib/api/catalogue";
 import { pageMetadata } from "@/lib/seo";
+
+export const revalidate = 3600;
 
 export const metadata = pageMetadata({
   title: "Explore universities",
@@ -15,7 +17,10 @@ export const metadata = pageMetadata({
   path: "/universities",
 });
 
-export default function UniversitiesPage() {
+export default async function UniversitiesPage() {
+  const universities = await getUniversities();
+  const isExample = isExampleCatalogue(universities);
+
   return (
     <>
       <Navbar />
@@ -29,15 +34,11 @@ export default function UniversitiesPage() {
             { label: "Universities", href: "/universities" },
           ]}
         >
-          <Badge tone="demo">Example data</Badge>
+          {isExample ? <Badge tone="demo">Example data</Badge> : null}
         </PageHero>
 
         <Container className="pb-[clamp(2.5rem,4.5vw,4.5rem)] pt-[clamp(1.125rem,1.8vw,1.625rem)]">
-          {/* Suspense because the explorer now reads the URL for its seed
-              query — the same boundary /courses uses for CourseExplorer. */}
-          <Suspense fallback={<div className="min-h-[60svh]" />}>
-            <UniversityExplorer />
-          </Suspense>
+          <UniversityExplorer universities={universities} />
         </Container>
       </main>
 

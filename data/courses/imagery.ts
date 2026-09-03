@@ -33,6 +33,12 @@ const bySubject: Record<Subject, string> = {
   Humanities: lecture,
 };
 
-export function courseImage(subject: Subject): string {
-  return bySubject[subject] ?? lecture;
+/**
+ * `subject` is optional because a real offering may not have one: the importer
+ * classifies ~4,800 course titles by keyword and leaves the ones it cannot
+ * place for staff to file. An unclassified course still needs a picture.
+ */
+export function courseImage(subject?: Subject | string): string {
+  if (!subject) return lecture;
+  return bySubject[subject as Subject] ?? lecture;
 }

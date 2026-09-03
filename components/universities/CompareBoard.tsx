@@ -5,7 +5,6 @@ import { Check, Minus, Plus, X } from "lucide-react";
 import { Card } from "../ui/Card";
 import { Badge } from "../ui/Badge";
 import { ArrowButton } from "../ui/ArrowButton";
-import { coursesAt, universities } from "@/data/universities";
 import type { University } from "@/data/universities";
 import { storageKeys } from "@/lib/storage";
 import { useStoredList } from "@/lib/storage/store";
@@ -18,9 +17,18 @@ const gbp = new Intl.NumberFormat("en-GB", {
 
 const MAX = 4;
 
+/**
+ * `counts` is how many courses each institution lists, by slug.
+ *
+ * The board used to name every course, which worked over a catalogue of six
+ * fictional universities with five courses each. The real one has 265 at Essex
+ * alone, so the row states the number and links to the explorer filtered to
+ * that university — a comparison table is for the figures that differ, not for
+ * a scrolling list inside one cell.
+ */
 type Row = {
   label: string;
-  render: (university: University) => React.ReactNode;
+  render: (university: University, counts: Record<string, number>) => React.ReactNode;
 };
 
 const rows: Row[] = [
@@ -127,21 +135,16 @@ const rows: Row[] = [
   },
   {
     label: "Courses listed",
-    render: (u) => {
-      const list = coursesAt(u.id);
+    render: (u, counts) => {
+      const count = counts[u.id];
+      if (!count) return <span className="text-[14.5px] font-medium text-muted">—</span>;
       return (
-        <ul className="space-y-[5px]">
-          {list.map((course) => (
-            <li key={course.id}>
-              <Link
-                href={`/courses/${course.id}`}
-                className="text-[14.5px] font-medium text-blue-link transition-colors hover:text-navy"
-              >
-                {course.title}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <Link
+          href={`/courses?university=${encodeURIComponent(u.id)}`}
+          className="text-[14.5px] font-medium text-blue-link transition-colors hover:text-navy"
+        >
+          {count} {count === 1 ? "course" : "courses"}
+        </Link>
       );
     },
   },
@@ -153,7 +156,13 @@ const rows: Row[] = [
   },
 ];
 
-export function CompareBoard() {
+export function CompareBoard({
+  universities,
+  courseCounts,
+}: {
+  universities: University[];
+  courseCounts: Record<string, number>;
+}) {
   const { items, toggle, clear } = useStoredList(storageKeys.compareSelection);
   const selected = items
     .map((id) => universities.find((u) => u.id === id))
@@ -284,7 +293,7 @@ export function CompareBoard() {
                       {university.name}
                     </p>
                     <div className="text-[15px] font-semibold leading-[1.5] text-ink">
-                      {row.render(university)}
+                      {row.render(university, courseCounts)}
                     </div>
                   </div>
                 ))}
