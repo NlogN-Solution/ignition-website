@@ -209,7 +209,7 @@ export const routePhases: RoutePhase[] = [
         label: "Build Your Shortlist",
         summary: "Narrow a long list of maybes into the courses you will actually apply to.",
         icon: "book",
-        href: "/compare",
+        href: "/courses",
         cards: [
           {
             icon: "star",

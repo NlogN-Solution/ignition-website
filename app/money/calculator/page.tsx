@@ -51,7 +51,7 @@ export default function CalculatorPage() {
         title="Number higher than expected?"
         intro="Scholarships and a cheaper city can both close a meaningful part of the gap."
         primary={{ label: "Explore scholarships", href: "/money/scholarships" }}
-        secondary={{ label: "Compare universities", href: "/compare" }}
+        secondary={{ label: "Compare courses", href: "/courses" }}
       />
       <Footer />
     </>

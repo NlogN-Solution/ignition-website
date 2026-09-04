@@ -2,16 +2,12 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { Check } from "lucide-react";
 import { OfferingCard } from "./OfferingCard";
-import { SearchField } from "../ui/SearchField";
-import {
-  ActiveFilters,
-  ExplorerShell,
-  FilterGroup,
-  FilterSidebar,
-  OptionList,
-  SwitchRow,
-} from "../ui/filters";
+import { CourseCompareTray } from "./CourseCompareTray";
+import { CourseCompareModal } from "./CourseCompareModal";
+import { CourseNameField, SelectField, UniversityField } from "./CourseFilterBar";
+import { ActiveFilters } from "../ui/filters";
 import { EmptyResults, ResultCount } from "../ui/ResultCount";
 import { studyRoute, studyRoutes } from "@/data/courses";
 import type { Facets, FacetOption, Offering } from "@/lib/api/types";
@@ -65,6 +61,7 @@ export interface ExplorerParams {
 }
 
 const PAGE_SIZE = 24;
+const MAX_COMPARE = 4;
 
 function labelFor(options: FacetOption[], value: string | undefined): string | null {
   if (!value) return null;
@@ -73,10 +70,6 @@ function labelFor(options: FacetOption[], value: string | undefined): string | n
 
 function counts(options: FacetOption[]): Record<string, number> {
   return Object.fromEntries(options.map((option) => [option.value, option.count]));
-}
-
-function values(options: FacetOption[]): string[] {
-  return options.map((option) => option.value);
 }
 
 export function CourseExplorer({
@@ -101,6 +94,31 @@ export function CourseExplorer({
   // every letter.
   const [query, setQuery] = useState(params.q ?? "");
   useEffect(() => setQuery(params.q ?? ""), [params.q]);
+
+  // Selection for the compare popup. Kept as component state rather than the
+  // shared storage layer — this is "look at these two side by side right
+  // now" while browsing, not a saved research signal, and it should not
+  // survive a page reload the way the career quiz or the cost calculator do.
+  // The map accumulates across pages and filter changes so a course picked
+  // on page 1 is still describable in the popup after paging to page 2.
+  const [selected, setSelected] = useState<string[]>([]);
+  const [compareOpen, setCompareOpen] = useState(false);
+  const [knownOfferings, setKnownOfferings] = useState<Record<string, Offering>>({});
+  useEffect(() => {
+    setKnownOfferings((previous) => {
+      const next = { ...previous };
+      for (const offering of offerings) next[offering.slug] = offering;
+      return next;
+    });
+  }, [offerings]);
+
+  function toggleCompare(slug: string) {
+    setSelected((previous) => {
+      if (previous.includes(slug)) return previous.filter((entry) => entry !== slug);
+      if (previous.length >= MAX_COMPARE) return previous;
+      return [...previous, slug];
+    });
+  }
 
   function commit(changes: Partial<Record<FilterKey | "q" | "page", string | null>>) {
     const next = new URLSearchParams();
@@ -189,93 +207,93 @@ export function CourseExplorer({
 
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
+  const routeOptions: FacetOption[] = studyRoutes.map((entry) => ({
+    value: entry.id,
+    label: entry.label,
+    count: facets ? (counts(facets.route)[entry.id] ?? 0) : 0,
+  }));
+
   return (
-    <ExplorerShell
-      sidebar={
-        <FilterSidebar
-          activeCount={activeCount}
-          onClear={clearAll}
-          resultSummary={`Show ${total} ${total === 1 ? "course" : "courses"}`}
-        >
-          <FilterGroup label="Study level" activeLabel={route?.label ?? null}>
-            <OptionList
-              options={studyRoutes.map((entry) => entry.id)}
-              value={route?.id ?? null}
-              onChange={(next) => commit({ route: next })}
-              format={(id) => studyRoutes.find((entry) => entry.id === id)?.label ?? id}
-              counts={facets ? counts(facets.route) : undefined}
-            />
-          </FilterGroup>
+    <div>
+      <div className="rounded-2xl border border-hairline bg-white p-4 shadow-[0_18px_40px_-28px_rgba(1,22,111,0.24)] sm:p-5">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          <SelectField
+            label="Study level"
+            options={routeOptions}
+            value={route?.id ?? null}
+            onChange={(next) => commit({ route: next })}
+          />
 
           {showLevels ? (
-            <FilterGroup label="Course type" activeLabel={labelFor(levelOptions, params.level)}>
-              <OptionList
-                options={values(levelOptions)}
-                value={params.level ?? null}
-                onChange={(next) => commit({ level: next })}
-                counts={counts(levelOptions)}
-              />
-            </FilterGroup>
+            <SelectField
+              label="Course type"
+              options={levelOptions}
+              value={params.level ?? null}
+              onChange={(next) => commit({ level: next })}
+            />
           ) : null}
 
-          <FilterGroup
+          <SelectField
             label="Subject"
-            activeLabel={labelFor(facets?.subject ?? [], params.subject)}
-          >
-            <OptionList
-              options={values(facets?.subject ?? [])}
-              value={params.subject ?? null}
-              onChange={(next) => commit({ subject: next })}
-              counts={counts(facets?.subject ?? [])}
-            />
-          </FilterGroup>
+            options={facets?.subject ?? []}
+            value={params.subject ?? null}
+            onChange={(next) => commit({ subject: next })}
+          />
 
-          <FilterGroup
+          <SelectField
             label="Duration"
-            activeLabel={labelFor(facets?.duration ?? [], params.duration)}
-          >
-            <OptionList
-              options={values(facets?.duration ?? [])}
-              value={params.duration ?? null}
-              onChange={(next) => commit({ duration: next })}
-              counts={counts(facets?.duration ?? [])}
-            />
-          </FilterGroup>
+            options={facets?.duration ?? []}
+            value={params.duration ?? null}
+            onChange={(next) => commit({ duration: next })}
+          />
 
-          <FilterGroup
-            label="University"
-            activeLabel={labelFor(facets?.university ?? [], params.university)}
-          >
-            <OptionList
-              options={values(facets?.university ?? [])}
-              value={params.university ?? null}
-              onChange={(next) => commit({ university: next })}
-              format={(slug) =>
-                facets?.university.find((entry) => entry.value === slug)?.label ?? slug
-              }
-              counts={counts(facets?.university ?? [])}
-            />
-          </FilterGroup>
+          <UniversityField
+            options={facets?.university ?? []}
+            value={params.university ?? null}
+            onChange={(next) => commit({ university: next })}
+          />
 
-          <FilterGroup label="Also show only" activeLabel={params.placement ? "Placement year" : null}>
-            <div className="-mx-2 space-y-px">
-              <SwitchRow
-                label="Placement year available"
-                active={Boolean(params.placement)}
-                onChange={(next) => commit({ placement: next ? "true" : null })}
-                count={facets?.placement}
-              />
-            </div>
-          </FilterGroup>
-        </FilterSidebar>
-      }
-    >
-      <SearchField
-        label="Search courses"
-        value={query}
-        onChange={setQuery}
-        placeholder="Search course titles"
-      />
+          <CourseNameField value={query} onChange={setQuery} />
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+          <button
+            type="button"
+            aria-pressed={Boolean(params.placement)}
+            onClick={() => commit({ placement: params.placement ? null : "true" })}
+            className={`inline-flex items-center gap-[8px] rounded-full border px-[14px] py-[8px] text-[13.5px] font-semibold transition-colors duration-150 ${
+              params.placement
+                ? "border-navy bg-navy/[0.06] text-navy"
+                : "border-hairline text-muted hover:border-ring-idle hover:text-navy"
+            }`}
+          >
+            <span
+              aria-hidden
+              className={`flex size-[15px] items-center justify-center rounded-[4px] border ${
+                params.placement ? "border-navy bg-navy text-white" : "border-ring-idle"
+              }`}
+            >
+              {params.placement ? <Check size={9} strokeWidth={3.6} /> : null}
+            </span>
+            Placement year available
+            {facets?.placement !== undefined ? (
+              <span className="text-[12px] font-semibold tabular-nums text-muted-light">
+                {facets.placement}
+              </span>
+            ) : null}
+          </button>
+
+          {activeCount > 0 || query ? (
+            <button
+              type="button"
+              onClick={clearAll}
+              className="text-[13.5px] font-semibold text-blue-link transition-colors hover:text-navy"
+            >
+              Clear all
+            </button>
+          ) : null}
+        </div>
+      </div>
 
       {route ? (
         <p className="mt-4 text-[14.5px] font-medium leading-[1.55] text-muted">{route.summary}</p>
@@ -298,11 +316,16 @@ export function CourseExplorer({
       {offerings.length ? (
         <>
           <ul
-            className={`mt-4 grid gap-4 sm:grid-cols-2 ${pending ? "opacity-60 transition-opacity" : ""}`}
+            className={`mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 ${pending ? "opacity-60 transition-opacity" : ""}`}
           >
             {offerings.map((offering) => (
               <li key={offering.slug} className="min-w-0">
-                <OfferingCard offering={offering} />
+                <OfferingCard
+                  offering={offering}
+                  selectable
+                  selected={selected.includes(offering.slug)}
+                  onToggleSelect={() => toggleCompare(offering.slug)}
+                />
               </li>
             ))}
           </ul>
@@ -319,7 +342,28 @@ export function CourseExplorer({
           </EmptyResults>
         </div>
       )}
-    </ExplorerShell>
+
+      <CourseCompareTray
+        count={selected.length}
+        max={MAX_COMPARE}
+        onClear={() => setSelected([])}
+        onCompare={() => setCompareOpen(true)}
+      />
+
+      {compareOpen ? (
+        <CourseCompareModal
+          offerings={selected.map((slug) => knownOfferings[slug]).filter((entry): entry is Offering => Boolean(entry))}
+          onClose={() => setCompareOpen(false)}
+          onRemove={(slug) => {
+            setSelected((previous) => {
+              const next = previous.filter((entry) => entry !== slug);
+              if (next.length < 2) setCompareOpen(false);
+              return next;
+            });
+          }}
+        />
+      ) : null}
+    </div>
   );
 }
 

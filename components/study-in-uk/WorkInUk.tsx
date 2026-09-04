@@ -30,34 +30,34 @@ export function WorkInUk({ id }: { id?: string }) {
   return (
     <section
       id={id}
-      className="scroll-mt-[calc(var(--nav-h)_+_2rem)] bg-white px-5 py-[clamp(3rem,5vw,4.5rem)] sm:px-8 lg:px-12"
+      className="scroll-mt-[calc(var(--nav-h)_+_2rem)] bg-white px-5 py-[clamp(2.25rem,3.6vw,3.25rem)] sm:px-8 lg:px-12"
     >
       <div className="mx-auto w-full max-w-[1240px]">
-        <div className="grid items-center gap-[clamp(1.75rem,2.5vw,1.75rem)] lg:grid-cols-[1.45fr_1fr]">
+        <div className="grid items-center gap-[clamp(1.5rem,2.2vw,1.75rem)] lg:grid-cols-[1.45fr_1fr]">
           <div>
-            <p className="text-[15px] font-bold uppercase tracking-[0.09em] text-blue-link">
+            <p className="text-[13.5px] font-bold uppercase tracking-[0.09em] text-blue-link">
               {workIntro.eyebrow}
             </p>
-            <h2 className="mt-[18px] max-w-[17ch] text-[clamp(2rem,4.2vw,3.25rem)] font-extrabold leading-[1.1] tracking-[-0.03em] text-navy">
+            <h2 className="mt-[12px] max-w-[17ch] text-[clamp(1.75rem,3.2vw,2.5rem)] font-extrabold leading-[1.15] tracking-[-0.025em] text-navy">
               Can international students work in the UK
               <span className="text-orange">?</span>
             </h2>
-            <p className="mt-[22px] text-[clamp(1.0625rem,1.68vw,1.46875rem)] font-medium leading-[1.42] text-[#2b3160]">
+            <p className="mt-[14px] text-[clamp(1rem,1.3vw,1.125rem)] font-medium leading-[1.5] text-[#2b3160]">
               {workIntro.body}
             </p>
           </div>
 
-          <div className="overflow-hidden rounded-[18px] shadow-[0_24px_54px_-34px_rgba(1,22,111,0.5)]">
+          <div className="overflow-hidden rounded-[16px] shadow-[0_24px_54px_-34px_rgba(1,22,111,0.5)]">
             <Image
               src={student}
               alt={workIntro.imageAlt}
               sizes="(max-width: 1024px) 100vw, 42vw"
-              className="aspect-[625/366] w-full object-cover"
+              className="aspect-[625/300] w-full object-cover"
             />
           </div>
         </div>
 
-        <ul className="mt-[clamp(1.75rem,3vw,2.5rem)] grid grid-cols-1 gap-[22px] sm:grid-cols-2">
+        <ul className="mt-[clamp(1.5rem,2.2vw,2rem)] grid grid-cols-1 gap-[16px] sm:grid-cols-2">
           {workCards.map((card) => (
             <li key={card.id} className="min-w-0">
               <StatPhotoCard
@@ -69,7 +69,7 @@ export function WorkInUk({ id }: { id?: string }) {
                 title={card.title}
                 body={card.body}
                 source={card.source}
-                imageAspect="aspect-square sm:aspect-[4/3]"
+                imageAspect="aspect-[21/9]"
                 rounded="rounded-2xl"
                 imageSizes="(min-width: 640px) 50vw, 100vw"
               />
@@ -77,23 +77,23 @@ export function WorkInUk({ id }: { id?: string }) {
           ))}
         </ul>
 
-        <div className="mt-[22px] flex flex-wrap items-center gap-x-[22px] gap-y-[14px] rounded-[18px] bg-navy px-[24px] py-[22px] text-white shadow-[0_20px_44px_-26px_rgba(1,22,111,0.75)] sm:px-[26px]">
+        <div className="mt-[16px] flex flex-wrap items-center gap-x-[18px] gap-y-[10px] rounded-[16px] bg-navy px-[20px] py-[16px] text-white shadow-[0_20px_44px_-26px_rgba(1,22,111,0.75)] sm:px-[22px]">
           <span
             aria-hidden
-            className="flex size-[52px] shrink-0 items-center justify-center rounded-[15px] border border-white/20 bg-white/10 text-white"
+            className="flex size-[42px] shrink-0 items-center justify-center rounded-[13px] border border-white/20 bg-white/10 text-white"
           >
-            <Lightbulb size={26} strokeWidth={1.9} />
+            <Lightbulb size={20} strokeWidth={1.9} />
           </span>
-          <p className="text-[clamp(1.0625rem,1.72vw,1.5rem)] font-extrabold leading-[1.3] tracking-[-0.015em]">
+          <p className="text-[clamp(0.9375rem,1.3vw,1.125rem)] font-extrabold leading-[1.3] tracking-[-0.01em]">
             {workBanner.headline}
           </p>
-          <span aria-hidden className="hidden h-[26px] w-px bg-white/25 sm:block" />
-          <p className="text-[clamp(1.0625rem,1.72vw,1.5rem)] font-medium leading-[1.3] text-white/75">
+          <span aria-hidden className="hidden h-[22px] w-px bg-white/25 sm:block" />
+          <p className="text-[clamp(0.9375rem,1.3vw,1.125rem)] font-medium leading-[1.3] text-white/75">
             {workBanner.body}
           </p>
         </div>
 
-        <p className="mt-[16px] text-[clamp(0.8125rem,0.95vw,0.9375rem)] font-medium leading-[1.5] text-[#3f456e]">
+        <p className="mt-[12px] text-[12.5px] font-medium leading-[1.5] text-[#3f456e]">
           {workFootnote}
         </p>
       </div>

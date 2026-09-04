@@ -143,7 +143,6 @@ export const posts: BlogPost[] = [
     related: [
       { label: "Take the career quiz", href: "/careers/quiz" },
       { label: "Explore courses", href: "/courses" },
-      { label: "Compare universities", href: "/compare" },
     ],
   },
   {

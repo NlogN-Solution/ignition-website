@@ -18,6 +18,7 @@ import { EntryRouteCards } from "./EntryRoutes";
 import { CampusGallery } from "./CampusGallery";
 import { NepalCostTable } from "./NepalCostTable";
 import { InterviewLibrary } from "./InterviewLibrary";
+import { OfferingCard } from "../courses/OfferingCard";
 import { nepalCostNotice } from "@/data/universities/nepal";
 import { universityImagery } from "@/data/universities/imagery";
 import type { University } from "@/data/universities";
@@ -432,52 +433,10 @@ export function CoursesPanel({
             </span>
           </div>
 
-          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+          <ul className="mt-4 grid gap-4 sm:grid-cols-2">
             {group.map((course) => (
               <li key={course.slug} className="min-w-0">
-                <Card
-                  href={course.profileSlug ? `/courses/${course.profileSlug}` : undefined}
-                  className="h-full p-5"
-                >
-                  <div className="flex flex-wrap items-center gap-2">
-                    {course.qualification ? <Badge tone="navy">{course.qualification}</Badge> : null}
-                    {course.level && course.level !== "Undergraduate" ? (
-                      <Badge tone="orange">{course.level}</Badge>
-                    ) : null}
-                    {course.placement ? (
-                      <Badge tone="muted">Placement year</Badge>
-                    ) : null}
-                  </div>
-
-                  <h3 className="mt-3 text-[16.5px] font-bold leading-[1.3] tracking-[-0.01em] text-navy">
-                    {course.title}
-                  </h3>
-                  {course.durationYears ? (
-                    <p className="mt-[6px] text-[14px] font-medium leading-[1.5] text-muted">
-                      {course.durationYears} years
-                      {course.placement
-                        ? ` · ${course.durationYears + 1} with placement`
-                        : ""}
-                    </p>
-                  ) : null}
-                  {course.campus ? (
-                    <p className="mt-[6px] text-[13px] font-medium leading-[1.5] text-muted-light">
-                      {course.campus}
-                    </p>
-                  ) : null}
-
-                  {course.profileSlug ? (
-                    <span className="mt-auto inline-flex items-center gap-[8px] pt-5 text-[14px] font-bold text-blue-link transition-colors group-hover:text-navy">
-                      View course
-                      <ArrowUpRight
-                        size={15}
-                        strokeWidth={2.4}
-                        aria-hidden
-                        className="transition-transform duration-200 group-hover:translate-x-[2px] group-hover:-translate-y-[2px]"
-                      />
-                    </span>
-                  ) : null}
-                </Card>
+                <OfferingCard offering={course} />
               </li>
             ))}
           </ul>

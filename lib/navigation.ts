@@ -39,7 +39,7 @@ export const navItems: NavItem[] = [
     items: [
       { label: "Explore courses", href: "/courses" },
       { label: "Explore universities", href: "/universities" },
-      { label: "Compare universities", href: "/compare" },
+      { label: "Compare courses", href: "/courses" },
     ],
   },
   {
@@ -92,7 +92,6 @@ export const footerGroups = [
       { label: "Explore careers", href: "/careers" },
       { label: "Explore courses", href: "/courses" },
       { label: "Explore universities", href: "/universities" },
-      { label: "Compare universities", href: "/compare" },
     ],
   },
   {

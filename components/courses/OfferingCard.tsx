@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Check } from "lucide-react";
 import { Card } from "../ui/Card";
 import { Badge } from "../ui/Badge";
 import { StartApplicationButton } from "../apply/StartApplicationButton";
 import { courseImage, courseMosaicExtras } from "@/data/courses/imagery";
 import { durationLabel } from "@/data/courses";
+import { exampleScholarship, exampleTuition } from "@/lib/courses/estimatedFees";
 import type { Offering } from "@/lib/api/types";
 
 const gbp = new Intl.NumberFormat("en-GB", {
@@ -14,41 +15,27 @@ const gbp = new Intl.NumberFormat("en-GB", {
   maximumFractionDigits: 2,
 });
 
-/**
- * Stable, illustrative tuition and scholarship figures.
- *
- * Neither `Offering` nor `OfferingDetail` carries a tuition, application-fee
- * or scholarship field at all — real figures have never been part of this API
- * surface, for any row, demo or not. Gating these on `offering.demo` (as the
- * record-level "Example data" badge above the mosaic still is) would hide
- * them from almost every card, since most rows aren't flagged demo. Shown
- * unconditionally instead, deterministic per slug so a card never changes
- * figures between renders, and labelled as estimates right where they appear
- * rather than relying on a badge elsewhere on the card.
- */
-function exampleTuition(slug: string): number {
-  let hash = 0;
-  for (let index = 0; index < slug.length; index += 1) {
-    hash = (hash * 31 + slug.charCodeAt(index)) >>> 0;
-  }
-  return 12000 + (hash % 22) * 1000;
-}
-
-function exampleScholarship(slug: string): number {
-  let hash = 0;
-  for (let index = 0; index < slug.length; index += 1) {
-    hash = (hash * 17 + slug.charCodeAt(index)) >>> 0;
-  }
-  return 500 + (hash % 10) * 500;
-}
-
-export function OfferingCard({ offering }: { offering: Offering }) {
+export function OfferingCard({
+  offering,
+  /** Renders the compare checkbox — only wanted where a compare tray exists to act on it. */
+  selectable = false,
+  selected = false,
+  onToggleSelect,
+}: {
+  offering: Offering;
+  selectable?: boolean;
+  selected?: boolean;
+  onToggleSelect?: () => void;
+}) {
   const university = offering.university;
   const [second, third] = courseMosaicExtras;
   const initials = university?.name.slice(0, 2).toUpperCase() ?? "—";
 
   return (
-    <Card interactive className="h-full overflow-hidden">
+    <Card
+      interactive
+      className={`h-full overflow-hidden ${selected ? "ring-2 ring-blue-bright ring-offset-2 ring-offset-canvas" : ""}`}
+    >
       <div className="relative grid h-[160px] grid-cols-[1.55fr_1fr] grid-rows-2 gap-[2px] bg-navy/5">
         <div className="relative row-span-2 overflow-hidden">
           <Image
@@ -71,6 +58,22 @@ export function OfferingCard({ offering }: { offering: Offering }) {
           <Badge tone="demo" className="absolute right-3 top-3">
             Example data
           </Badge>
+        ) : null}
+
+        {selectable ? (
+          <button
+            type="button"
+            onClick={onToggleSelect}
+            aria-pressed={selected}
+            aria-label={selected ? `Remove ${offering.title} from comparison` : `Add ${offering.title} to comparison`}
+            className={`absolute left-3 top-3 flex size-[28px] items-center justify-center rounded-full border-2 transition-colors duration-150 ${
+              selected
+                ? "border-blue-bright bg-blue-bright text-white"
+                : "border-white/80 bg-navy-ink/25 text-transparent backdrop-blur-sm hover:border-white"
+            }`}
+          >
+            <Check size={15} strokeWidth={3} />
+          </button>
         ) : null}
       </div>
 
