@@ -63,12 +63,12 @@ export const journeyStages: JourneyStage[] = [
     steps: [
       { label: "Understand what matters when choosing", href: "/universities" },
       { label: "Explore courses", href: "/courses" },
-      { label: "Compare universities", href: "/compare" },
+      { label: "Compare courses", href: "/courses" },
       { label: "Check entry requirements", href: "/apply/entry-requirements" },
       { label: "Compare tuition fees", href: "/money" },
       { label: "Check living costs", href: "/money/calculator" },
       { label: "Explore scholarships", href: "/money/scholarships" },
-      { label: "Shortlist your universities", href: "/compare" },
+      { label: "Shortlist your courses", href: "/courses" },
     ],
   },
   {

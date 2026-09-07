@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import {
+  Award,
   Banknote,
   BookOpen,
   Building2,
@@ -16,14 +17,11 @@ import {
   Send,
   ShieldCheck,
   Sparkles,
-  Star,
-  Briefcase,
   Wallet,
 } from "lucide-react";
 import type { ChecklistItem } from "@/components/ui/Checklist";
 import type { TimelineStage } from "@/components/ui/Timeline";
 import { applicationChecklist, applicationTimeline, commonMistakes, offerTypes } from "./apply";
-import { requirementsChecklist } from "./entry-requirements";
 import { arrivalChecklist, firstWeekChecklist } from "./life-in-uk";
 import { livingCostBreakdown } from "./money";
 import { visaDocuments, visaJourney, visaMistakes } from "./visa";
@@ -51,19 +49,14 @@ import { visaDocuments, visaJourney, visaMistakes } from "./visa";
  * page exists.
  */
 
-/** A small grid of orientation points — what a topic is made of, at a glance. */
-export interface JourneyMatrixCell {
-  icon: LucideIcon;
-  label: string;
-  note: string;
-}
-
 /** A titled list inside a track — "Grade 10", "Plus 2", "Bachelor's". */
 export interface JourneyGroup {
   title: string;
   /** An optional line under the title, before the list. */
   note?: string;
   items: string[];
+  /** Shown beside the title — used on standalone group cards, not nested ones. */
+  icon?: LucideIcon;
 }
 
 /**
@@ -78,12 +71,21 @@ export interface JourneyGroup {
 export interface JourneyTrack {
   id: string;
   label: string;
-  /** The one-line summary on the closed row. */
+  /** The one-line summary on the card. */
   hint: string;
+  icon?: LucideIcon;
   groups: JourneyGroup[];
   /** Shown under the groups, in the callout treatment. */
   caveat?: string;
   cta?: { label: string; href: string };
+}
+
+/** One line of the cost breakdown table — a GBP range, converted to NPR for display. */
+export interface CostTableRow {
+  label: string;
+  lowGBP: number;
+  highGBP: number;
+  note?: string;
 }
 
 export interface JourneyTopic {
@@ -92,15 +94,16 @@ export interface JourneyTopic {
   /** One line. Also the summary shown on the collapsed row. */
   blurb: string;
   icon: LucideIcon;
-  matrix?: JourneyMatrixCell[];
   details?: string[];
-  /** Per-study-level detail, in collapsible panels. */
+  /** Per-study-level detail, shown as standalone cards — undergraduate and postgraduate side by side. */
   tracks?: JourneyTrack[];
   /** Applies to every track — shown once, beneath them. */
   sharedGroups?: JourneyGroup[];
   timeline?: TimelineStage[];
   /** Reuses a checklist from a guide, ticks and all. */
   checklist?: { id: string; items: ChecklistItem[] };
+  /** Rows for the SN / Name / total-cost table, borrowed from `data/guides/money.ts`. */
+  costTable?: CostTableRow[];
 }
 
 export interface JourneyStage {
@@ -126,44 +129,18 @@ export const studyUkStages: JourneyStage[] = [
       {
         id: "entry-requirements",
         title: "University entry requirements",
-        blurb: "Every university and course sets its own academic and personal requirements.",
+        blurb: "Every university and course sets its own academic and personal requirements. Undergraduate and postgraduate applicants are asked for different things, so here is each as its own card.",
         icon: GraduationCap,
-        matrix: [
-          {
-            icon: GraduationCap,
-            label: "Academic",
-            note: "Minimum qualifications, grades and the subjects a course requires you to have studied.",
-          },
-          {
-            icon: Languages,
-            label: "English language",
-            note: "IELTS, TOEFL or PTE — or a medium-of-instruction letter, where the university accepts one.",
-          },
-          {
-            icon: Briefcase,
-            label: "Work experience",
-            note: "Required for some postgraduate and professional courses, and rarely for undergraduate ones.",
-          },
-          {
-            icon: Star,
-            label: "Other criteria",
-            note: "Personal statement, references, portfolios, admissions tests and interviews.",
-          },
-        ],
-        details: [
-          "A published requirement is a threshold, not a prediction of who gets in — competitive courses receive many more qualified applicants than they have places.",
-          "Subject requirements are the ones most often missed: an applicant can exceed the grade profile and still be ineligible because a required subject is absent.",
-          "The component minimum on an English test catches people out. A strong overall score with one weak section can fall short.",
-          "Universities publish country-specific equivalents for international qualifications. Their own international pages are the authority, not a general conversion table.",
-        ],
         tracks: [
           {
             id: "ug",
             label: "Undergraduate",
             hint: "Straight into a bachelor's degree after +2.",
+            icon: GraduationCap,
             groups: [
               {
                 title: "Academic",
+                icon: GraduationCap,
                 items: [
                   "60% or above in +2.",
                   "A study gap is accepted from 2023 onwards.",
@@ -171,6 +148,7 @@ export const studyUkStages: JourneyStage[] = [
               },
               {
                 title: "English",
+                icon: Languages,
                 note: "Either of these is normally enough.",
                 items: [
                   "Overall grade B or above in +2 English.",
@@ -186,9 +164,11 @@ export const studyUkStages: JourneyStage[] = [
             id: "pg",
             label: "Postgraduate",
             hint: "A taught master's after a bachelor's degree.",
+            icon: Award,
             groups: [
               {
                 title: "Academic",
+                icon: GraduationCap,
                 note: "The threshold depends on how long your bachelor's ran.",
                 items: [
                   "55% on a four-year bachelor's degree.",
@@ -198,6 +178,7 @@ export const studyUkStages: JourneyStage[] = [
               },
               {
                 title: "English",
+                icon: Languages,
                 note: "Either of these is normally enough.",
                 items: [
                   "A medium-of-instruction letter, valid for five years from the date of your degree.",
@@ -221,6 +202,7 @@ export const studyUkStages: JourneyStage[] = [
             id: "ug-docs",
             label: "Undergraduate",
             hint: "What a bachelor's application asks you to produce.",
+            icon: GraduationCap,
             groups: [
               {
                 title: "Grade 10",
@@ -243,6 +225,7 @@ export const studyUkStages: JourneyStage[] = [
             id: "pg-docs",
             label: "Postgraduate",
             hint: "Everything an undergraduate application needs, plus your degree.",
+            icon: Award,
             groups: [
               {
                 title: "Grade 10",
@@ -275,6 +258,7 @@ export const studyUkStages: JourneyStage[] = [
         sharedGroups: [
           {
             title: "Other documents",
+            icon: FileText,
             items: [
               "Statement of purpose",
               "Work experience evidence, if your gap is longer than three years",
@@ -283,6 +267,7 @@ export const studyUkStages: JourneyStage[] = [
           },
           {
             title: "Financial documents",
+            icon: Banknote,
             note: "From an A-class bank in Nepal.",
             items: [
               "An education loan covering tuition, living expenses and a further £500",
@@ -292,7 +277,6 @@ export const studyUkStages: JourneyStage[] = [
             ],
           },
         ],
-        checklist: { id: "entry-requirements", items: requirementsChecklist },
       },
       {
         id: "explore",
@@ -326,9 +310,10 @@ export const studyUkStages: JourneyStage[] = [
         title: "Cost breakdown",
         blurb: "Tuition is the number everyone quotes. Living costs are the one that decides it.",
         icon: Wallet,
-        matrix: livingCostBreakdown.slice(0, 4).map((line) => ({
-          icon: line.category === "Accommodation" ? Home : line.category === "Transport" ? Plane : Banknote,
+        costTable: livingCostBreakdown.map((line) => ({
           label: line.category,
+          lowGBP: line.low,
+          highGBP: line.high,
           note: line.note,
         })),
         details: [

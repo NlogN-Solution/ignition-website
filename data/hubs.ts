@@ -21,32 +21,6 @@ export type Hub = {
 };
 
 export const hubs: Record<string, Hub> = {
-  compare: {
-    path: "/compare",
-    eyebrow: "Compare",
-    title: "Put your shortlist side by side.",
-    intro:
-      "Compare two to four UK universities across the things that actually decide it — total cost, entry requirements, accommodation, scholarships, placement and international support.",
-    crumbs: [
-      { label: "Home", href: "/" },
-      { label: "Universities", href: "/universities" },
-      { label: "Compare", href: "/compare" },
-    ],
-    sections: [
-      { title: "Location and city", description: "Where each one is, and what that means day to day." },
-      { title: "Tuition and living costs", description: "The full annual figure, not just the headline fee." },
-      { title: "Entry requirements", description: "What each asks for, in the same format." },
-      { title: "Accommodation", description: "What's guaranteed, what it costs and for how long." },
-      { title: "Scholarships and placement", description: "Funding available and industry-year options." },
-      { title: "International support", description: "The help available once you arrive." },
-    ],
-    cta: {
-      title: "Made your choice?",
-      intro: "Next comes the application itself — deadlines, statement and references.",
-      primary: { label: "How to apply", href: "/apply" },
-      secondary: { label: "Explore universities", href: "/universities" },
-    },
-  },
   calculator: {
     path: "/money/calculator",
     eyebrow: "Money",

@@ -10,7 +10,6 @@ import { CareerQuiz } from "../careers/CareerQuiz";
 import { InterviewPractice } from "../application/InterviewPractice";
 import { NepalCostTable } from "../universities/NepalCostTable";
 import { EligibilityCalculator } from "../resources/EligibilityCalculator";
-import { CompareBoard } from "../universities/CompareBoard";
 import type { University } from "@/data/universities";
 import type { AccordionItem } from "../ui/Accordion";
 import type { ChecklistItem } from "../ui/Checklist";
@@ -350,10 +349,6 @@ function Interactive({ slot, context }: { slot: string; context?: BlockContext }
           universities={context.universities}
           courseCounts={context.courseCounts}
         />
-      ) : null;
-    case "compare-board":
-      return context ? (
-        <CompareBoard universities={context.universities} courseCounts={context.courseCounts} />
       ) : null;
     case "course-explorer":
       // The explorer is a route, not a widget: its filters are the URL, and

@@ -523,19 +523,6 @@ export function CourseUniversitiesPanel({
           ))}
         </ul>
       ) : null}
-
-      <Link
-        href="/compare"
-        className="group inline-flex items-center gap-[9px] text-[15px] font-bold text-blue-link transition-colors hover:text-navy"
-      >
-        Put them side by side
-        <ArrowUpRight
-          size={16}
-          strokeWidth={2.4}
-          aria-hidden
-          className="transition-transform duration-200 group-hover:translate-x-[2px] group-hover:-translate-y-[2px]"
-        />
-      </Link>
     </Panel>
   );
 }

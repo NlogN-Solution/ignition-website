@@ -3,6 +3,11 @@ import type { AccordionItem } from "@/components/ui/Accordion";
 export const moneyNotice =
   "Cost figures shown across Ignition are example data for demonstration. Tuition is set by each university and living costs vary widely by city and lifestyle — confirm both directly before budgeting.";
 
+/** Used to show an approximate NPR figure beside GBP costs. Rates move — this is a guide, not a quote. */
+export const gbpToNprRate = 205;
+
+export const nprRateNotice = `Converted at an approximate rate of £1 = NPR ${gbpToNprRate}. Exchange rates fluctuate daily — treat the NPR figures as a guide, not a quote.`;
+
 /**
  * Example monthly living costs. Illustrative ranges only, used to show how a
  * budget breaks down rather than to state what anything costs.

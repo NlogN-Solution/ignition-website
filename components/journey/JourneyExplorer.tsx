@@ -9,11 +9,22 @@ import { Checklist } from "../ui/Checklist";
 import { Timeline } from "../ui/Timeline";
 import {
   studyUkStages,
+  type CostTableRow,
   type JourneyGroup,
   type JourneyTopic,
   type JourneyTrack,
 } from "@/data/guides/study-uk-journey";
+import { gbpToNprRate, nprRateNotice } from "@/data/guides/money";
 import { whatsappUrl } from "@/lib/config";
+
+const gbp = new Intl.NumberFormat("en-GB", {
+  style: "currency",
+  currency: "GBP",
+  maximumFractionDigits: 0,
+});
+
+const npr = (amountGBP: number) =>
+  `NPR ${Math.round(amountGBP * gbpToNprRate).toLocaleString("en-IN")}`;
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -378,28 +389,7 @@ export function JourneyExplorer() {
                   {topic.blurb}
                 </p>
 
-                {topic.matrix ? (
-                  <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-                    {topic.matrix.map((cell) => (
-                      <li key={cell.label}>
-                        <div className="h-full rounded-[11px] border border-hairline bg-canvas/60 p-4">
-                          <span
-                            aria-hidden
-                            className="flex size-[32px] items-center justify-center rounded-[9px] bg-white text-navy shadow-[0_10px_24px_-18px_rgba(1,22,111,0.5)]"
-                          >
-                            <cell.icon size={16} strokeWidth={2} />
-                          </span>
-                          <p className="mt-3 text-[14.5px] font-bold leading-[1.3] text-navy">
-                            {cell.label}
-                          </p>
-                          <p className="mt-[4px] text-[13.5px] font-medium leading-[1.5] text-muted">
-                            {cell.note}
-                          </p>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
+                {topic.costTable ? <CostTable rows={topic.costTable} /> : null}
 
                 {topic.details ? (
                   <ul className="mt-6 space-y-3">
@@ -420,19 +410,19 @@ export function JourneyExplorer() {
                 ) : null}
 
                 {topic.tracks ? (
-                  <div className="mt-7 space-y-2">
+                  <div className="mt-7 grid gap-4 sm:grid-cols-2">
                     {topic.tracks.map((track) => (
-                      <TrackPanel key={track.id} track={track} />
+                      <TrackCard key={track.id} track={track} />
                     ))}
                   </div>
                 ) : null}
 
                 {topic.sharedGroups ? (
-                  <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
                     {topic.sharedGroups.map((group) => (
                       <div
                         key={group.title}
-                        className="rounded-xl border border-hairline bg-canvas/60 p-[18px]"
+                        className="rounded-2xl border border-hairline bg-white p-5 shadow-[0_14px_32px_-26px_rgba(1,22,111,0.24)] sm:p-6"
                       >
                         <GroupBody group={group} />
                       </div>
@@ -500,70 +490,69 @@ export function JourneyExplorer() {
 
 
 /**
- * One study level's requirements, closed until asked for.
+ * One study level's requirements, shown open rather than behind a click.
  *
- * A `<details>` rather than React state, for the reasons the site's own
- * `Accordion` gives: it is keyboard accessible without any work, it opens
- * before hydration, and the reveal animates through the `.details-reveal`
- * rule in `globals.css` rather than through JavaScript. Two of these sit side
- * by side and each holds its own open state, which is what a student
- * comparing undergraduate against postgraduate actually wants.
+ * This used to be a `<details>` accordion, on the reasoning that undergraduate
+ * and postgraduate applicants only need to read their own half. In practice
+ * that hid the page's clearest structure behind a tap most readers never
+ * made, and cost the page its scannability — a card a search engine or an
+ * answer engine can read straight through beats one whose content only
+ * exists after a client-side interaction. Two cards, side by side, is what a
+ * student comparing both levels actually wants to see at once.
  */
-function TrackPanel({ track }: { track: JourneyTrack }) {
+function TrackCard({ track }: { track: JourneyTrack }) {
   return (
-    <details className="details-reveal group overflow-hidden rounded-xl border border-hairline bg-white">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-5 px-5 py-[16px] transition-colors duration-200 hover:bg-canvas [&::-webkit-details-marker]:hidden">
+    <div className="flex h-full flex-col rounded-2xl border border-hairline bg-gradient-to-b from-white to-canvas/50 p-5 shadow-[0_18px_40px_-28px_rgba(1,22,111,0.28)] sm:p-6">
+      <div className="flex items-center gap-3">
+        <span
+          aria-hidden
+          className="flex size-[40px] shrink-0 items-center justify-center rounded-[12px] bg-navy text-white shadow-[0_12px_26px_-14px_rgba(1,22,111,0.65)]"
+        >
+          {track.icon ? <track.icon size={19} strokeWidth={2} /> : null}
+        </span>
         <span className="min-w-0">
-          <span className="block text-[15.5px] font-bold leading-[1.3] tracking-[-0.01em] text-ink transition-colors duration-200 group-hover:text-navy group-open:text-navy">
+          <span className="block text-[16px] font-bold leading-[1.25] tracking-[-0.01em] text-navy">
             {track.label}
           </span>
-          <span className="mt-[2px] block text-[13.5px] font-medium leading-[1.45] text-muted">
+          <span className="mt-[2px] block text-[13px] font-medium leading-[1.4] text-muted">
             {track.hint}
           </span>
         </span>
-        <ChevronDown
-          size={18}
-          strokeWidth={2.4}
-          aria-hidden
-          className="shrink-0 text-blue-link transition-transform duration-200 group-open:rotate-180"
-        />
-      </summary>
-
-      <div className="border-t border-hairline px-5 pb-[20px] pt-[18px]">
-        <div className="grid gap-5 sm:grid-cols-2">
-          {track.groups.map((group) => (
-            <GroupBody key={group.title} group={group} />
-          ))}
-        </div>
-
-        {track.caveat ? (
-          <div className="mt-5 flex gap-3 rounded-[11px] border border-blue-link/15 bg-blue-link/[0.04] p-[13px]">
-            <Info
-              size={16}
-              strokeWidth={2.1}
-              aria-hidden
-              className="mt-[1px] shrink-0 text-blue-link"
-            />
-            <p className="text-[13.5px] font-medium leading-[1.55] text-ink-soft">{track.caveat}</p>
-          </div>
-        ) : null}
-
-        {track.cta ? (
-          <Link
-            href={track.cta.href}
-            className="group/cta mt-5 inline-flex items-center gap-[8px] text-[14px] font-bold text-blue-link transition-colors duration-200 hover:text-navy"
-          >
-            {track.cta.label}
-            <ArrowUpRight
-              size={15}
-              strokeWidth={2.4}
-              aria-hidden
-              className="transition-transform duration-200 group-hover/cta:translate-x-[2px] group-hover/cta:-translate-y-[2px]"
-            />
-          </Link>
-        ) : null}
       </div>
-    </details>
+
+      <div className="mt-5 flex-1 space-y-5">
+        {track.groups.map((group) => (
+          <GroupBody key={group.title} group={group} />
+        ))}
+      </div>
+
+      {track.caveat ? (
+        <div className="mt-5 flex gap-3 rounded-[11px] border border-blue-link/15 bg-blue-link/[0.04] p-[13px]">
+          <Info
+            size={16}
+            strokeWidth={2.1}
+            aria-hidden
+            className="mt-[1px] shrink-0 text-blue-link"
+          />
+          <p className="text-[13.5px] font-medium leading-[1.55] text-ink-soft">{track.caveat}</p>
+        </div>
+      ) : null}
+
+      {track.cta ? (
+        <Link
+          href={track.cta.href}
+          className="group/cta mt-5 inline-flex items-center gap-[8px] text-[14px] font-bold text-blue-link transition-colors duration-200 hover:text-navy"
+        >
+          {track.cta.label}
+          <ArrowUpRight
+            size={15}
+            strokeWidth={2.4}
+            aria-hidden
+            className="transition-transform duration-200 group-hover/cta:translate-x-[2px] group-hover/cta:-translate-y-[2px]"
+          />
+        </Link>
+      ) : null}
+    </div>
   );
 }
 
@@ -571,13 +560,25 @@ function TrackPanel({ track }: { track: JourneyTrack }) {
 function GroupBody({ group }: { group: JourneyGroup }) {
   return (
     <div className="min-w-0">
-      <p className="text-[13px] font-bold uppercase tracking-[0.09em] text-navy">{group.title}</p>
+      <div className="flex items-center gap-[10px]">
+        {group.icon ? (
+          <span
+            aria-hidden
+            className="flex size-[30px] shrink-0 items-center justify-center rounded-[9px] bg-orange/[0.08] text-orange"
+          >
+            <group.icon size={14} strokeWidth={2.1} />
+          </span>
+        ) : null}
+        <p className="text-[13px] font-bold uppercase tracking-[0.09em] text-navy">{group.title}</p>
+      </div>
       {group.note ? (
-        <p className="mt-[5px] text-[13px] font-medium leading-[1.5] text-muted-light">
+        <p
+          className={`mt-[5px] text-[13px] font-medium leading-[1.5] text-muted-light ${group.icon ? "ml-10" : ""}`}
+        >
           {group.note}
         </p>
       ) : null}
-      <ul className="mt-[10px] space-y-[7px]">
+      <ul className={`mt-[10px] space-y-[7px] ${group.icon ? "ml-10" : ""}`}>
         {group.items.map((item) => (
           <li key={item} className="flex items-start gap-[9px]">
             <span
@@ -588,6 +589,89 @@ function GroupBody({ group }: { group: JourneyGroup }) {
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+/**
+ * SN / Name / Total cost — the shape a student actually wants when comparing
+ * line items, with the NPR figure alongside so the GBP number is not the only
+ * one on the page. Rows are borrowed from `livingCostBreakdown`, so the
+ * numbers can never drift from the guide they came from.
+ */
+function CostTable({ rows }: { rows: CostTableRow[] }) {
+  const totalLow = rows.reduce((sum, row) => sum + row.lowGBP, 0);
+  const totalHigh = rows.reduce((sum, row) => sum + row.highGBP, 0);
+
+  return (
+    <div className="mt-6">
+      <div className="overflow-hidden rounded-2xl border border-hairline bg-white shadow-[0_18px_40px_-28px_rgba(1,22,111,0.24)]">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[520px] border-collapse text-left">
+            <thead>
+              <tr className="border-b border-hairline bg-canvas/70">
+                <th className="w-[52px] px-4 py-3 text-[12px] font-bold uppercase tracking-[0.09em] text-muted-light sm:px-5">
+                  SN
+                </th>
+                <th className="px-4 py-3 text-[12px] font-bold uppercase tracking-[0.09em] text-muted-light sm:px-5">
+                  Name
+                </th>
+                <th className="px-4 py-3 text-right text-[12px] font-bold uppercase tracking-[0.09em] text-muted-light sm:px-5">
+                  Total cost / month
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, index) => (
+                <tr
+                  key={row.label}
+                  className="border-b border-hairline last:border-b-0 even:bg-canvas/30"
+                >
+                  <td className="px-4 py-[14px] text-[13.5px] font-semibold tabular-nums text-muted-light sm:px-5">
+                    {String(index + 1).padStart(2, "0")}
+                  </td>
+                  <td className="px-4 py-[14px] sm:px-5">
+                    <p className="text-[14.5px] font-bold leading-[1.3] text-navy">{row.label}</p>
+                    {row.note ? (
+                      <p className="mt-[3px] text-[12.5px] font-medium leading-[1.4] text-muted">
+                        {row.note}
+                      </p>
+                    ) : null}
+                  </td>
+                  <td className="px-4 py-[14px] text-right sm:px-5">
+                    <p className="whitespace-nowrap text-[14.5px] font-bold tabular-nums text-navy">
+                      {gbp.format(row.lowGBP)}–{gbp.format(row.highGBP)}
+                    </p>
+                    <p className="mt-[3px] whitespace-nowrap text-[12.5px] font-semibold tabular-nums text-muted">
+                      ≈ {npr(row.lowGBP)}–{npr(row.highGBP)}
+                    </p>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="border-t border-hairline bg-navy/[0.04]">
+                <td className="px-4 py-[14px] sm:px-5" colSpan={2}>
+                  <p className="text-[13.5px] font-bold uppercase tracking-[0.06em] text-navy">
+                    Total per month
+                  </p>
+                </td>
+                <td className="px-4 py-[14px] text-right sm:px-5">
+                  <p className="whitespace-nowrap text-[15px] font-extrabold tabular-nums text-navy">
+                    {gbp.format(totalLow)}–{gbp.format(totalHigh)}
+                  </p>
+                  <p className="mt-[3px] whitespace-nowrap text-[12.5px] font-semibold tabular-nums text-muted">
+                    ≈ {npr(totalLow)}–{npr(totalHigh)}
+                  </p>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+      <p className="mt-3 text-[12.5px] font-medium leading-[1.5] text-muted-light">
+        {nprRateNotice}
+      </p>
     </div>
   );
 }

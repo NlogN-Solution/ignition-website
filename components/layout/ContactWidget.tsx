@@ -185,7 +185,6 @@ function pageContext(pathname: string): string | undefined {
     "/careers/quiz": "the career quiz",
     "/courses": "courses",
     "/universities": "universities",
-    "/compare": "comparing universities",
     "/apply": "how to apply",
     "/apply/entry-requirements": "entry requirements and the visa",
     "/apply/interviews": "interview preparation",
