@@ -31,40 +31,60 @@ export const journeyPipeline: PipelineStage[] = [
  * stays the real position in the sequence and cannot drift from the list above.
  */
 export type JourneyPhase = {
-  id: string;
+  id: PhaseId;
   label: string;
   /** What the student is doing during this chapter, in their words. */
   summary: string;
+  /**
+   * The first-person form, for the places the phase is quoted back at someone
+   * rather than used as a column heading: the "I'm here" control on the map,
+   * the next-step panel, and the adviser record a lead arrives with. An
+   * adviser opening "Decide" learns less than one opening "Deciding on a
+   * course and a university".
+   */
+  stance: string;
   /** [firstIndex, lastIndex] into `journeyPipeline`, inclusive. */
   span: [number, number];
 };
+
+export const phaseIds = ["explore", "decide", "apply", "arrive"] as const;
+export type PhaseId = (typeof phaseIds)[number];
 
 export const journeyPhases: JourneyPhase[] = [
   {
     id: "explore",
     label: "Explore",
     summary: "Work out what you want, before narrowing anything down.",
+    stance: "Working out what I want to study",
     span: [0, 2],
   },
   {
     id: "decide",
     label: "Decide",
     summary: "Turn a subject into a real shortlist you can meet.",
+    stance: "Deciding on a course and a university",
     span: [3, 4],
   },
   {
     id: "apply",
     label: "Apply",
     summary: "Get the application, the interview and the visa right.",
+    stance: "Applying, or getting ready to",
     span: [5, 7],
   },
   {
     id: "arrive",
     label: "Arrive",
     summary: "Land in the UK with everything already sorted.",
+    stance: "Holding an offer and preparing to move",
     span: [8, 9],
   },
 ];
+
+export function getPhase(id: string | null | undefined): JourneyPhase | null {
+  if (!id) return null;
+  return journeyPhases.find((phase) => phase.id === id) ?? null;
+}
 
 export function stagesIn(phase: JourneyPhase) {
   return journeyPipeline

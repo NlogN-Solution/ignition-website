@@ -26,14 +26,6 @@ export const navItems: NavItem[] = [
     ],
   },
   {
-    label: "Careers",
-    href: "/careers",
-    items: [
-      { label: "Take the career quiz", href: "/careers/quiz" },
-      { label: "Explore careers", href: "/careers" },
-    ],
-  },
-  {
     label: "Courses & Universities",
     href: "/courses",
     items: [
@@ -42,6 +34,7 @@ export const navItems: NavItem[] = [
       { label: "Compare courses", href: "/courses" },
     ],
   },
+
   {
     label: "Apply",
     href: "/apply",
@@ -59,6 +52,14 @@ export const navItems: NavItem[] = [
       { label: "Tuition & living costs", href: "/money" },
       { label: "Cost calculator", href: "/money/calculator" },
       { label: "Scholarships", href: "/money/scholarships" },
+    ],
+  },
+  {
+    label: "Careers",
+    href: "/careers",
+    items: [
+      { label: "Take the career quiz", href: "/careers/quiz" },
+      { label: "Explore careers", href: "/careers" },
     ],
   },
   {

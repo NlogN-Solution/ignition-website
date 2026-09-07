@@ -173,9 +173,20 @@ export function EligibilityWizard({ universities }: { universities: University[]
         return;
       }
 
-      setResult((await response.json()) as Result);
+      const outcome = (await response.json()) as Result;
+      setResult(outcome);
       setPhase("done");
       clearStored(DRAFT_KEY);
+
+      // A receipt in place of the draft. Clearing the draft alone left a
+      // student who had finished the assessment looking identical to one who
+      // had never opened it, so the homepage's next-step panel would invite
+      // them to do the whole thing over. Reference and date, nothing else —
+      // the answers themselves belong to the server now.
+      writeStored(storageKeys.eligibilityOutcome, {
+        reference: outcome.reference,
+        at: new Date().toISOString(),
+      });
     } catch {
       setPhase("editing");
       setFailure(

@@ -2,11 +2,18 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Check } from "lucide-react";
 import { OfferingCard } from "./OfferingCard";
 import { CourseCompareTray } from "./CourseCompareTray";
 import { CourseCompareModal } from "./CourseCompareModal";
-import { CourseNameField, SelectField, UniversityField } from "./CourseFilterBar";
+import {
+  FilterBar,
+  FilterFields,
+  FilterFooter,
+  FilterSearch,
+  SearchableSelectField,
+  SelectField,
+  ToggleChip,
+} from "../ui/FilterBar";
 import { ActiveFilters } from "../ui/filters";
 import { EmptyResults, ResultCount } from "../ui/ResultCount";
 import { studyRoute, studyRoutes } from "@/data/courses";
@@ -41,12 +48,12 @@ import type { Facets, FacetOption, Offering } from "@/lib/api/types";
  * Note that it does *not* call `useSearchParams`, even though the URL is its
  * state. Doing so would push the whole subtree — the results included — behind
  * a Suspense boundary that only fills in on the client, which on a catalogue
- * page means search engines and a reader without JavaScript get an empty rail
+ * page means search engines and a reader without JavaScript get an empty bar
  * and no courses. The parameters arrive as a prop from the page that already
  * parsed them, which is the same information one render earlier.
  */
 
-/** The facets, in the order they appear in the rail. */
+/** The facets, in the order they appear in the bar. */
 type FilterKey = "route" | "level" | "subject" | "duration" | "university" | "placement";
 
 export interface ExplorerParams {
@@ -170,7 +177,7 @@ export function CourseExplorer({
    * Offering "Foundation" while Postgraduate is selected would advertise a
    * combination that returns nothing, and a facet that can produce a
    * guaranteed empty state is worse than no facet at all. Both postgraduate
-   * and top-up are single-level routes, so the rail is shorter there.
+   * and top-up are single-level routes, so the bar is shorter there.
    */
   const levelOptions = facets?.level ?? [];
   const showLevels = levelOptions.length > 1;
@@ -198,7 +205,11 @@ export function CourseExplorer({
   }, [params, facets, route]);
 
   const activeCount = applied.length;
-  const filtered = activeCount > 0 || Boolean(params.q);
+
+  // The search term counts toward the bar's tally: it narrows the results
+  // exactly as a facet does, and a reader who has only typed something still
+  // needs a way to get back to the whole catalogue in one click.
+  const barCount = activeCount + (params.q ? 1 : 0);
 
   function clearAll() {
     setQuery("");
@@ -215,8 +226,15 @@ export function CourseExplorer({
 
   return (
     <div>
-      <div className="rounded-2xl border border-hairline bg-white p-4 shadow-[0_18px_40px_-28px_rgba(1,22,111,0.24)] sm:p-5">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      <FilterBar>
+        <FilterSearch
+          label="Search courses by name"
+          value={query}
+          onChange={setQuery}
+          placeholder="Search by course name — “computer science”, “nursing”…"
+        />
+
+        <FilterFields>
           <SelectField
             label="Study level"
             options={routeOptions}
@@ -247,53 +265,25 @@ export function CourseExplorer({
             onChange={(next) => commit({ duration: next })}
           />
 
-          <UniversityField
+          <SearchableSelectField
+            label="University"
+            placeholder="Type a university name…"
+            emptyText={(term) => `No universities match “${term}”.`}
             options={facets?.university ?? []}
             value={params.university ?? null}
             onChange={(next) => commit({ university: next })}
           />
+        </FilterFields>
 
-          <CourseNameField value={query} onChange={setQuery} />
-        </div>
-
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-          <button
-            type="button"
-            aria-pressed={Boolean(params.placement)}
-            onClick={() => commit({ placement: params.placement ? null : "true" })}
-            className={`inline-flex items-center gap-[8px] rounded-full border px-[14px] py-[8px] text-[13.5px] font-semibold transition-colors duration-150 ${
-              params.placement
-                ? "border-navy bg-navy/[0.06] text-navy"
-                : "border-hairline text-muted hover:border-ring-idle hover:text-navy"
-            }`}
-          >
-            <span
-              aria-hidden
-              className={`flex size-[15px] items-center justify-center rounded-[4px] border ${
-                params.placement ? "border-navy bg-navy text-white" : "border-ring-idle"
-              }`}
-            >
-              {params.placement ? <Check size={9} strokeWidth={3.6} /> : null}
-            </span>
-            Placement year available
-            {facets?.placement !== undefined ? (
-              <span className="text-[12px] font-semibold tabular-nums text-muted-light">
-                {facets.placement}
-              </span>
-            ) : null}
-          </button>
-
-          {activeCount > 0 || query ? (
-            <button
-              type="button"
-              onClick={clearAll}
-              className="text-[13.5px] font-semibold text-blue-link transition-colors hover:text-navy"
-            >
-              Clear all
-            </button>
-          ) : null}
-        </div>
-      </div>
+        <FilterFooter activeCount={barCount} onClear={clearAll}>
+          <ToggleChip
+            label="Placement year available"
+            active={Boolean(params.placement)}
+            onChange={(next) => commit({ placement: next ? "true" : null })}
+            count={facets?.placement}
+          />
+        </FilterFooter>
+      </FilterBar>
 
       {route ? (
         <p className="mt-4 text-[14.5px] font-medium leading-[1.55] text-muted">{route.summary}</p>
@@ -309,7 +299,6 @@ export function CourseExplorer({
         <ResultCount
           count={total}
           noun={["course", "courses"]}
-          onClear={filtered ? clearAll : undefined}
         />
       </div>
 
