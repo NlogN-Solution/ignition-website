@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { contact } from "@/lib/config";
 
 export const siteName = "Ignition";
 
@@ -67,6 +68,45 @@ export function breadcrumbSchema(crumbs: Crumb[]) {
       name: crumb.label,
       item: `${siteUrl}${crumb.href}`,
     })),
+  };
+}
+
+/**
+ * Organization + WebSite JSON-LD, rendered once on the homepage. This is
+ * what makes the brand eligible for a Google knowledge panel and the
+ * sitelinks search box — signals that don't exist anywhere else on the site,
+ * since every other page's schema (`faqSchema`, `breadcrumbSchema`) speaks
+ * about that page's own content, not about Ignition as an entity.
+ *
+ * No `sameAs` (social profile links) — there is no verified social presence
+ * configured anywhere in this codebase to point at, and a guessed URL is
+ * worse than an absent field.
+ */
+export function organizationSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: siteName,
+    url: siteUrl,
+    logo: `${siteUrl}/images/logo.png`,
+    description: siteTagline,
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: contact.phone,
+      contactType: "customer service",
+      areaServed: "GB",
+      availableLanguage: ["English"],
+    },
+  };
+}
+
+export function websiteSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: siteName,
+    url: siteUrl,
+    inLanguage: "en-GB",
   };
 }
 

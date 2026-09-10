@@ -22,16 +22,11 @@ export type Career = {
   /** University slugs — resolved against the university catalogue. */
   relatedUniversities: string[];
   /**
-   * Illustrative only. Real figures must come from the National Careers
-   * Service; every surface that renders this shows the example-data marker.
+   * Starter and experienced pay, sourced from each career's National Careers
+   * Service job profile (`sourceUrl`). National averages — real pay varies by
+   * employer, region and sector.
    */
-  salary: { entry: number; experienced: number };
+  salary: { entry: number; experienced: number; sourceUrl: string; sourceTitle: string };
   outlook: string;
   destination: Destination;
-};
-
-/** Where a student should go for the real numbers behind `salary`. */
-export const salarySource = {
-  label: "National Careers Service",
-  href: "https://nationalcareers.service.gov.uk/explore-careers",
 };

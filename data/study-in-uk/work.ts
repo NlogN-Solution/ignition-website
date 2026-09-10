@@ -24,6 +24,13 @@ import type { ReasonAccent } from "./reasons";
  * `workFaqs` restates the same facts as question-and-answer pairs for the
  * FAQPage schema on `/study-in-uk` — update both together, or the visible
  * card and the structured data quietly disagree.
+ *
+ * TONE ECHOES THE GROUPING. `components/study-in-uk/WorkInUk.tsx` splits
+ * these four into "While you study" and "After you graduate". Orange marks
+ * the first pair (money you can earn now), navy the second (the settled,
+ * official visa route) — the colour repeats the same split the text label
+ * already makes, so a reader scanning by colour and a reader scanning by
+ * heading land on the same two groups instead of two different ones.
  */
 export type WorkCard = {
   id: string;
@@ -51,7 +58,7 @@ export const workIntro = {
 export const workCards: WorkCard[] = [
   {
     id: "term",
-    tone: "blue",
+    tone: "orange",
     icon: "clock",
     stat: "£254.20 / week",
     statNote: "20 hrs/week at National Minimum Wage",
@@ -62,7 +69,7 @@ export const workCards: WorkCard[] = [
   },
   {
     id: "vacation",
-    tone: "emerald",
+    tone: "orange",
     icon: "sun",
     stat: "≈ NPR 5.1 lakhs",
     statNote: "full-time for 8 weeks, at minimum wage",
@@ -73,7 +80,7 @@ export const workCards: WorkCard[] = [
   },
   {
     id: "graduate-route",
-    tone: "orange",
+    tone: "navy",
     icon: "passport",
     stat: "Up to 2 years",
     statNote: "Graduate Route visa after your degree",
