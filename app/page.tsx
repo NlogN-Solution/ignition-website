@@ -7,7 +7,7 @@ import { CourseSearch } from "@/components/home/CourseSearch";
 import { WhyUk } from "@/components/home/WhyUk";
 import { WhyIgnition } from "@/components/home/WhyIgnition";
 import { IntentCards } from "@/components/home/IntentCards";
-import { JourneySelector } from "@/components/journey/JourneySelector";
+import { NextStep } from "@/components/journey/NextStep";
 import { LeadCapture } from "@/components/lead/LeadCapture";
 import { JourneyPipeline } from "@/components/journey/JourneyPipeline";
 import { Section } from "@/components/ui/Section";
@@ -36,8 +36,16 @@ export const metadata: Metadata = {
  *    universities at the top of the world tables, and the fact that teaching,
  *    research and standards are all checked by someone other than the
  *    university itself.
- * 3. "Where do I start?" — the entry points, then the journey selector, then
- *    the end-to-end pipeline, and the adviser form last.
+ * 3. "Where do I start?" — the entry points, then the next step, then the
+ *    end-to-end route, and the adviser form last.
+ *
+ * THE ORDER OF THOSE LAST TWO IS THE POINT. What sat here was a section
+ * asking "Where are you in your UK journey?" above a section showing the
+ * journey — a question about a map printed before the map. It has been turned
+ * around and cut down: the panel now tells the student what to do next from
+ * what they have actually done (see `NextStep`), and the question itself is
+ * one click on a chapter of the route below it. Three overlapping maps of one
+ * territory became one.
  *
  * The adviser form used to sit directly under the journey selector, on the
  * reasoning that asking for a phone number is easier once the student has just
@@ -103,18 +111,19 @@ export default async function Home() {
 
         <Section
           id="journey"
-          eyebrow="Your journey"
-          title="Where are you in your UK journey?"
-          intro="Tell us where you are and we'll show you what to do next, in the right order — with nothing you don't need yet."
+          eyebrow="Your next step"
+          title="What should you do next?"
+          intro="Ignition remembers the work you've already done — your career profile, your budget, where you are on the route — and points you at the one thing worth doing next."
           surface
         >
-          <JourneySelector />
+          <NextStep />
         </Section>
 
         <Section
+          id="route"
           eyebrow="End to end"
           title="From first idea to first week."
-          intro="Ignition covers the whole route to a UK university — not just the application. Every stage connects to the next."
+          intro="The whole route to a UK university — not just the application. Mark the chapter you're in and the step above starts from there."
         >
           <JourneyPipeline />
         </Section>

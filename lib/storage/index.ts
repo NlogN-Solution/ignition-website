@@ -7,7 +7,18 @@
 export const storageKeys = {
   quizAnswers: "ignition:quiz-answers:v1",
   quizProfile: "ignition:quiz-profile:v1",
-  journeyStage: "ignition:journey-stage:v1",
+  /**
+   * Which of the four journey phases the student says they are in.
+   *
+   * `v2` because the vocabulary changed, not the shape. It used to hold one of
+   * seven overlapping self-descriptions ("I'm exploring my options" and "I
+   * don't know what I want to study" were, in practice, the same person); it
+   * now holds a `PhaseId` from `data/journey/pipeline`, the one taxonomy the
+   * map, the next-step panel and the adviser record all share. A `v1` value
+   * would resolve to no phase at all, so it is left behind rather than
+   * migrated — the question is one click to answer again.
+   */
+  journeyStage: "ignition:journey-stage:v2",
   interviewAnswers: "ignition:interview-answers:v1",
   compareSelection: "ignition:compare-selection:v1",
   costEstimate: "ignition:cost-estimate:v1",
@@ -28,6 +39,16 @@ export const storageKeys = {
    * they have already sent.
    */
   eligibilityDraft: "ignition:eligibility-draft:v1",
+  /**
+   * The receipt for a *submitted* assessment — reference and date, nothing
+   * else.
+   *
+   * Submitting clears `eligibilityDraft`, which used to leave no trace at all:
+   * a student who had finished the assessment looked identical to one who had
+   * never opened it, and the next-step panel would cheerfully invite them to
+   * do the whole thing again. This is the smallest record that prevents that.
+   */
+  eligibilityOutcome: "ignition:eligibility-outcome:v1",
 } as const;
 
 /**
