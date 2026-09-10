@@ -6,7 +6,7 @@ import { Check, Clock3, Loader2, Phone, Send } from "lucide-react";
 import { Card } from "../ui/Card";
 import { readStored, storageKeys, writeStored } from "@/lib/storage";
 import { useStoredValue } from "@/lib/storage/store";
-import { journeyStages } from "@/data/journey/stages";
+import { getPhase } from "@/data/journey/pipeline";
 import { contact, telUrl } from "@/lib/config";
 
 /**
@@ -22,16 +22,16 @@ import { contact, telUrl } from "@/lib/config";
  * everything anonymously — the quiz, the shortlist, the comparison and the
  * cost model all persist locally and ask for nothing. This is the one place
  * that asks, so it has to earn it: it appears after the student has told us
- * where they are in their journey, it offers a callback rather than a
+ * where they are on the route, it offers a callback rather than a
  * newsletter, and every field beyond name, email and phone was cut. Anything
  * an adviser needs beyond those three they can ask on the call.
  *
- * IT CARRIES THE STAGE. Whatever the student picked in "Where are you in your
- * UK journey?" travels with the submission, so an adviser opens the record
+ * IT CARRIES THE STAGE. Whichever chapter of the route the student marked
+ * themselves in travels with the submission, so an adviser opens the record
  * already knowing whether they are talking to someone choosing a subject or
  * someone holding an offer. It is read from the shared store rather than
- * passed in, because the selector and this form no longer sit in the same
- * section of the page.
+ * passed in, because the control that sets it — the "I'm here" button on the
+ * journey map — is several sections up the page.
  *
  * WHERE IT GOES. `NEXT_PUBLIC_LEAD_ENDPOINT` receives the JSON. With no
  * endpoint configured — local development, and any preview build — the
@@ -64,8 +64,10 @@ const looksLikePhone = (value: string) =>
 
 export function LeadCapture() {
   const stageId = useStoredValue<string | null>(storageKeys.journeyStage, null);
-  const stage =
-    journeyStages.find((option) => option.id === stageId)?.label ?? null;
+  // The first-person form rather than the column heading: an adviser opening
+  // "Deciding on a course and a university" learns more than one opening
+  // "Decide".
+  const stage = getPhase(stageId)?.stance ?? null;
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

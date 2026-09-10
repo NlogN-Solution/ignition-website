@@ -4,7 +4,9 @@
  * The public platform and the student portal are separate deployments, so
  * every link between them is an absolute URL rather than a route. Both are
  * overridable per environment: `next dev` on this machine talks to the CRA
- * portal on :3000, production points at the hosted dashboard.
+ * portal on :3001 (it is pinned there by `student-frontend/.env`, because a
+ * plain `next dev` already holds :3000), production points at the hosted
+ * dashboard.
  */
 
 const trimSlash = (url: string) => url.replace(/\/+$/, "");

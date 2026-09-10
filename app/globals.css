@@ -97,6 +97,27 @@
   .details-reveal[open]::details-content {
     block-size: auto;
   }
+
+  /**
+   * The filter-bar dropdowns. A panel that simply appears reads as a glitch
+   * at this size; eight frames of rise and fade is enough to tie it to the
+   * field it came out of. Reduced-motion collapses it via the block below.
+   */
+  .filter-pop {
+    animation: filter-pop 160ms cubic-bezier(0.22, 1, 0.36, 1);
+    transform-origin: top center;
+  }
+}
+
+@keyframes filter-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

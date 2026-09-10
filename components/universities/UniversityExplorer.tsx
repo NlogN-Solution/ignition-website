@@ -2,15 +2,17 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { UniversityCard } from "./UniversityCard";
-import { SearchField } from "../ui/SearchField";
 import {
-  ActiveFilters,
-  ExplorerShell,
-  FilterGroup,
-  FilterSidebar,
-  OptionList,
-  SwitchRow,
-} from "../ui/filters";
+  FilterBar,
+  FilterFields,
+  FilterFooter,
+  FilterSearch,
+  SearchableSelectField,
+  SelectField,
+  ToggleChip,
+  type FilterOption,
+} from "../ui/FilterBar";
+import { ActiveFilters } from "../ui/filters";
 import { EmptyResults, ResultCount } from "../ui/ResultCount";
 import { facetCounts } from "@/lib/search/facets";
 import { subjects, type Subject } from "@/data/courses";
@@ -34,11 +36,24 @@ const filterKeys = [
 ] as const;
 type FilterKey = (typeof filterKeys)[number];
 
+/** Facet values are plain strings here; the bar wants `{ value, count }`. */
+function toOptions<T extends string>(
+  options: readonly T[],
+  counts: Record<T, number>,
+): FilterOption[] {
+  return options.map((option) => ({ value: option, label: option, count: counts[option] }));
+}
+
 /**
- * The university catalogue, filtered client-side. It shares its chrome with
- * every other explorer: facets in a rail on the left, results beside them,
- * option counts from a leave-one-out pool per facet. See `CourseExplorer` for
- * why the counts are built that way.
+ * The university catalogue, filtered client-side.
+ *
+ * It shares its chrome with the course explorer: one horizontal `FilterBar`
+ * above the results, with option counts drawn from a leave-one-out pool per
+ * facet. It used to run its facets down a rail on the left instead — the same
+ * filters, operated a different way from the other half of the same decision,
+ * and costing the grid a third of its width on every visit for a set of
+ * controls most students touch once. See `CourseExplorer` for why the counts
+ * are built the way they are.
  *
  * The records arrive as a prop from the server rather than being imported:
  * they come from the API now. Filtering stays here — 44 records is nothing,
@@ -70,7 +85,7 @@ export function UniversityExplorer({ universities }: { universities: University[
   }, []);
 
   /**
-   * Hide the tuition rail when nothing has a fee on it.
+   * Hide the tuition field when nothing has a fee on it.
    *
    * Fees are the one figure the spreadsheet states as prose rather than a
    * number, so they reach a record only once someone confirms them in the
@@ -140,7 +155,9 @@ export function UniversityExplorer({ universities }: { universities: University[
     (placementOnly ? 1 : 0) +
     (scholarshipsOnly ? 1 : 0);
 
-  const filtered = activeCount > 0 || query.length > 0;
+  // The search term counts toward the bar's tally, the same as a facet: see
+  // `CourseExplorer`.
+  const barCount = activeCount + (query.trim() ? 1 : 0);
 
   function clearAll() {
     setQuery("");
@@ -167,74 +184,61 @@ export function UniversityExplorer({ universities }: { universities: University[
     },
   ].filter(Boolean) as { key: string; label: string; onRemove: () => void }[];
 
-  const extras = [placementOnly && "Placement year", scholarshipsOnly && "Scholarships"]
-    .filter(Boolean)
-    .join(", ");
-
   return (
-    <ExplorerShell
-      sidebar={
-        <FilterSidebar
-          activeCount={activeCount}
-          onClear={clearAll}
-          resultSummary={`Show ${results.length} ${
-            results.length === 1 ? "university" : "universities"
-          }`}
-        >
-          <FilterGroup label="Location" activeLabel={region}>
-            <OptionList
-              options={regions}
-              value={region}
-              onChange={setRegion}
-              counts={counts.region}
-            />
-          </FilterGroup>
+    <div>
+      <FilterBar>
+        <FilterSearch
+          label="Search universities"
+          value={query}
+          onChange={setQuery}
+          placeholder="Search by university or city — “Coventry”, “Manchester”…"
+        />
 
-          <FilterGroup label="Subject" activeLabel={subject}>
-            <OptionList
-              options={subjects}
-              value={subject}
-              onChange={setSubject}
-              counts={counts.subject}
-            />
-          </FilterGroup>
+        <FilterFields>
+          <SelectField
+            label="Location"
+            options={toOptions(regions, counts.region)}
+            value={region}
+            onChange={(next) => setRegion(next as Region | null)}
+          />
+
+          {/* Subject is the one list long enough to want typing rather than
+              scrolling, so it takes the same searchable field the course bar
+              gives University. */}
+          <SearchableSelectField
+            label="Subject"
+            placeholder="Type a subject…"
+            emptyText={(term) => `No subjects match “${term}”.`}
+            options={toOptions(subjects, counts.subject)}
+            value={subject}
+            onChange={(next) => setSubject(next as Subject | null)}
+          />
 
           {hasTuition ? (
-            <FilterGroup label="Tuition, per year" activeLabel={tuition}>
-              <OptionList
-                options={tuitionBands}
-                value={tuition}
-                onChange={setTuition}
-                counts={counts.tuition}
-              />
-            </FilterGroup>
+            <SelectField
+              label="Tuition, per year"
+              options={toOptions(tuitionBands, counts.tuition)}
+              value={tuition}
+              onChange={(next) => setTuition(next as TuitionBand | null)}
+            />
           ) : null}
+        </FilterFields>
 
-          <FilterGroup label="Also show only" activeLabel={extras || null}>
-            <div className="-mx-2 space-y-px">
-              <SwitchRow
-                label="Placement year available"
-                active={placementOnly}
-                onChange={setPlacementOnly}
-                count={counts.placement}
-              />
-              <SwitchRow
-                label="Offers scholarships"
-                active={scholarshipsOnly}
-                onChange={setScholarshipsOnly}
-                count={counts.scholarships}
-              />
-            </div>
-          </FilterGroup>
-        </FilterSidebar>
-      }
-    >
-      <SearchField
-        label="Search universities"
-        value={query}
-        onChange={setQuery}
-        placeholder="Search universities or cities"
-      />
+        <FilterFooter activeCount={barCount} onClear={clearAll}>
+          <ToggleChip
+            label="Placement year available"
+            active={placementOnly}
+            onChange={setPlacementOnly}
+            count={counts.placement}
+          />
+          <ToggleChip
+            label="Offers scholarships"
+            active={scholarshipsOnly}
+            onChange={setScholarshipsOnly}
+            count={counts.scholarships}
+          />
+        </FilterFooter>
+      </FilterBar>
 
       {applied.length > 0 ? (
         <div className="mt-4">
@@ -246,12 +250,18 @@ export function UniversityExplorer({ universities }: { universities: University[
         <ResultCount
           count={results.length}
           noun={["university", "universities"]}
-          onClear={filtered ? clearAll : undefined}
         />
       </div>
 
       {results.length ? (
-        <ul className="mt-4 grid gap-4 sm:grid-cols-2">
+        <ul
+          /* Three across from `lg`, where the two-column grid used to sit
+             beside a filter rail. With the rail gone the same two columns
+             would stretch each card past 500px, which the three-photo header
+             was never drawn for — and this is the width the course grid
+             uses. */
+          className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        >
           {results.map((university) => (
             <li key={university.id} className="min-w-0">
               <UniversityCard university={university} />
@@ -266,6 +276,6 @@ export function UniversityExplorer({ universities }: { universities: University[
           </EmptyResults>
         </div>
       )}
-    </ExplorerShell>
+    </div>
   );
 }
