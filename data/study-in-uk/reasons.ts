@@ -3,10 +3,19 @@
  *
  * Shares its visual language with the homepage's `WhyUk` band — a duotone
  * photograph, a large stat, then the claim in full — rather than the flat
- * tinted card this section used before. `tone` maps to a brand colour the
- * same way it does there, so a reader who has already seen the homepage
- * treatment recognises this as the deeper version of the same argument
- * instead of a different section reinventing its own look.
+ * tinted card this section used before. `tone` is restricted to the same
+ * three colours `WhyUk` uses (`components/home/WhyUk.tsx`), because that
+ * section's own reasoning is the one to follow here: the brand only reads as
+ * a brand where it stays scarce, and a wider rainbow bought two extra colours
+ * that appear nowhere else on the site in exchange for a fifth card no longer
+ * looking like the other four.
+ *
+ * `tone` also carries meaning rather than rotating for variety — navy for the
+ * institutional claims (externally assessed quality, teaching philosophy),
+ * blue for the one card that is actually a measured statistic (the NSS), and
+ * orange for the two claims about opportunity and outcome (career readiness,
+ * a portable qualification) — the same colour the hero's "Limitless
+ * opportunities" already carries.
  *
  * There is no outbound link on these cards on purpose. The homepage band
  * exists to send a reader on to `/universities`, `/money` and so on; this
@@ -16,7 +25,7 @@
  * thought — so each card is written to stand on its own, in more depth than
  * the homepage has room for, and stop there.
  */
-export type ReasonAccent = "navy" | "blue" | "orange" | "emerald" | "violet";
+export type ReasonAccent = "navy" | "blue" | "orange";
 
 export type Reason = {
   id: string;
@@ -42,7 +51,7 @@ export type Reason = {
 export const reasons: Reason[] = [
   {
     id: "quality",
-    tone: "orange",
+    tone: "navy",
     stat: "TEF · REF · QAA",
     statNote: "independently checked",
     title: "Quality is externally assessed, not self-declared",
@@ -63,7 +72,7 @@ export const reasons: Reason[] = [
   },
   {
     id: "career",
-    tone: "emerald",
+    tone: "orange",
     stat: "Career & employment ready",
     statNote: "skills employers actually screen for",
     title: "Built around what comes after graduation",
@@ -73,7 +82,7 @@ export const reasons: Reason[] = [
   },
   {
     id: "learning",
-    tone: "violet",
+    tone: "navy",
     stat: "Learning that prepares you",
     statNote: "critical thinking · innovation",
     title: "Built for what comes next, not just the exam",
@@ -83,7 +92,7 @@ export const reasons: Reason[] = [
   },
   {
     id: "global",
-    tone: "navy",
+    tone: "orange",
     stat: "A global advantage",
     statNote: "shorter, recognised, portable",
     title: "A qualification that travels",

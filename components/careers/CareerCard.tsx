@@ -1,8 +1,15 @@
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, TrendingUp } from "lucide-react";
 import { Card } from "../ui/Card";
 import { Badge } from "../ui/Badge";
 import type { Career } from "@/data/careers";
 import type { MatchReason } from "@/lib/quiz/scoring";
+
+const currency = new Intl.NumberFormat("en-GB", {
+  style: "currency",
+  currency: "GBP",
+  maximumFractionDigits: 0,
+  notation: "compact",
+});
 
 /**
  * Shared by the results page and the career explorer. `score` and `reasons`
@@ -18,6 +25,10 @@ export function CareerCard({
   score?: number;
   reasons?: MatchReason[];
 }) {
+  const growth = Math.round(
+    ((career.salary.experienced - career.salary.entry) / career.salary.entry) * 100,
+  );
+
   return (
     <Card href={`/careers/${career.id}`} className="h-full p-5 sm:p-6">
       <div className="flex items-start justify-between gap-4">
@@ -41,6 +52,34 @@ export function CareerCard({
             </p>
           </div>
         ) : null}
+      </div>
+
+      <div className="mt-5 flex items-stretch gap-4 rounded-lg border border-hairline bg-navy/[0.03] px-4 py-3.5 transition-colors duration-200 group-hover:border-ring-idle group-hover:bg-navy/[0.05]">
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-muted-light">
+            Base salary
+          </p>
+          <p className="mt-[3px] text-[19px] font-bold tracking-[-0.02em] text-navy tabular-nums">
+            {currency.format(career.salary.entry)}
+          </p>
+        </div>
+
+        <div className="w-px shrink-0 self-stretch bg-hairline" aria-hidden />
+
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-muted-light">
+            Mid-level
+          </p>
+          <p className="mt-[3px] flex items-baseline gap-[6px] text-[19px] font-bold tracking-[-0.02em] text-navy tabular-nums">
+            {currency.format(career.salary.experienced)}
+            {growth > 0 ? (
+              <span className="inline-flex items-center gap-[2px] text-[11.5px] font-bold text-orange">
+                <TrendingUp size={12} strokeWidth={2.6} aria-hidden />
+                {growth}%
+              </span>
+            ) : null}
+          </p>
+        </div>
       </div>
 
       {reasons?.length ? (

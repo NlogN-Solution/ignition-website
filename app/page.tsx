@@ -13,15 +13,32 @@ import { JourneyPipeline } from "@/components/journey/JourneyPipeline";
 import { Section } from "@/components/ui/Section";
 import { trustIntro } from "@/data/home/trust";
 import { getCourses, getUniversities } from "@/lib/api/catalogue";
-import { siteName, siteTagline, siteUrl } from "@/lib/seo";
+import {
+  JsonLd,
+  organizationSchema,
+  siteName,
+  siteTagline,
+  siteUrl,
+  websiteSchema,
+} from "@/lib/seo";
 
 export const revalidate = 3600;
 
+const description =
+  "Search UK undergraduate, postgraduate and top-up courses, discover the right career, compare universities, understand how to apply and prepare for your journey to the UK.";
+
 export const metadata: Metadata = {
   title: { absolute: `${siteName} — ${siteTagline}` },
-  description:
-    "Search UK undergraduate, postgraduate and top-up courses, discover the right career, compare universities, understand how to apply and prepare for your journey to the UK.",
+  description,
   alternates: { canonical: siteUrl },
+  openGraph: {
+    title: `${siteName} — ${siteTagline}`,
+    description,
+    url: siteUrl,
+    siteName,
+    locale: "en_GB",
+    type: "website",
+  },
 };
 
 /**
@@ -82,6 +99,9 @@ export default async function Home() {
 
   return (
     <>
+      <JsonLd schema={organizationSchema()} />
+      <JsonLd schema={websiteSchema()} />
+
       <Navbar />
       <main>
         <Hero />

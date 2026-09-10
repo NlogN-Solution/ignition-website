@@ -1,13 +1,12 @@
 import type { Career } from "./types";
 
 export type { Career } from "./types";
-export { salarySource } from "./types";
 
 /**
- * EXAMPLE DATA. Descriptions and degree routes are general guidance; the
- * salary figures are illustrative placeholders for the interface and must be
- * replaced with sourced figures before launch. Every component that renders a
- * salary shows the example-data marker alongside it.
+ * EXAMPLE DATA. Descriptions and degree routes are general guidance and
+ * related universities are placeholder entries. Salary figures are real
+ * starter/experienced pay pulled from each career's National Careers Service
+ * job profile (see `salary.sourceUrl`) — national averages, not guarantees.
  */
 export const careers: Career[] = [
   {
@@ -27,7 +26,12 @@ export const careers: Career[] = [
     degreeSubjects: ["Computer Science", "Software Engineering", "Artificial Intelligence", "Data Science"],
     relatedCourses: ["computer-science", "software-engineering", "artificial-intelligence", "data-science"],
     relatedUniversities: ["example-metropolitan", "example-riverside", "example-northgate"],
-    salary: { entry: 30000, experienced: 70000 },
+    salary: {
+      entry: 30000,
+      experienced: 75000,
+      sourceUrl: "https://nationalcareers.service.gov.uk/job-profiles/software-developer",
+      sourceTitle: "National Careers Service — Software developer",
+    },
     outlook: "Consistently high demand across most UK sectors, not only technology companies.",
     destination: "UK",
   },
@@ -48,7 +52,12 @@ export const careers: Career[] = [
     degreeSubjects: ["Data Science", "Mathematics", "Statistics", "Computer Science"],
     relatedCourses: ["data-science", "mathematics", "computer-science", "artificial-intelligence"],
     relatedUniversities: ["example-metropolitan", "example-riverside"],
-    salary: { entry: 32000, experienced: 75000 },
+    salary: {
+      entry: 32000,
+      experienced: 83000,
+      sourceUrl: "https://nationalcareers.service.gov.uk/job-profiles/data-scientist",
+      sourceTitle: "National Careers Service — Data scientist",
+    },
     outlook: "Growing demand as organisations across healthcare, finance and government invest in analytics.",
     destination: "UK",
   },
@@ -69,7 +78,12 @@ export const careers: Career[] = [
     degreeSubjects: ["Civil Engineering", "Structural Engineering", "Architectural Engineering"],
     relatedCourses: ["civil-engineering", "mechanical-engineering", "architecture"],
     relatedUniversities: ["example-northgate", "example-riverside"],
-    salary: { entry: 28000, experienced: 60000 },
+    salary: {
+      entry: 29000,
+      experienced: 63000,
+      sourceUrl: "https://nationalcareers.service.gov.uk/job-profiles/civil-engineer",
+      sourceTitle: "National Careers Service — Civil engineer",
+    },
     outlook: "Steady demand tied to long-term infrastructure and housing programmes.",
     destination: "UK",
   },
@@ -90,7 +104,12 @@ export const careers: Career[] = [
     degreeSubjects: ["Mechanical Engineering", "Aerospace Engineering", "Manufacturing Engineering"],
     relatedCourses: ["mechanical-engineering", "civil-engineering"],
     relatedUniversities: ["example-northgate", "example-metropolitan"],
-    salary: { entry: 28000, experienced: 58000 },
+    salary: {
+      entry: 28000,
+      experienced: 60000,
+      sourceUrl: "https://nationalcareers.service.gov.uk/job-profiles/mechanical-engineer",
+      sourceTitle: "National Careers Service — Mechanical engineer",
+    },
     outlook: "Broad demand across manufacturing, energy, automotive and aerospace.",
     destination: "UK",
   },
@@ -111,7 +130,12 @@ export const careers: Career[] = [
     degreeSubjects: ["Medicine", "Biomedical Science", "Physiology"],
     relatedCourses: ["medicine", "biomedical-science", "nursing"],
     relatedUniversities: ["example-riverside", "example-kingsford"],
-    salary: { entry: 33000, experienced: 90000 },
+    salary: {
+      entry: 40000,
+      experienced: 145000,
+      sourceUrl: "https://nationalcareers.service.gov.uk/job-profiles/hospital-doctor",
+      sourceTitle: "National Careers Service — Hospital doctor",
+    },
     outlook: "Sustained demand, with entry gated by highly competitive admissions and interviews.",
     destination: "UK",
   },
@@ -132,7 +156,12 @@ export const careers: Career[] = [
     degreeSubjects: ["Nursing", "Midwifery", "Healthcare Science"],
     relatedCourses: ["nursing", "medicine", "psychology"],
     relatedUniversities: ["example-kingsford", "example-riverside"],
-    salary: { entry: 29000, experienced: 45000 },
+    salary: {
+      entry: 32000,
+      experienced: 48000,
+      sourceUrl: "https://nationalcareers.service.gov.uk/job-profiles/nurse",
+      sourceTitle: "National Careers Service — Nurse",
+    },
     outlook: "Consistent national demand across every region of the UK.",
     destination: "UK",
   },
@@ -153,7 +182,12 @@ export const careers: Career[] = [
     degreeSubjects: ["Psychology", "Cognitive Science", "Neuroscience"],
     relatedCourses: ["psychology", "nursing", "biomedical-science"],
     relatedUniversities: ["example-kingsford", "example-metropolitan"],
-    salary: { entry: 27000, experienced: 55000 },
+    salary: {
+      entry: 49000,
+      experienced: 65000,
+      sourceUrl: "https://nationalcareers.service.gov.uk/job-profiles/clinical-psychologist",
+      sourceTitle: "National Careers Service — Clinical psychologist",
+    },
     outlook: "Growing demand in mental health services; most senior roles require postgraduate qualification.",
     destination: "UK",
   },
@@ -174,7 +208,12 @@ export const careers: Career[] = [
     degreeSubjects: ["Architecture", "Architectural Technology", "Urban Design"],
     relatedCourses: ["architecture", "civil-engineering", "graphic-design"],
     relatedUniversities: ["example-northgate", "example-metropolitan"],
-    salary: { entry: 26000, experienced: 55000 },
+    salary: {
+      entry: 31000,
+      experienced: 58000,
+      sourceUrl: "https://nationalcareers.service.gov.uk/job-profiles/architect",
+      sourceTitle: "National Careers Service — Architect",
+    },
     outlook: "Tied to construction cycles; a portfolio matters as much as grades at application.",
     destination: "UK",
   },
@@ -195,7 +234,12 @@ export const careers: Career[] = [
     degreeSubjects: ["Product Design", "Graphic Design", "Human-Computer Interaction", "Digital Media"],
     relatedCourses: ["graphic-design", "computer-science", "psychology"],
     relatedUniversities: ["example-metropolitan", "example-northgate"],
-    salary: { entry: 27000, experienced: 60000 },
+    salary: {
+      entry: 32000,
+      experienced: 65000,
+      sourceUrl: "https://nationalcareers.service.gov.uk/job-profiles/ux-designer",
+      sourceTitle: "National Careers Service — User experience (UX) designer",
+    },
     outlook: "Strong demand wherever software is built; portfolios weigh heavily in hiring.",
     destination: "UK",
   },
@@ -216,7 +260,12 @@ export const careers: Career[] = [
     degreeSubjects: ["Law", "Law with Business", "Criminology"],
     relatedCourses: ["law", "business-management", "economics"],
     relatedUniversities: ["example-kingsford", "example-riverside"],
-    salary: { entry: 30000, experienced: 80000 },
+    salary: {
+      entry: 30000,
+      experienced: 80000,
+      sourceUrl: "https://nationalcareers.service.gov.uk/job-profiles/solicitor",
+      sourceTitle: "National Careers Service — Solicitor",
+    },
     outlook: "Competitive entry; commercial firms and public-sector routes differ sharply in pay and workload.",
     destination: "UK",
   },
@@ -237,7 +286,12 @@ export const careers: Career[] = [
     degreeSubjects: ["Finance", "Economics", "Accounting", "Mathematics"],
     relatedCourses: ["economics", "business-management", "mathematics"],
     relatedUniversities: ["example-riverside", "example-kingsford"],
-    salary: { entry: 32000, experienced: 85000 },
+    salary: {
+      entry: 28000,
+      experienced: 75000,
+      sourceUrl: "https://nationalcareers.service.gov.uk/job-profiles/investment-analyst",
+      sourceTitle: "National Careers Service — Investment analyst",
+    },
     outlook: "Concentrated in financial centres; entry is competitive and often internship-led.",
     destination: "UK",
   },
@@ -258,7 +312,12 @@ export const careers: Career[] = [
     degreeSubjects: ["Business Management", "Economics", "Engineering", "Any discipline with strong analysis"],
     relatedCourses: ["business-management", "economics", "mathematics"],
     relatedUniversities: ["example-riverside", "example-metropolitan"],
-    salary: { entry: 33000, experienced: 80000 },
+    salary: {
+      entry: 27000,
+      experienced: 60000,
+      sourceUrl: "https://nationalcareers.service.gov.uk/job-profiles/management-consultant",
+      sourceTitle: "National Careers Service — Management consultant",
+    },
     outlook: "Graduate schemes are heavily oversubscribed and use case-style interviews.",
     destination: "UK",
   },
@@ -279,7 +338,12 @@ export const careers: Career[] = [
     degreeSubjects: ["Education", "Primary Education", "A subject degree plus teacher training"],
     relatedCourses: ["education", "psychology", "english-literature"],
     relatedUniversities: ["example-kingsford", "example-northgate"],
-    salary: { entry: 31000, experienced: 48000 },
+    salary: {
+      entry: 34000,
+      experienced: 53000,
+      sourceUrl: "https://nationalcareers.service.gov.uk/job-profiles/secondary-school-teacher",
+      sourceTitle: "National Careers Service — Secondary school teacher",
+    },
     outlook: "Persistent shortages in mathematics, physics and computing.",
     destination: "UK",
   },
@@ -300,7 +364,12 @@ export const careers: Career[] = [
     degreeSubjects: ["Journalism", "English", "Politics", "Media and Communications"],
     relatedCourses: ["english-literature", "law", "business-management"],
     relatedUniversities: ["example-metropolitan", "example-kingsford"],
-    salary: { entry: 23000, experienced: 45000 },
+    salary: {
+      entry: 24000,
+      experienced: 45000,
+      sourceUrl: "https://nationalcareers.service.gov.uk/job-profiles/newspaper-journalist",
+      sourceTitle: "National Careers Service — Newspaper or magazine journalist",
+    },
     outlook: "Competitive and portfolio-led; most entrants build clippings before their first staff job.",
     destination: "UK",
   },
