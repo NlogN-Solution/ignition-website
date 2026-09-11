@@ -167,7 +167,7 @@ const rules: { when: (s: ProgressSignals) => boolean; action: (s: ProgressSignal
       id: "position",
       eyebrow: "One click",
       title: "Say where you are on the route.",
-      body: "The map below runs from first idea to first week. Mark the chapter you're in and everything here — and the adviser you eventually speak to — starts from the right place.",
+      body: "The map above runs from first idea to first week. Mark the chapter you're in and everything here — and the adviser you eventually speak to — starts from the right place.",
       href: "#route",
       cta: "Find your place on the map",
     }),

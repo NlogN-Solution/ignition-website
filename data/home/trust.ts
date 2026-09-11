@@ -22,6 +22,14 @@ export type TrustStat = {
   statNote?: string;
   label: string;
   body: string;
+  /** Path under /public. Only the visa-rate card carries one — see
+   * `components/home/WhyIgnition.tsx` for why the two cards aren't
+   * identical shapes. */
+  image?: string;
+  /** Turns the processing-time card into a small route rather than a bare
+   * number — the same "this is a journey, not just a fact" language the
+   * rest of the site uses for the application route. */
+  steps?: string[];
 };
 
 export const trustIntro = {
@@ -38,6 +46,7 @@ export const trustStats: TrustStat[] = [
     stat: "99%",
     label: "Visa success rate",
     body: "Nearly every Ignition-supported application results in a visa grant — the result of getting every document, deadline and financial requirement right the first time, not a second attempt.",
+    image: "/images/friends-graduating.webp",
   },
   {
     id: "processing-time",
@@ -46,5 +55,6 @@ export const trustStats: TrustStat[] = [
     statNote: "≈ 3 months",
     label: "Application to visa decision",
     body: "From a complete application to a visa decision, most Ignition students hear back in around three months — enough certainty to plan flights, housing and term start dates with confidence.",
+    steps: ["Applied", "Reviewed", "Decision"],
   },
 ];

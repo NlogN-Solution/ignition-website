@@ -7,6 +7,7 @@ import { CourseSearch } from "@/components/home/CourseSearch";
 import { WhyUk } from "@/components/home/WhyUk";
 import { WhyIgnition } from "@/components/home/WhyIgnition";
 import { IntentCards } from "@/components/home/IntentCards";
+import { CommunityStat } from "@/components/home/CommunityStat";
 import { NextStep } from "@/components/journey/NextStep";
 import { LeadCapture } from "@/components/lead/LeadCapture";
 import { JourneyPipeline } from "@/components/journey/JourneyPipeline";
@@ -53,16 +54,24 @@ export const metadata: Metadata = {
  *    universities at the top of the world tables, and the fact that teaching,
  *    research and standards are all checked by someone other than the
  *    university itself.
- * 3. "Where do I start?" — the entry points, then the next step, then the
- *    end-to-end route, and the adviser form last.
+ * 3. "Where do I start?" — the entry points, then the end-to-end route, then
+ *    the next step, then `CommunityStat` ("will I be alone"), and the
+ *    adviser form last. Everything from the entry points onward is rational —
+ *    a map, a next action, a claim. None of it answers the one question a
+ *    reader who is otherwise convinced still hesitates on, so `CommunityStat`
+ *    closes on it, in sourced numbers rather than sentiment, immediately
+ *    before asking the reader to leave their number. The same section, same
+ *    reasoning, closes `/study-in-uk` right before its own CTA.
  *
- * THE ORDER OF THOSE LAST TWO IS THE POINT. What sat here was a section
- * asking "Where are you in your UK journey?" above a section showing the
- * journey — a question about a map printed before the map. It has been turned
- * around and cut down: the panel now tells the student what to do next from
- * what they have actually done (see `NextStep`), and the question itself is
- * one click on a chapter of the route below it. Three overlapping maps of one
- * territory became one.
+ * THE ROUTE COMES BEFORE THE NEXT-STEP PANEL, NOT AFTER. What used to sit
+ * here was a section asking "Where are you in your UK journey?" above a
+ * section showing the journey — a question about a map printed before the
+ * map, which is backwards for the same reason it still is now: you cannot
+ * sensibly point someone at "the one thing worth doing next" until they have
+ * seen the full shape of what's ahead of them. The route runs first, so
+ * `NextStep`'s recommendation — and the one-click "I'm here" marker inside
+ * `JourneyPipeline` itself — both land on a map the reader has already been
+ * shown, not one still below the fold.
  *
  * The adviser form used to sit directly under the journey selector, on the
  * reasoning that asking for a phone number is easier once the student has just
@@ -130,6 +139,15 @@ export default async function Home() {
         </Section>
 
         <Section
+          id="route"
+          eyebrow="End to end"
+          title="From first idea to first week."
+          intro="The whole route to a UK university — not just the application. Mark the chapter you're in and the step below starts from there."
+        >
+          <JourneyPipeline />
+        </Section>
+
+        <Section
           id="journey"
           eyebrow="Your next step"
           title="What should you do next?"
@@ -139,14 +157,7 @@ export default async function Home() {
           <NextStep />
         </Section>
 
-        <Section
-          id="route"
-          eyebrow="End to end"
-          title="From first idea to first week."
-          intro="The whole route to a UK university — not just the application. Mark the chapter you're in and the step above starts from there."
-        >
-          <JourneyPipeline />
-        </Section>
+        <CommunityStat />
 
         <Section
           id="adviser"

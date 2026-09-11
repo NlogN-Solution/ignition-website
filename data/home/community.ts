@@ -1,11 +1,11 @@
 /**
- * "You won't be the only one" — the one section on `/study-in-uk` that
- * argues on feeling rather than proof. Every other section on this page
- * proves a claim (`FiveReasons`), compares an offer (`DestinationCompare`),
- * states a fact (`WorkInUk`) or answers an objection (`WorkFaq`). None of
- * them touch the actual fear behind "should I go" for a lot of students —
- * not "is it worth it", but "will I be alone" — because a spreadsheet
- * doesn't answer that. This does, with two real numbers rather than a mood.
+ * "You won't be the only one" — the one section, on both the homepage and
+ * `/study-in-uk`, that argues on feeling rather than proof. Everywhere else
+ * on those pages proves a claim, compares an offer, states a fact or answers
+ * an objection. None of that touches the actual fear behind "should I go"
+ * for a lot of students — not "is it worth it", but "will I be alone" —
+ * because a spreadsheet doesn't answer that. This does, with two real
+ * numbers rather than a mood.
  *
  * WHY NOT TESTIMONIALS. Real student quotes would make this stronger still,
  * but they need real names, photos and permission this file doesn't have.

@@ -1,12 +1,23 @@
 import Image from "next/image";
-import monument from "@/public/images/hero-monument.png";
-import student from "@/public/images/student.png";
+import towerBridge from "@/public/images/tower-bridge-london.png";
 
 /**
- * Below `lg` the gateway sits under the copy as its own band. From `lg` it
- * becomes the section backdrop, anchored by percentage so the arch keeps its
- * position relative to the headline; the student is placed against the same
- * box so he stays centred in the opening.
+ * Below `lg` the photograph sits under the copy as its own band. From `lg` it
+ * becomes the section backdrop on the right, the same slot the previous
+ * monument-and-student illustration held — object-position is tuned to keep
+ * the bridge and skyline in frame and crop out the empty sky on the source
+ * photo's right edge, rather than showing the full wide frame compressed.
+ *
+ * WHY THE PHOTO IS TONED, NOT RAW. Every other photograph on the site is
+ * grounded into the brand rather than shown at full saturation — `WhyUk` and
+ * `StatPhotoCard` run theirs through `mix-blend-luminosity` so navy or orange
+ * supplies the colour; `WhyUkHero`'s bridge photo has its fade baked directly
+ * into the pixels. A sunset this vivid, dropped in with only a crop, reads as
+ * a stock photo sitting next to the brand rather than art that belongs to it.
+ * A light navy wash plus a touch less saturation keeps the warmth — this is
+ * meant to feel aspirational, not corporate-flat like the duotone cards — while
+ * pulling its palette back toward the site's own navy-and-orange instead of
+ * competing with the headline in full, uncontrolled colour.
  */
 export function HeroArt() {
   return (
@@ -16,18 +27,24 @@ export function HeroArt() {
     >
       <div className="absolute bottom-0 left-1/2 h-full w-[150%] -translate-x-1/2 sm:w-[125%] lg:left-[36.5%] lg:top-[4px] lg:h-auto lg:w-[72.5%] lg:translate-x-0 lg:[mask-image:linear-gradient(to_right,transparent_0%,#000_13%)]">
         <Image
-          src={monument}
+          src={towerBridge}
           alt=""
           sizes="(max-width: 1024px) 150vw, 73vw"
           priority
-          className="h-full w-full object-cover object-[50%_86%] lg:object-fill"
+          className="h-full w-full object-cover object-[68%_42%] [filter:saturate(0.9)_brightness(0.97)_contrast(1.03)]"
         />
-        <Image
-          src={student}
-          alt=""
-          sizes="130px"
-          priority
-          className="absolute left-[47.6%] top-[40%] h-[48%] w-auto -translate-x-1/2 lg:left-[47.1%] lg:top-[38.2%] lg:h-[42.5%]"
+
+        {/* Grounds the photo's own colour into the brand — a light navy wash
+            rather than the full duotone the smaller cards use, since a hero
+            this size can carry some of the photo's own warmth without losing
+            the site's palette. */}
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-navy mix-blend-color opacity-[0.22]"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-[38%] bg-[linear-gradient(to_top,rgba(1,22,111,0.55),rgba(1,22,111,0))]"
         />
       </div>
 

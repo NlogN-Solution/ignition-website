@@ -6,7 +6,7 @@ import { FiveReasons } from "@/components/study-in-uk/FiveReasons";
 import { DestinationCompare } from "@/components/study-in-uk/DestinationCompare";
 import { WorkInUk } from "@/components/study-in-uk/WorkInUk";
 import { WorkFaq } from "@/components/study-in-uk/WorkFaq";
-import { CommunityStat } from "@/components/study-in-uk/CommunityStat";
+import { CommunityStat } from "@/components/home/CommunityStat";
 import { FutureCta } from "@/components/study-in-uk/FutureCta";
 import { workFaqs } from "@/data/study-in-uk/work";
 import { faqSchema, JsonLd, pageMetadata } from "@/lib/seo";

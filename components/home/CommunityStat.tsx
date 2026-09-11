@@ -1,16 +1,19 @@
 import Image from "next/image";
-import { communityStat } from "@/data/study-in-uk/community";
+import { communityStat } from "@/data/home/community";
 
 /**
- * "You won't be the only one" — see `data/study-in-uk/community.ts` for why
- * this section exists and why it's numbers rather than testimonials.
+ * "You won't be the only one" — see `data/home/community.ts` for why this
+ * section exists and why it's numbers rather than testimonials. Used on both
+ * the homepage and `/study-in-uk`, hence living under `home/` rather than
+ * either page's own folder — it's a shared trust signal, not a page-specific
+ * one.
  *
- * Solid orange, not navy — `FutureCta` right after this is the navy plate,
- * and two of those back to back would read as one section repeated rather
- * than a build toward it. Text sits on the flat colour, photo sits beside it
- * rather than behind it, so the two stats stay fully legible rather than
- * fighting a photograph for contrast — the same text-block/photo-block split
- * `WorkInUk`'s intro already uses, not a new pattern to learn.
+ * Solid orange, not navy — on `/study-in-uk` this sits directly before
+ * `FutureCta`'s navy plate, and two of those back to back would read as one
+ * section repeated rather than a build toward it. Text sits on the flat
+ * colour, photo sits beside it rather than behind it, so the two stats stay
+ * fully legible rather than fighting a photograph for contrast — the same
+ * text-block/photo-block split `WorkInUk`'s intro already uses.
  */
 export function CommunityStat({ id }: { id?: string }) {
   const { enrolled, visaGrant } = communityStat;
