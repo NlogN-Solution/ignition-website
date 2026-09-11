@@ -2,11 +2,50 @@
 
 import Link from "next/link";
 import { motion } from "motion/react";
-import { ArrowRight, Check, Clock3, Compass } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  ClipboardCheck,
+  Clock3,
+  Compass,
+  Check,
+  MapPin,
+  Phone,
+  PoundSterling,
+  Sparkles,
+  type LucideIcon,
+} from "lucide-react";
 import { Card } from "../ui/Card";
 import { GatewayMotif } from "../ui/GatewayMotif";
 import { useJourneyProgress } from "@/lib/journey/useJourneyProgress";
 import type { Milestone } from "@/lib/journey/progress";
+
+/** Keyed on `NextAction["id"]` — every rule in `lib/journey/progress.ts`
+ * names one of these. Falls back to `Compass` for any id added there
+ * without a matching entry here. */
+const actionIcons: Record<string, LucideIcon> = {
+  "eligibility-resume": ClipboardCheck,
+  "quiz-resume": Compass,
+  quiz: Compass,
+  position: MapPin,
+  courses: BookOpen,
+  budget: PoundSterling,
+  eligibility: ClipboardCheck,
+  adviser: Phone,
+  settled: Sparkles,
+};
+
+/** One colour per milestone domain, the same disciplined set used on the
+ * homepage's own entry-point cards — not a fifth invented hue. */
+const milestoneTheme: Record<
+  Milestone["id"],
+  { icon: LucideIcon; tone: string }
+> = {
+  career: { icon: Compass, tone: "border-navy/20 bg-navy/[0.06] text-navy" },
+  position: { icon: MapPin, tone: "border-blue-bright/25 bg-blue-bright/[0.07] text-blue-bright" },
+  budget: { icon: PoundSterling, tone: "border-orange/25 bg-orange/[0.07] text-orange" },
+  eligibility: { icon: ClipboardCheck, tone: "border-emerald/25 bg-emerald/[0.07] text-emerald" },
+};
 
 /**
  * The homepage's next-step panel — what replaced "Where are you in your UK
@@ -42,6 +81,7 @@ import type { Milestone } from "@/lib/journey/progress";
  */
 export function NextStep() {
   const { milestones, next, done, total, quizAnswered, quizTotal } = useJourneyProgress();
+  const ActionIcon = actionIcons[next.id] ?? Compass;
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,1fr)] lg:gap-10">
@@ -59,7 +99,7 @@ export function NextStep() {
             <GatewayMotif className="pointer-events-none absolute -right-6 -top-10 -z-10 h-[210%] w-auto select-none text-white opacity-[0.07]" />
 
             <p className="flex items-center gap-[9px] text-[12px] font-bold uppercase tracking-[0.14em] text-white/60">
-              <Compass size={14} strokeWidth={2.3} aria-hidden className="text-orange" />
+              <ActionIcon size={14} strokeWidth={2.3} aria-hidden className="text-orange" />
               {next.eyebrow}
             </p>
             <p className="mt-[10px] text-[clamp(1.25rem,1.9vw,1.5rem)] font-bold leading-[1.25] tracking-[-0.018em]">
@@ -149,9 +189,17 @@ export function NextStep() {
  * One rung. A finished one states the student's own answer; an unfinished one
  * states what it would give them — which is the part that makes the cold
  * ladder worth looking at rather than a row of empty boxes.
+ *
+ * An outstanding rung shows its own domain icon rather than an empty ring —
+ * four blank circles in a row said only "undone, undone, undone, undone";
+ * the icon says what each one actually is before the label does, and its
+ * colour is the same domain-colour system the homepage's entry-point cards
+ * use, so career/budget/eligibility read as the same categories in both
+ * places.
  */
 function Rung({ milestone }: { milestone: Milestone }) {
   const { done, label, detail, blank } = milestone;
+  const { icon: Icon, tone } = milestoneTheme[milestone.id];
 
   return (
     <div
@@ -161,11 +209,11 @@ function Rung({ milestone }: { milestone: Milestone }) {
     >
       <span
         aria-hidden
-        className={`mt-[1px] flex size-[22px] shrink-0 items-center justify-center rounded-full border transition-colors duration-200 ${
-          done ? "border-navy bg-navy text-white" : "border-ring-idle bg-white"
+        className={`mt-[1px] flex size-[30px] shrink-0 items-center justify-center rounded-full border transition-colors duration-200 ${
+          done ? "border-navy bg-navy text-white" : tone
         }`}
       >
-        {done ? <Check size={12} strokeWidth={3.2} /> : null}
+        {done ? <Check size={14} strokeWidth={3.2} /> : <Icon size={15} strokeWidth={2.2} />}
       </span>
 
       <div className="min-w-0 flex-1">

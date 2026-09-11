@@ -45,22 +45,36 @@ const icons: Record<Intent["icon"], LucideIcon> = {
   luggage: Luggage,
 };
 
-/** The navy line-icon with the orange dot, in a tinted tile. */
+/**
+ * One colour per secondary card, each tied to the site's own established
+ * palette (the same navy/blue/orange/emerald set `/study-in-uk` uses) rather
+ * than a fifth invented hue. Four identical grey tiles in a row read as one
+ * flat row of options; four distinct colours read as four different kinds of
+ * help before the label is even read.
+ */
+const tileTones: Partial<Record<Intent["icon"], string>> = {
+  landmark: "border-navy/15 bg-navy/[0.08] text-navy group-hover:border-navy/25",
+  clipboard: "border-blue-bright/20 bg-blue-bright/[0.08] text-blue-bright group-hover:border-blue-bright/30",
+  plane: "border-orange/20 bg-orange/[0.08] text-orange group-hover:border-orange/30",
+  luggage: "border-emerald/20 bg-emerald/[0.08] text-emerald group-hover:border-emerald/30",
+};
+
+/** The line-icon with the orange dot, in a tinted tile. */
 function IconTile({ icon, tone = "light" }: { icon: Intent["icon"]; tone?: "light" | "dark" }) {
   const Icon = icons[icon];
   const dark = tone === "dark";
+  const lightTone = tileTones[icon] ?? "border-hairline bg-canvas text-navy group-hover:border-ring-idle";
 
   return (
     <span
       className={`relative flex size-[46px] shrink-0 items-center justify-center rounded-[12px] border transition-colors duration-200 ${
-        dark
-          ? "border-white/15 bg-white/10 text-white"
-          : "border-hairline bg-canvas text-navy group-hover:border-ring-idle"
+        dark ? "border-white/15 bg-white/10 text-white" : lightTone
       }`}
     >
       <Icon size={22} strokeWidth={1.7} aria-hidden />
       {/* The orange dot is the mark already used beside the match-screen
-          highlights — kept, just anchored to the tile instead of floating. */}
+          highlights — kept uniform across every tone, so it stays the one
+          constant signature while the tile colour itself varies. */}
       <span
         aria-hidden
         className="absolute right-[9px] top-[11px] size-[5px] rounded-full bg-orange"
