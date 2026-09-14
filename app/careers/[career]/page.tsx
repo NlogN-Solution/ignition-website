@@ -8,7 +8,7 @@ import { PageHero } from "@/components/layout/PageHero";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { careers, getCareer, salarySource } from "@/data/careers";
+import { careers, getCareer } from "@/data/careers";
 import { pageMetadata } from "@/lib/seo";
 
 export function generateStaticParams() {
@@ -148,13 +148,13 @@ export default async function CareerPage({
                   <h2 className="text-[17px] font-bold tracking-[-0.01em] text-navy">
                     Typical salary
                   </h2>
-                  <Badge tone="demo">Example data</Badge>
+                  <Badge tone="navy">UK average</Badge>
                 </div>
 
                 <dl className="mt-5 space-y-4">
                   <div>
                     <dt className="text-[13.5px] font-semibold text-muted">
-                      Starting out
+                      Base salary
                     </dt>
                     <dd className="mt-[2px] text-[24px] font-bold tracking-[-0.02em] text-navy">
                       {currency.format(career.salary.entry)}
@@ -162,7 +162,7 @@ export default async function CareerPage({
                   </div>
                   <div>
                     <dt className="text-[13.5px] font-semibold text-muted">
-                      With experience
+                      Mid-level salary
                     </dt>
                     <dd className="mt-[2px] text-[24px] font-bold tracking-[-0.02em] text-navy">
                       {currency.format(career.salary.experienced)}
@@ -171,17 +171,17 @@ export default async function CareerPage({
                 </dl>
 
                 <p className="mt-5 border-t border-hairline pt-4 text-[13px] font-medium leading-[1.55] text-muted-light">
-                  Placeholder figures for demonstration. For real UK salary
-                  ranges see the{" "}
+                  National averages — real pay varies by employer, region and
+                  sector. Sourced from the{" "}
                   <a
-                    href={salarySource.href}
+                    href={career.salary.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-semibold text-blue-link underline-offset-2 hover:underline"
                   >
-                    {salarySource.label}
-                  </a>
-                  .
+                    {career.salary.sourceTitle}
+                  </a>{" "}
+                  job profile.
                 </p>
               </Card>
 
