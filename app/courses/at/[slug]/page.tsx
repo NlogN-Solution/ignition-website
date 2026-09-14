@@ -1,17 +1,25 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowUpRight, Building2, Info } from "lucide-react";
+import {
+  Building2,
+  CalendarClock,
+  FileCheck2,
+  Info,
+  Layers,
+  PoundSterling,
+} from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ReadyToApply } from "@/components/apply/ReadyToApply";
-import { Container } from "@/components/ui/Container";
-import { Card } from "@/components/ui/Card";
-import { Callout } from "@/components/ui/Callout";
-import { Prose } from "@/components/ui/Prose";
-import { SpecList } from "@/components/ui/SpecList";
+import { DetailTabs } from "@/components/ui/DetailTabs";
 import { OfferingHero } from "@/components/courses/OfferingHero";
-import { OfferingCard } from "@/components/courses/OfferingCard";
-import { EntryRouteCards } from "@/components/universities/EntryRoutes";
+import {
+  OfferingEntryPanel,
+  OfferingFeesPanel,
+  OfferingIntakesPanel,
+  OfferingOverviewPanel,
+  OfferingRelatedPanel,
+  OfferingUniversityPanel,
+} from "@/components/courses/offeringPanels";
 import { getOffering } from "@/lib/api/catalogue";
 import { durationLabel } from "@/data/courses";
 import { pageMetadata } from "@/lib/seo";
@@ -40,13 +48,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   return pageMetadata({
     title: `${offering.title}${where}`,
-    description: `${offering.title}${where}. ${facts.join(", ")}. Entry requirements, fees and how to apply from Nepal.`,
+    description: `${offering.title}${where}. ${facts.join(", ")}. Entry requirements, intakes, fees and how to apply from Nepal.`,
     path: `/courses/at/${offering.slug}`,
   });
 }
 
 /**
- * One university's offering of a course.
+ * One university's offering of a course, six questions, no navigation between
+ * them.
  *
  * This page exists because the course cards had nowhere to send anyone. Every
  * one of the 4,797 of them linked to the university, because the only other
@@ -54,12 +63,27 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
  * one — so "BSc Occupational Therapy at Worcester" and "BSc Nursing at
  * Worcester" were the same click.
  *
- * The substance here is the **entry criteria**, and they are inherited rather
- * than stored: an offering row carries a title, a level and a duration, but the
+ * It was then a single scroll of two sections — a spec list and the inherited
+ * entry column — sitting next to a university page with six tabs. That was not
+ * a judgement about how much a course is worth; it was the API. `programs` has
+ * stored requirements, key dates, highlights, outcomes and a fee since the
+ * import, and none of it was ever served, so the page rendered what it was
+ * given.
+ *
+ * Now it takes the same shell as the university and the subject pages
+ * (`DetailTabs`) for the same reason all three do: the thing is the fixed
+ * point and the question is what changes. A student checking whether they meet
+ * the requirements does not scroll past the intakes to find out.
+ *
+ * **The substance is still the entry criteria, and they are still inherited.**
+ * An offering row carries a title, a level and a duration; the
  * `university_routes` row it was imported under carries the real academic and
  * English requirements, the fee structure and the scholarship bands. 4,575 of
- * the 4,797 have one. The 222 that do not say so plainly and send the reader to
- * the university's own criteria rather than showing an empty panel.
+ * the 4,797 have one. The 222 that do not say so plainly and send the reader
+ * to the university's own criteria rather than showing an empty panel.
+ *
+ * Every panel is server-rendered and stays in the HTML, so nothing here is
+ * hidden from search or from a reader without JavaScript.
  */
 export default async function OfferingPage({
   params,
@@ -69,7 +93,53 @@ export default async function OfferingPage({
   const offering = await getOffering((await params).slug);
   if (!offering) notFound();
 
+  const icon = { size: 15, strokeWidth: 2.2, "aria-hidden": true } as const;
   const university = offering.university;
+
+  const tabs = [
+    {
+      id: "overview",
+      label: "Overview",
+      hint: "What the course is, and what you come out with",
+      icon: <Info {...icon} />,
+      panel: <OfferingOverviewPanel offering={offering} />,
+    },
+    {
+      id: "entry",
+      label: "Admission requirements",
+      hint: "What you need to get in",
+      icon: <FileCheck2 {...icon} />,
+      panel: <OfferingEntryPanel offering={offering} />,
+    },
+    {
+      id: "intakes",
+      label: "Intakes and dates",
+      hint: "When it runs, and when to apply by",
+      icon: <CalendarClock {...icon} />,
+      panel: <OfferingIntakesPanel offering={offering} />,
+    },
+    {
+      id: "fees",
+      label: "Fees and funding",
+      hint: "What it costs, and what could pay for it",
+      icon: <PoundSterling {...icon} />,
+      panel: <OfferingFeesPanel offering={offering} />,
+    },
+    {
+      id: "university",
+      label: "The university",
+      hint: university ? `About ${university.name}` : "Where you would be studying",
+      icon: <Building2 {...icon} />,
+      panel: <OfferingUniversityPanel offering={offering} />,
+    },
+    {
+      id: "related",
+      label: "Related courses",
+      hint: "What else this university teaches in the subject",
+      icon: <Layers {...icon} />,
+      panel: <OfferingRelatedPanel offering={offering} />,
+    },
+  ];
 
   return (
     <>
@@ -77,148 +147,7 @@ export default async function OfferingPage({
       <main>
         <OfferingHero offering={offering} />
 
-        <Container className="py-[clamp(2.5rem,4.5vw,4rem)]">
-          <div className="max-w-[80ch] space-y-12 sm:space-y-14">
-            <Prose title="This course">
-              <Card className="p-5 sm:p-6">
-                <SpecList
-                  specs={[
-                    ...(offering.qualification
-                      ? [{ label: "Qualification", value: offering.qualification }]
-                      : []),
-                    ...(offering.level ? [{ label: "Level", value: offering.level }] : []),
-                    ...(offering.subject ? [{ label: "Subject", value: offering.subject }] : []),
-                    ...(offering.durationYears
-                      ? [{ label: "Duration", value: durationLabel(offering.durationYears) }]
-                      : []),
-                    {
-                      label: "Placement year",
-                      value: offering.placement ? "Available" : "Not offered",
-                    },
-                    ...(offering.campus ? [{ label: "Campus", value: offering.campus }] : []),
-                    ...(offering.intake ? [{ label: "Intake", value: offering.intake }] : []),
-                    ...(university
-                      ? [
-                          {
-                            label: "University",
-                            value: (
-                              <Link
-                                href={`/universities/${university.slug}`}
-                                className="font-semibold text-blue-link underline underline-offset-2 transition-colors hover:text-navy"
-                              >
-                                {university.name}
-                              </Link>
-                            ),
-                          },
-                        ]
-                      : []),
-                  ]}
-                />
-              </Card>
-
-              {offering.extraRequirements ? (
-                <Callout tone="official">
-                  <strong>Additional requirement.</strong> {offering.extraRequirements}
-                </Callout>
-              ) : null}
-            </Prose>
-
-            {/* The inherited admission column. Same component and same rows as
-                the university's own "Entry criteria by route" tab, because it
-                is literally the same record — a student who checks one against
-                the other must not find two different numbers. */}
-            {offering.entry ? (
-              <Prose title="Entry criteria and fees">
-                <p>
-                  {university ? `${university.name} admits` : "This course admits"} this
-                  course through the route below. These are the criteria Ignition
-                  holds for the September 2026 intake, written for applicants from
-                  Nepal, and they are reproduced as the university stated them.
-                </p>
-                <div className="pt-2">
-                  <EntryRouteCards routes={[offering.entry]} />
-                </div>
-                <p className="text-[13px] font-medium leading-[1.55] text-muted-light">
-                  Criteria change between intakes and are set by the university,
-                  not by Ignition. Confirm on the official course page, or ask
-                  your advisor, before you rely on any figure here.
-                </p>
-              </Prose>
-            ) : (
-              <Prose title="Entry criteria and fees">
-                <Callout tone="official">
-                  <strong>Not recorded for this course yet.</strong> Ignition has
-                  not attributed this offering to one of{" "}
-                  {university ? university.name : "the university"}&rsquo;s entry
-                  routes, so its specific requirements and fees are not shown
-                  here rather than guessed at.{" "}
-                  {university ? (
-                    <Link
-                      href={`/universities/${university.slug}`}
-                      className="font-semibold text-blue-link underline underline-offset-2 transition-colors hover:text-navy"
-                    >
-                      See every route at {university.name}
-                    </Link>
-                  ) : null}
-                  , or ask an advisor and we will confirm it with the university.
-                </Callout>
-              </Prose>
-            )}
-
-            {offering.related.length ? (
-              <Prose title="Other courses in this subject here">
-                <p>
-                  More {offering.subject ? offering.subject.toLowerCase() : ""} courses at{" "}
-                  {university ? university.name : "this university"}. You have
-                  already chosen the place; this is what else it teaches.
-                </p>
-                <ul className="grid gap-5 pt-2 sm:grid-cols-2">
-                  {offering.related.map((related) => (
-                    <li key={related.slug}>
-                      <OfferingCard offering={related} />
-                    </li>
-                  ))}
-                </ul>
-              </Prose>
-            ) : null}
-
-            {university ? (
-              <Card className="p-5 sm:p-6">
-                <div className="flex items-start gap-4">
-                  <span
-                    aria-hidden
-                    className="flex size-[40px] shrink-0 items-center justify-center rounded-[11px] border border-orange/20 bg-orange/[0.07] text-orange"
-                  >
-                    <Building2 size={19} strokeWidth={2} />
-                  </span>
-                  <div className="min-w-0">
-                    <h2 className="text-[16.5px] font-bold leading-[1.35] tracking-[-0.01em] text-navy">
-                      About {university.name}
-                    </h2>
-                    <p className="mt-2 text-[14.5px] font-medium leading-[1.6] text-muted">
-                      The place, its record, what it costs from Nepal, and the
-                      documents you will need.
-                    </p>
-                    <Link
-                      href={`/universities/${university.slug}`}
-                      className="mt-4 inline-flex items-center gap-[9px] text-[14.5px] font-bold text-blue-link transition-colors hover:text-navy"
-                    >
-                      Open the university
-                      <ArrowUpRight size={16} strokeWidth={2.4} aria-hidden />
-                    </Link>
-                  </div>
-                </div>
-              </Card>
-            ) : null}
-
-            <p className="flex items-start gap-[9px] text-[13px] font-medium leading-[1.55] text-muted-light">
-              <Info size={15} strokeWidth={2} aria-hidden className="mt-[2px] shrink-0" />
-              Course details come from the university&rsquo;s September 2026
-              intake information. Always confirm on the official course page
-              before you apply.
-            </p>
-          </div>
-        </Container>
+        <DetailTabs tabs={tabs} label="Course information" />
       </main>
 
       <ReadyToApply

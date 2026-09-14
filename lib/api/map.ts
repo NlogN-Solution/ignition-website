@@ -20,10 +20,14 @@ import type {
   CourseProfileDto,
   Facets,
   FacetsDto,
+  Intake,
+  KeyDate,
   Offering,
   OfferingDetail,
   OfferingDetailDto,
   OfferingDto,
+  OfferingUniversity,
+  RequirementSection,
   RouteDto,
   ScholarshipDto,
   UniversityDetailDto,
@@ -333,7 +337,120 @@ export function toOfferingDetail(dto: OfferingDetailDto): OfferingDetail {
   set(detail, "feeTier", dto.fee_tier);
   set(detail, "entry", toEntryRoute(dto.route));
 
+  set(detail, "highlights", dto.highlights ?? undefined);
+  set(detail, "outcomes", dto.outcomes ?? undefined);
+  set(detail, "intakesSummary", dto.intakes_summary ?? undefined);
+  set(detail, "requirements", toRequirementSections(dto.requirements));
+  set(detail, "keyDates", toKeyDates(dto.key_dates));
+  set(
+    detail,
+    "intakes",
+    (dto.intakes ?? [])
+      .map((intake) => {
+        const mapped: Intake = { name: intake.name };
+        set(mapped, "startDate", intake.start_date ?? undefined);
+        set(mapped, "applicationDeadline", intake.application_deadline ?? undefined);
+        return mapped;
+      })
+      .filter((intake) => intake.name.length > 0),
+  );
+  set(detail, "tuitionFee", dto.tuition_fee ?? undefined);
+  set(detail, "currency", dto.currency ?? undefined);
+  set(detail, "durationMonths", dto.duration_months ?? undefined);
+  set(detail, "minimumIelts", dto.minimum_ielts ?? undefined);
+  set(detail, "minimumGpa", dto.minimum_gpa ?? undefined);
+  set(detail, "courseType", dto.course_type ?? undefined);
+  set(detail, "imageUrl", dto.image_url ?? undefined);
+  set(detail, "universityProfile", toOfferingUniversity(dto.university_profile));
+  set(detail, "scholarships", (dto.scholarships ?? []).map(toScholarship));
+
   return detail;
+}
+
+/**
+ * `programs.requirements` is a free-form object keyed by section —
+ * `{academic: [...], documents: [...], english: [...]}` — with no guarantee
+ * about which keys are present or what order they arrive in.
+ *
+ * Insertion order is kept rather than sorted into a fixed list. The importer
+ * writes the sections in the order the source stated them, and a university
+ * that leads with documents rather than grades is saying something about how
+ * it reads an application.
+ */
+function toRequirementSections(
+  requirements: Record<string, unknown> | null | undefined,
+): RequirementSection[] | undefined {
+  if (!requirements) return undefined;
+
+  const sections = Object.entries(requirements)
+    .map(([key, value]) => ({ label: humanise(key), items: asStrings(value) }))
+    .filter((section) => section.items.length > 0);
+
+  return sections.length ? sections : undefined;
+}
+
+/** `programs.key_dates`, keyed by milestone, in the order the record states them. */
+function toKeyDates(keyDates: Record<string, unknown> | null | undefined): KeyDate[] | undefined {
+  if (!keyDates) return undefined;
+
+  const dates = Object.entries(keyDates)
+    .map(([key, value]) => ({ label: humanise(key), value: typeof value === "string" ? value.trim() : "" }))
+    .filter((entry) => entry.value.length > 0);
+
+  return dates.length ? dates : undefined;
+}
+
+/** A value that may be one string or a list of them, as a list of them. */
+function asStrings(value: unknown): string[] {
+  if (typeof value === "string") return value.trim() ? [value.trim()] : [];
+  if (!Array.isArray(value)) return [];
+  return value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0);
+}
+
+/** `applicationDeadline` / `application_deadline` → "Application deadline". */
+function humanise(key: string): string {
+  const spaced = key.replace(/[_-]+/g, " ").replace(/([a-z0-9])([A-Z])/g, "$1 $2");
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1).toLowerCase();
+}
+
+/**
+ * The institution behind an offering.
+ *
+ * Not `toUniversity`: that produces the full `University` the university page
+ * is written against, with required fields this payload deliberately does not
+ * carry. Mapping the subset as its own shape keeps "what the course page shows
+ * about the university" an explicit, checkable list rather than a
+ * half-populated `University` whose empty required fields read as facts.
+ */
+function toOfferingUniversity(
+  dto: OfferingDetailDto["university_profile"],
+): OfferingUniversity | undefined {
+  if (!dto) return undefined;
+
+  const university: OfferingUniversity = { slug: dto.slug, name: dto.name };
+
+  set(university, "city", dto.city ?? undefined);
+  set(university, "region", dto.region ?? undefined);
+  set(university, "monogram", dto.monogram ?? undefined);
+  set(university, "tagline", dto.tagline ?? undefined);
+  set(university, "overview", dto.overview ?? undefined);
+  set(university, "website", dto.website ?? undefined);
+  set(university, "founded", dto.founded ?? undefined);
+  set(university, "kind", dto.kind ?? undefined);
+  set(university, "campus", dto.campus ?? undefined);
+  set(university, "studentPopulation", dto.student_population ?? undefined);
+  set(university, "internationalStudents", dto.international_students ?? undefined);
+  set(university, "studentStaffRatio", dto.student_staff_ratio ?? undefined);
+  set(university, "ranking", dto.ranking ?? undefined);
+  set(university, "rankings", (dto.rankings ?? undefined) as Ranking[] | undefined);
+  set(university, "facilities", dto.facilities ?? undefined);
+  set(university, "internationalSupport", dto.international_support ?? undefined);
+  set(university, "tuitionMin", dto.tuition_min ?? undefined);
+  set(university, "tuitionMax", dto.tuition_max ?? undefined);
+  set(university, "livingCostMonthly", dto.living_cost_monthly ?? undefined);
+  set(university, "courseCount", dto.course_count ?? undefined);
+
+  return university;
 }
 
 export function toFacets(dto: FacetsDto): Facets {

@@ -1285,6 +1285,35 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/users/{user_id}/shortlist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The courses and universities the student saved in the portal
+         * @description What the student saved while signed in.
+         *
+         *     The sibling of `/research`, and the counterpart it was missing: that one is
+         *     anonymous browsing on the public site, carried across an origin boundary
+         *     and resolved against the catalogue on a best-effort basis. This one is a
+         *     signed-in student pointing at rows in the same catalogue staff work in, so
+         *     there is nothing to resolve and nothing that can fail to.
+         *
+         *     Reading is all it does. Opening an application against a shortlisted course
+         *     is still a counsellor's act in the applications API.
+         */
+        get: operations["get_portal_shortlist_api_v1_users__user_id__shortlist_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/{user_id}/education": {
         parameters: {
             query?: never;
@@ -2945,7 +2974,69 @@ export interface paths {
         /** My applications */
         get: operations["list_my_applications_api_v1_student_me_applications_get"];
         put?: never;
-        post?: never;
+        /**
+         * Start an application for myself
+         * @description A student opens their own application, from the course page.
+         *
+         *     The staff `POST /applications` endpoint's docstring has promised this since
+         *     the port: "Students get their own application-submission flow in Phase 5;
+         *     it does not run through this staff endpoint." This is it. It is a separate
+         *     route rather than a relaxed guard on that one because the two take
+         *     genuinely different input — see `StudentApplicationCreate`.
+         *
+         *     Three things it insists on:
+         *
+         *     * **The course has to be one we publish.** An unpublished offering, or one
+         *       at an unpublished university, is not applicable-to — it is a half-written
+         *       record, and an application against it would name a course no counsellor
+         *       can act on.
+         *     * **One live application per course.** Re-submitting the form, or coming
+         *       back to the page a week later, must not open a second file against the
+         *       same offering. A withdrawn or rejected one does not block a fresh
+         *       attempt: applying again after a rejection is a real thing students do.
+         *     * **It opens as a DRAFT.** Nothing is with the university. The student then
+         *       fills in what is missing and uploads their documents, and the counsellor
+         *       files it.
+         *
+         *     The document checklist comes from instantiating the application's workflow,
+         *     and that is **best-effort on purpose**. Template resolution can fail for
+         *     reasons that are nothing to do with this student — no active template for
+         *     the country, none marked default, none at all on a fresh database — and
+         *     none of them is a good reason to refuse to open an application. A file with
+         *     no checklist yet is one a counsellor can attach a workflow to; a 500 is
+         *     just a dead end.
+         */
+        post: operations["create_my_application_api_v1_student_me_applications_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/student/me/applications/{application_id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Hand my application to my counsellor
+         * @description "I have finished my part" — not "this is with the university".
+         *
+         *     Moves the application to `READY_TO_SUBMIT` through
+         *     `change_application_status`, which is the one door that writes an
+         *     `application_status_history` row. See `_STUDENT_SUBMITTABLE_FROM` for why
+         *     that is as far as a student can move their own file.
+         *
+         *     Already-ready is not an error. A student who presses the button twice, or
+         *     reloads the confirmation, has not done anything wrong and should not be
+         *     shown a failure — `change_application_status` no-ops on an unchanged
+         *     status, so this is idempotent.
+         */
+        post: operations["submit_my_application_api_v1_student_me_applications__application_id__submit_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -5617,8 +5708,19 @@ export interface components {
          *     serves, deliberately: a student comparing the course page against the
          *     university's "Entry criteria by route" tab must see the same words, because
          *     they are the same row.
+         *
+         *     Everything below `route` was already on `programs` and had simply never
+         *     been served: the page rendered a title, a level and a duration while the
+         *     row itself held requirements, key dates, outcomes and a fee. `exclude_none`
+         *     still governs — a thin offering omits these keys entirely and its tabs
+         *     hide rather than render empty.
          */
         CourseDetailPublic: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
             /** Slug */
             slug: string;
             /** Title */
@@ -5641,6 +5743,10 @@ export interface components {
             fee_tier?: string | null;
             /** Intake */
             intake?: string | null;
+            /** Fee Text */
+            fee_text?: string | null;
+            /** Scholarship Text */
+            scholarship_text?: string | null;
             university?: components["schemas"]["CourseUniversity"] | null;
             /** Course Profile Slug */
             course_profile_slug?: string | null;
@@ -5651,6 +5757,39 @@ export interface components {
             route?: components["schemas"]["RoutePublic"] | null;
             /** Related */
             related?: components["schemas"]["CoursePublic"][] | null;
+            /** Requirements */
+            requirements?: {
+                [key: string]: unknown;
+            } | null;
+            /** Key Dates */
+            key_dates?: {
+                [key: string]: unknown;
+            } | null;
+            /** Highlights */
+            highlights?: string[] | null;
+            /** Outcomes */
+            outcomes?: string[] | null;
+            /** Intakes Summary */
+            intakes_summary?: string[] | null;
+            /** Intakes */
+            intakes?: components["schemas"]["IntakePublic"][] | null;
+            /** Tuition Fee */
+            tuition_fee?: number | null;
+            /** Currency */
+            currency?: string | null;
+            /** Duration Months */
+            duration_months?: number | null;
+            /** Minimum Ielts */
+            minimum_ielts?: number | null;
+            /** Minimum Gpa */
+            minimum_gpa?: number | null;
+            /** Course Type */
+            course_type?: string | null;
+            /** Image Url */
+            image_url?: string | null;
+            university_profile?: components["schemas"]["CourseUniversityProfile"] | null;
+            /** Scholarships */
+            scholarships?: components["schemas"]["ScholarshipPublic"][] | null;
         };
         /** CourseFacets */
         CourseFacets: {
@@ -5954,6 +6093,11 @@ export interface components {
          * @description One university's offering of a course — there are ~4,800 of these.
          */
         CoursePublic: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
             /** Slug */
             slug: string;
             /** Title */
@@ -5976,6 +6120,10 @@ export interface components {
             fee_tier?: string | null;
             /** Intake */
             intake?: string | null;
+            /** Fee Text */
+            fee_text?: string | null;
+            /** Scholarship Text */
+            scholarship_text?: string | null;
             university?: components["schemas"]["CourseUniversity"] | null;
             /** Course Profile Slug */
             course_profile_slug?: string | null;
@@ -6003,6 +6151,11 @@ export interface components {
          * @description The university, as an offering carries it.
          */
         CourseUniversity: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
             /** Slug */
             slug: string;
             /** Name */
@@ -6011,6 +6164,82 @@ export interface components {
             city?: string | null;
             /** Region */
             region?: string | null;
+        };
+        /**
+         * CourseUniversityProfile
+         * @description Enough of the institution to answer "where would I be studying?".
+         *
+         *     The offering page used to end with a card that said only the university's
+         *     name and a link. That is the right link, but it is the wrong moment to send
+         *     someone away — the question "what is this place" is part of deciding
+         *     whether the course is worth reading on, not a separate errand.
+         *
+         *     This is a strict subset of `UniversityDetail`: same columns, same values,
+         *     no derived or re-worded copy. A student who opens the university page next
+         *     must not find a different number.
+         */
+        CourseUniversityProfile: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** City */
+            city?: string | null;
+            /** Region */
+            region?: string | null;
+            /** Monogram */
+            monogram?: string | null;
+            /** Tagline */
+            tagline?: string | null;
+            /** Overview */
+            overview?: string | null;
+            /** Logo Url */
+            logo_url?: string | null;
+            /** Imagery */
+            imagery?: {
+                [key: string]: unknown;
+            } | null;
+            /** Website */
+            website?: string | null;
+            /** Founded */
+            founded?: string | null;
+            /** Kind */
+            kind?: string | null;
+            /** Campus */
+            campus?: string | null;
+            /** Student Population */
+            student_population?: string | null;
+            /** International Students */
+            international_students?: string | null;
+            /** Student Staff Ratio */
+            student_staff_ratio?: string | null;
+            /** Ranking */
+            ranking?: number | null;
+            /** Rankings */
+            rankings?: {
+                [key: string]: unknown;
+            }[] | null;
+            /** Facilities */
+            facilities?: string[] | null;
+            /** International Support */
+            international_support?: string[] | null;
+            /** Accommodation */
+            accommodation?: {
+                [key: string]: unknown;
+            } | null;
+            /** Tuition Min */
+            tuition_min?: number | null;
+            /** Tuition Max */
+            tuition_max?: number | null;
+            /** Living Cost Monthly */
+            living_cost_monthly?: number | null;
+            /** Course Count */
+            course_count?: number | null;
         };
         /** CurrencyRateRead */
         CurrencyRateRead: {
@@ -7106,6 +7335,22 @@ export interface components {
             page: number;
             /** Limit */
             limit: number;
+        };
+        /**
+         * IntakePublic
+         * @description One intake of an offering, with the two dates that matter.
+         *
+         *     Separate from `CoursePublic.intake`, which is a single display string for a
+         *     card. A student deciding *when* to apply needs the deadline next to the
+         *     start, and there is usually more than one.
+         */
+        IntakePublic: {
+            /** Name */
+            name: string;
+            /** Start Date */
+            start_date?: string | null;
+            /** Application Deadline */
+            application_deadline?: string | null;
         };
         /**
          * IntakeRead
@@ -9223,6 +9468,83 @@ export interface components {
             is_example?: boolean | null;
         };
         /**
+         * ShortlistCourse
+         * @description One offering the student saved from inside the portal.
+         *
+         *     Carries `university_id` as well as its own id because starting an
+         *     application needs both, and a saved *course* is a stronger signal than a
+         *     saved university: the student has already chosen what to study, not only
+         *     where.
+         */
+        ShortlistCourse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Slug */
+            slug?: string | null;
+            /** Title */
+            title: string;
+            /** Qualification */
+            qualification?: string | null;
+            /** Course Level */
+            course_level?: string | null;
+            /** Subject */
+            subject?: string | null;
+            /** Duration Years */
+            duration_years?: number | null;
+            /** Is Published */
+            is_published: boolean;
+            /**
+             * University Id
+             * Format: uuid
+             */
+            university_id: string;
+            /** University Name */
+            university_name?: string | null;
+            /** University Slug */
+            university_slug?: string | null;
+            /** University City */
+            university_city?: string | null;
+            /**
+             * Saved At
+             * Format: date-time
+             */
+            saved_at: string;
+        };
+        /**
+         * ShortlistUniversity
+         * @description One institution the student saved from inside the portal.
+         */
+        ShortlistUniversity: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Slug */
+            slug?: string | null;
+            /** Name */
+            name: string;
+            /** City */
+            city?: string | null;
+            /** Region */
+            region?: string | null;
+            /** Is Published */
+            is_published: boolean;
+            /**
+             * Course Count
+             * @default 0
+             */
+            course_count: number;
+            /**
+             * Saved At
+             * Format: date-time
+             */
+            saved_at: string;
+        };
+        /**
          * StaffDirectoryEntry
          * @description Name + role only — no email, phone, or profile fields.
          *
@@ -9246,6 +9568,29 @@ export interface components {
         StaffDirectoryList: {
             /** Items */
             items: components["schemas"]["StaffDirectoryEntry"][];
+        };
+        /**
+         * StudentApplicationCreate
+         * @description What a student may say when they open their own application.
+         *
+         *     Three fields, and the omissions are the point. `student_id` is the caller,
+         *     `status` is always DRAFT, and every date and money field is staff's to set
+         *     — a student posting `{"status": "enrolled"}` or a tuition figure of their
+         *     choosing is exactly the hole the staff `POST /applications` endpoint was
+         *     locked down to avoid (see its docstring). This is that endpoint's
+         *     student-facing counterpart, and it is a different, much smaller shape
+         *     rather than the same one behind a different guard.
+         */
+        StudentApplicationCreate: {
+            /**
+             * Program Id
+             * Format: uuid
+             */
+            program_id: string;
+            /** Intake Id */
+            intake_id?: string | null;
+            /** Remarks */
+            remarks?: string | null;
         };
         /**
          * StudentApplicationList
@@ -9581,6 +9926,29 @@ export interface components {
             education?: {
                 [key: string]: unknown;
             } | null;
+        };
+        /**
+         * StudentShortlist
+         * @description What the student saved while browsing the catalogue in the portal.
+         *
+         *     Distinct from `ResearchShortlist`, which is what they saved on the *public*
+         *     site before they had an account. Both end up in front of the same
+         *     counsellor and they are deliberately not merged: one is a signed-in,
+         *     catalogue-keyed decision, the other is anonymous browsing carried across an
+         *     origin boundary in a URL fragment, and only one of them can be trusted to
+         *     name a row.
+         */
+        StudentShortlist: {
+            /**
+             * Courses
+             * @default []
+             */
+            courses: components["schemas"]["ShortlistCourse"][];
+            /**
+             * Universities
+             * @default []
+             */
+            universities: components["schemas"]["ShortlistUniversity"][];
         };
         /** StudentWorkExperienceRead */
         StudentWorkExperienceRead: {
@@ -9940,6 +10308,11 @@ export interface components {
          * @description The full record behind `/universities/[slug]`.
          */
         UniversityDetail: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
             /** Slug */
             slug: string;
             /** Name */
@@ -10385,6 +10758,11 @@ export interface components {
          *     nothing that only a detail page reads.
          */
         UniversitySummary: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
             /** Slug */
             slug: string;
             /** Name */
@@ -14567,6 +14945,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ResearchShortlist"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_portal_shortlist_api_v1_users__user_id__shortlist_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentShortlist"];
                 };
             };
             /** @description Validation Error */
@@ -19054,6 +19463,70 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StudentApplicationList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_my_application_api_v1_student_me_applications_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudentApplicationCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentApplicationRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_my_application_api_v1_student_me_applications__application_id__submit_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentApplicationRead"];
                 };
             };
             /** @description Validation Error */
