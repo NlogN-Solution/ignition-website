@@ -22,9 +22,20 @@ import { useSessionHint } from "@/lib/session/useSessionHint";
 export function ReadyToApply({
   title = "Ready to take the next step?",
   intro,
+  /**
+   * The offering this block sits under, where there is exactly one.
+   *
+   * Set on the offering page (`/courses/at/[slug]`) and nowhere else. The
+   * subject page covers a course taught at many universities and the
+   * university page covers many courses — neither has a single offering to
+   * apply for, and guessing one would send the student to a course they did
+   * not choose.
+   */
+  courseSlug,
 }: {
   title?: string;
   intro?: string;
+  courseSlug?: string | null;
 }) {
   const { draft, comparedCount, hasAnything } = useResearch();
   const signedIn = useSessionHint();
@@ -81,10 +92,12 @@ export function ReadyToApply({
             ) : null}
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <StartApplicationButton>
-                {hasAnything
-                  ? "Turn my research into an application"
-                  : "Start my application"}
+              <StartApplicationButton courseSlug={courseSlug}>
+                {courseSlug
+                  ? "Apply for this course"
+                  : hasAnything
+                    ? "Turn my research into an application"
+                    : "Start my application"}
               </StartApplicationButton>
               <Link
                 href="/apply#ignition-what"

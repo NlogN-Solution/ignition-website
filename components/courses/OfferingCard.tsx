@@ -155,10 +155,14 @@ export function OfferingCard({
             </Link>
           ) : null}
 
+          {/* The card has always known which offering it is. Handing the
+              slug over is what stops the portal asking the student to find
+              the same course again after they register. */}
           <StartApplicationButton
             tone="accent"
             className="h-[46px] w-full gap-[6px] text-[13px] uppercase tracking-[0.03em]"
             iconSize={14}
+            courseSlug={offering.slug}
           >
             Apply now
           </StartApplicationButton>

@@ -151,6 +151,7 @@ export default async function OfferingPage({
       </main>
 
       <ReadyToApply
+        courseSlug={offering.slug}
         title="Ready to apply for this course?"
         intro="Read the application guide if you would rather do it yourself. If you would rather not, Ignition will take it from here — one advisor, from the application to the airport."
       />

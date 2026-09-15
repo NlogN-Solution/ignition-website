@@ -1,7 +1,9 @@
 "use client";
 
-import { ArrowUpRight } from "lucide-react";
+import { useState } from "react";
+import { ArrowUpRight, Loader2 } from "lucide-react";
 import { portalRoutes } from "@/lib/config";
+import { applyDestination, mintApplyIntent } from "@/lib/apply/intent";
 import { handoffHref } from "@/lib/handoff/payload";
 import { useResearch } from "@/lib/handoff/useResearch";
 import { useSessionHint } from "@/lib/session/useSessionHint";
@@ -18,6 +20,18 @@ import { useSessionHint } from "@/lib/session/useSessionHint";
  * Deliberately not a `<Link>`-shaped abstraction over `ArrowButton`: the href
  * can only be built on the client (it reads localStorage), so this renders
  * the shared button styling directly rather than fighting a server component.
+ *
+ * ## Carrying the course
+ *
+ * Given a `courseSlug` it stops being a plain anchor and becomes a button that
+ * mints an apply intent first (see `lib/apply/intent`). That round trip is why
+ * it cannot simply be an href: the id does not exist until the student presses
+ * the button, and pre-minting one on every card render would write a row for
+ * every course anybody scrolled past.
+ *
+ * Without a `courseSlug` — the hero, the generic ready-to-apply block — it
+ * behaves exactly as it always did. Those buttons genuinely have no course
+ * behind them, and inventing one would be worse than carrying none.
  */
 
 const base =
@@ -39,32 +53,83 @@ export function StartApplicationButton({
   iconSize = 18,
   /** Copy shown instead of `children` once the session hint says signed in. */
   signedInLabel = "Go to my application",
+  /**
+   * The offering the student is applying for, if this button is attached to
+   * one. Its public slug — the same key `/public/courses/{slug}` serves.
+   */
+  courseSlug,
+  /** Pre-selected intake, where the surface knows one. */
+  intakeId,
 }: {
   children?: React.ReactNode;
   tone?: keyof typeof tones;
   className?: string;
   iconSize?: number;
   signedInLabel?: string;
+  courseSlug?: string | null;
+  intakeId?: string | null;
 }) {
   const { handoff } = useResearch();
   const signedIn = useSessionHint();
+  const [isStarting, setIsStarting] = useState(false);
 
   // A signed-in student's shortlist already lives on their account, so there
   // is nothing to hand across — sending them to registration would be worse
   // than useless.
-  const href = signedIn
+  const plainHref = signedIn
     ? portalRoutes.dashboard
     : handoffHref(portalRoutes.register, handoff);
 
+  const label = signedIn ? signedInLabel : children;
+  const icon = (
+    <ArrowUpRight
+      size={iconSize}
+      strokeWidth={2.25}
+      aria-hidden
+      className="shrink-0 transition-transform duration-200 group-hover:translate-x-[2px] group-hover:-translate-y-[2px]"
+    />
+  );
+
+  // No course attached: the original anchor, unchanged. Real navigation,
+  // middle-clickable, no JavaScript needed to work.
+  if (!courseSlug) {
+    return (
+      <a href={plainHref} className={`${base} ${tones[tone]} ${className}`}>
+        <span className="whitespace-nowrap">{label}</span>
+        {icon}
+      </a>
+    );
+  }
+
+  async function start() {
+    if (isStarting) return;
+    setIsStarting(true);
+    const intent = await mintApplyIntent(courseSlug!, {
+      intakeId,
+      sourcePath: typeof window === "undefined" ? undefined : window.location.pathname,
+    });
+    // `intent` is null when the mint failed. Navigating anyway is the point:
+    // the student still gets to apply, they just have to pick the course once.
+    const base = signedIn
+      ? applyDestination.dashboard(intent?.id ?? null)
+      : handoffHref(applyDestination.register(intent?.id ?? null), handoff);
+    window.location.href = base;
+  }
+
   return (
-    <a href={href} className={`${base} ${tones[tone]} ${className}`}>
-      <span className="whitespace-nowrap">{signedIn ? signedInLabel : children}</span>
-      <ArrowUpRight
-        size={iconSize}
-        strokeWidth={2.25}
-        aria-hidden
-        className="shrink-0 transition-transform duration-200 group-hover:translate-x-[2px] group-hover:-translate-y-[2px]"
-      />
-    </a>
+    <button
+      type="button"
+      onClick={start}
+      disabled={isStarting}
+      aria-busy={isStarting}
+      className={`${base} ${tones[tone]} ${className} disabled:opacity-80`}
+    >
+      <span className="whitespace-nowrap">{isStarting ? "Starting…" : label}</span>
+      {isStarting ? (
+        <Loader2 size={iconSize} strokeWidth={2.25} aria-hidden className="shrink-0 animate-spin" />
+      ) : (
+        icon
+      )}
+    </button>
   );
 }
