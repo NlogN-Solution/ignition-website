@@ -90,37 +90,88 @@ export type ApiResult<T> =
   | { ok: true; data: T }
   | { ok: false; reason: "missing" | "unavailable" };
 
+/**
+ * Statuses worth trying again.
+ *
+ * All of them mean "ask later", none of them mean "there is no such thing".
+ * A 404 is deliberately absent: retrying it would turn every missing record
+ * into three requests and the same answer.
+ */
+const RETRYABLE_STATUS = new Set([408, 425, 429, 500, 502, 503, 504]);
+
+/** Attempts in total, not retries after the first. */
+const MAX_ATTEMPTS = 3;
+
+/** Waits between attempts, with jitter so 125 pages do not retry in lockstep. */
+function backoffMs(attempt: number): number {
+  return attempt * 600 + Math.random() * 400;
+}
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export async function getResult<T>(path: string, options: GetOptions): Promise<ApiResult<T>> {
   const url = `${apiBaseUrl}${withQuery(path, options.params)}`;
 
-  try {
-    const response = await fetch(url, {
-      signal: AbortSignal.timeout(TIMEOUT_MS),
-      // `force-cache` is stated rather than left to the default. Fetches
-      // reached *after* a request-time API — `await searchParams` on the
-      // course explorer, say — are not cached under the default policy, and a
-      // catalogue search that hit the API on every request is exactly what the
-      // revalidate window exists to prevent. `next.revalidate` then sets how
-      // long an entry stays fresh.
-      cache: "force-cache",
-      next: { revalidate: options.revalidate, tags: options.tags },
-      headers: { accept: "application/json" },
-    });
+  /**
+   * Transient failures are retried, and that is what keeps a deploy alive.
+   *
+   * `next build` prerenders 125 pages, and each university page reads the
+   * institution and then pages through its offerings — a few hundred requests
+   * in a burst against a single small API instance. A handful of them come
+   * back 502 under that load, and before this the first one killed the build:
+   * `app/universities/[university]` throws on an unreachable catalogue, which
+   * is right at request time and far too brittle when the cause is a
+   * momentary blip during a deploy.
+   *
+   * Retrying does not paper over a real outage. Three attempts against a
+   * catalogue that is genuinely down still fail, and the build still stops —
+   * which is the correct outcome, because the alternative is shipping
+   * forty-four universities that all say "That page isn't here".
+   */
+  let lastReason = "";
+  let attempts = 0;
 
-    // A 404 is a real answer — "no such university" — and the caller decides
-    // what to do with it. It is not a reason to fall back to a fixture that
-    // would then show a page for something the catalogue does not have.
-    if (!response.ok) {
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
+    attempts = attempt;
+    try {
+      const response = await fetch(url, {
+        signal: AbortSignal.timeout(TIMEOUT_MS),
+        // `force-cache` is stated rather than left to the default. Fetches
+        // reached *after* a request-time API — `await searchParams` on the
+        // course explorer, say — are not cached under the default policy, and a
+        // catalogue search that hit the API on every request is exactly what the
+        // revalidate window exists to prevent. `next.revalidate` then sets how
+        // long an entry stays fresh.
+        cache: "force-cache",
+        next: { revalidate: options.revalidate, tags: options.tags },
+        headers: { accept: "application/json" },
+      });
+
+      // A 404 is a real answer — "no such university" — and the caller decides
+      // what to do with it. It is not a reason to fall back to a fixture that
+      // would then show a page for something the catalogue does not have.
       if (response.status === 404) return { ok: false, reason: "missing" };
-      console.warn(`[api] ${response.status} from ${path}`);
-      return { ok: false, reason: "unavailable" };
+
+      if (response.ok) return { ok: true, data: (await response.json()) as T };
+
+      lastReason = `HTTP ${response.status}`;
+      if (!RETRYABLE_STATUS.has(response.status)) break;
+    } catch (error) {
+      // A timeout or a dropped connection. Both are worth another go.
+      lastReason = error instanceof Error ? error.message : String(error);
     }
 
-    return { ok: true, data: (await response.json()) as T };
-  } catch (error) {
-    console.warn(`[api] ${path} unreachable:`, error instanceof Error ? error.message : error);
-    return { ok: false, reason: "unavailable" };
+    if (attempt < MAX_ATTEMPTS) {
+      console.warn(`[api] ${path} — ${lastReason}, retrying (${attempt}/${MAX_ATTEMPTS - 1})`);
+      await sleep(backoffMs(attempt));
+    }
   }
+
+  // `attempts`, not MAX_ATTEMPTS: a non-retryable status breaks out after one
+  // try, and a log that claimed three would send someone hunting for two
+  // requests that never happened.
+  console.warn(`[api] ${path} unreachable after ${attempts} attempt(s): ${lastReason}`);
+  return { ok: false, reason: "unavailable" };
 }
 
 export async function get<T>(path: string, options: GetOptions): Promise<T | null> {

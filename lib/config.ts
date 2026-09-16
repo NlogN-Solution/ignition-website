@@ -24,8 +24,24 @@ export const portalUrl = trimSlash(
  * readable wherever a module that calls the API is imported. It carries no
  * secret — everything under `/public` is unauthenticated by design.
  */
+/**
+ * Adds the scheme back when the environment forgot it.
+ *
+ * `NEXT_PUBLIC_API_BASE_URL=localhost:8001/api/v1` — no `http://` — was
+ * committed for a while, and a schemeless base makes every `fetch` throw
+ * "Failed to parse URL" one page at a time, which reads as the API being down
+ * rather than as a typo in a config file. Loopback gets `http`, anything else
+ * `https`, so neither guess can be the wrong one.
+ */
+function withScheme(url: string): string {
+  if (/^https?:\/\//.test(url)) return url;
+  const scheme = /^(localhost|127\.0\.0\.1|\[::1\])(:|\/|$)/.test(url) ? "http" : "https";
+  console.warn(`[config] NEXT_PUBLIC_API_BASE_URL has no scheme; reading it as ${scheme}://${url}`);
+  return `${scheme}://${url}`;
+}
+
 export const apiBaseUrl = trimSlash(
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8001/api/v1",
+  withScheme(process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8001/api/v1"),
 );
 
 export const portalRoutes = {
