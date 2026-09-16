@@ -96,9 +96,9 @@ export const nepalCosts: NepalCost[] = [
     amount: "0–25",
     currency: "GBP",
     detail:
-      "Many UK universities charge nothing to apply directly. UCAS charges a single fee covering all your choices.",
-    source: "The university, or UCAS",
-    href: "https://www.ucas.com",
+      "Many UK universities charge nothing to apply to; some charge a modest fee per application. It is the university's fee, charged per course, and your advisor tells you the figure before anything is submitted.",
+    source: "The university's own admissions page",
+    href: "/universities",
   },
   {
     id: "deposit",

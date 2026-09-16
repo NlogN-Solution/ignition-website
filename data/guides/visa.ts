@@ -21,7 +21,7 @@ export const visaJourney: TimelineStage[] = [
   {
     label: "Accept your offer",
     description:
-      "You accept one offer as your firm choice. Only the university you accept will sponsor your visa application.",
+      "You accept one offer and pay its deposit. Only the university you accept will sponsor your visa application.",
   },
   {
     label: "Meet your conditions",

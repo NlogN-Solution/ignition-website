@@ -20,7 +20,7 @@ import {
   OfferingRelatedPanel,
   OfferingUniversityPanel,
 } from "@/components/courses/offeringPanels";
-import { getOffering } from "@/lib/api/catalogue";
+import { getOffering, getOfferingResult } from "@/lib/api/catalogue";
 import { durationLabel } from "@/data/courses";
 import { pageMetadata } from "@/lib/seo";
 
@@ -90,8 +90,18 @@ export default async function OfferingPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const offering = await getOffering((await params).slug);
-  if (!offering) notFound();
+  const slug = (await params).slug;
+  const lookup = await getOfferingResult(slug);
+
+  // Only a real 404 is a withdrawal. A 500 or a timeout is our problem, not a
+  // fact about the catalogue, and telling the reader the course "may have been
+  // withdrawn" when the endpoint is simply erroring sends them away from a
+  // course that is still on offer. See `getOfferingResult`.
+  if (!lookup.ok) {
+    if (lookup.reason === "missing") notFound();
+    throw new Error(`The catalogue is unreachable, so /courses/at/${slug} cannot be rendered.`);
+  }
+  const offering = lookup.data;
 
   const icon = { size: 15, strokeWidth: 2.2, "aria-hidden": true } as const;
   const university = offering.university;

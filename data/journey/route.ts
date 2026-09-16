@@ -73,7 +73,7 @@ export const routePhases: RoutePhase[] = [
           {
             icon: "star",
             title: "Other Criteria",
-            body: "Personal statement, references, portfolios & interviews.",
+            body: "Statement of purpose, references, portfolios & interviews.",
           },
         ],
       },
@@ -98,7 +98,7 @@ export const routePhases: RoutePhase[] = [
           {
             icon: "star",
             title: "Statement & references",
-            body: "Your personal statement and one or two academic referees.",
+            body: "Your statement of purpose and one or two academic referees.",
           },
           {
             icon: "passport",
@@ -236,7 +236,7 @@ export const routePhases: RoutePhase[] = [
       {
         id: "application",
         label: "Submit Your Application",
-        summary: "Personal statement, references and the application itself.",
+        summary: "Statement of purpose, references and the application itself.",
         icon: "file",
         href: "/apply",
         cards: [
@@ -247,7 +247,7 @@ export const routePhases: RoutePhase[] = [
           },
           {
             icon: "star",
-            title: "Personal statement",
+            title: "Statement of purpose",
             body: "Why this subject, and what you have done about it.",
           },
           {

@@ -43,7 +43,7 @@ export const requirementsChecklist = [
   { id: "english-overall", label: "Check the overall English score required" },
   { id: "english-component", label: "Check the minimum score in each component", detail: "A strong overall score can still fail a component minimum." },
   { id: "test-validity", label: "Confirm your English test is accepted and still valid" },
-  { id: "admissions-test", label: "Check whether an admissions test is required", detail: "These register separately and close earlier than UCAS." },
+  { id: "admissions-test", label: "Check whether an admissions test is required", detail: "These register separately, and their deadlines fall well before the course's own." },
   { id: "portfolio", label: "Check whether a portfolio or audition is required" },
   { id: "extra", label: "Check for interviews, work experience or background checks" },
   { id: "verify", label: "Verify everything on the official course page", detail: "Requirements change between intakes." },

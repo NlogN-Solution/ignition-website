@@ -21,7 +21,7 @@ import {
   commonMistakes,
   offerTypes,
   personalStatementGuidance,
-  ucasSource,
+  visaSource,
 } from "@/data/guides/apply";
 import { applyWithIgnitionStages, withIgnitionFaqs } from "@/data/guides/with-ignition";
 import { faqSchema, JsonLd, pageMetadata } from "@/lib/seo";
@@ -29,7 +29,7 @@ import { faqSchema, JsonLd, pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata({
   title: "How to apply to a UK university",
   description:
-    "The full UCAS application process in order — timeline, personal statement, references, offers, firm and insurance choices and the mistakes to avoid — followed by what applying through Ignition involves, who does what, and what no agent can promise.",
+    "The full application process in order — applying to a UK university from Nepal, the timeline, your statement of purpose, documents, offers, the CAS and the visa — followed by what applying through Ignition involves, who does what, and what no agent can promise.",
   path: "/apply",
 });
 
@@ -39,7 +39,7 @@ export const metadata = pageMetadata({
  * WHY THEY WERE MERGED. "Apply through Ignition" was its own page at
  * `/apply/with-ignition`, which put the sales half of the story one click
  * away from the half that earns the right to tell it. A student reading about
- * UCAS deadlines is exactly the person who wants to know whether someone can
+ * intake deadlines is exactly the person who wants to know whether someone can
  * do this with them; making them find a second page to ask meant most never
  * did, and the page they landed on read as an advert because the guidance
  * that justified it was somewhere else.
@@ -58,11 +58,11 @@ export const metadata = pageMetadata({
  */
 
 const sections = [
-  { id: "ucas", label: "What is UCAS" },
+  { id: "route", label: "How applying works" },
   { id: "timeline", label: "Application timeline" },
-  { id: "statement", label: "Personal statement" },
+  { id: "statement", label: "Statement of purpose" },
   { id: "documents", label: "References & documents" },
-  { id: "offers", label: "Offers and replies" },
+  { id: "offers", label: "Offers, CAS and visa" },
   { id: "mistakes", label: "Common mistakes" },
   { id: "checklist", label: "Your checklist" },
   { id: "ignition-what", label: "Applying with Ignition" },
@@ -77,7 +77,7 @@ const responsibilities = {
   you: [
     "Decide what and where you want to study",
     "Provide accurate details and real documents",
-    "Write your own personal statement",
+    "Write your own statement of purpose",
     "Sit your English test if you need one",
     "Accept or decline the offers you receive",
     "Make your own visa application",
@@ -108,7 +108,7 @@ export default function ApplyPage() {
         <PageHero
           eyebrow="Applying"
           title="How to apply to a UK university."
-          intro="One application, sent to several courses, through a service called UCAS. Here is the whole process in order — what happens when, what you control, and what to do at each decision point — and then what it looks like to do it with Ignition rather than alone."
+          intro="One application per course, to each university, tracked from submission to enrolment. Here is the whole process in order — what happens when, what you control, and what to do at each decision point — and then what it looks like to do it with Ignition rather than alone."
           crumbs={[
             { label: "Home", href: "/" },
             { label: "How to apply", href: "/apply" },
@@ -119,55 +119,67 @@ export default function ApplyPage() {
           <GuideLayout sections={sections}>
             {/* ---- Part one: the process, complete on its own ---- */}
 
-            <Prose id="ucas" title="What is UCAS?">
+            <Prose id="route" title="How applying works">
               <p>
-                UCAS is the central service through which almost all
-                undergraduate applications to UK universities are made. You
-                complete one application — one form, one personal statement, one
-                reference — and it goes to every course you have chosen.
-                Universities then respond to you individually through the same
-                system.
+                It is <strong>one application per course</strong>, made to each
+                university separately &mdash; not a single form sent to a
+                central body. Every institution in this catalogue sets its own
+                entry criteria, its own intake dates and its own fee, and
+                assesses you on its own.
               </p>
               <p>
-                Two consequences follow from that design, and both matter. Your
-                personal statement is read by every university you apply to, so
-                it cannot be written for one of them. And universities cannot
-                see where else you have applied, so the order you list them in
-                carries no meaning at all.
+                That works in your favour. Nothing caps how many universities
+                you apply to, none of them can see where else you have applied,
+                so there is no order to get right and no penalty for casting
+                wide, and each statement of purpose can name the course and say
+                why that one.
+              </p>
+              <p>
+                What it costs is bookkeeping. Six applications is six sets of
+                documents, six sets of criteria to meet, six intake calendars and
+                six inboxes to chase &mdash; and a missed band score or an
+                expired certificate on any one of them is a place lost quietly.
+                That is the part Ignition holds: one profile, one document set,
+                and an advisor who prepares, lodges and follows every
+                application you make.
               </p>
               <Callout>
-                Deadlines, fees and the number of choices permitted are set by
-                UCAS and change between cycles. This guide explains how the
-                process works &mdash; check current dates and limits on{" "}
+                Entry requirements, fees and intake dates are set by each
+                university and change between cycles; visa rules and financial
+                thresholds are set by UKVI. This guide explains how the process
+                works &mdash; check current visa requirements on{" "}
                 <a
-                  href={ucasSource.href}
+                  href={visaSource.href}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-semibold text-blue-link underline-offset-2 hover:underline"
                 >
-                  {ucasSource.label}
+                  {visaSource.label}
                 </a>
-                .
+                , and anything datable about a course on that university&rsquo;s
+                own admissions page.
               </Callout>
             </Prose>
 
             <Prose id="timeline" title="Application timeline">
               <p>
-                Applications open roughly a year before you would start. The
-                exact dates move each cycle, so these are the stages in order
-                rather than fixed deadlines.
+                Applications open roughly a year before you would start, and
+                each university runs its own dates for each intake. These are
+                the stages in the order they happen, rather than fixed
+                deadlines &mdash; and they are the same stages your Ignition
+                portal tracks once you have an application open.
               </p>
               <div className="pt-3">
                 <Timeline stages={applicationTimeline} />
               </div>
             </Prose>
 
-            <Prose id="statement" title="The personal statement">
+            <Prose id="statement" title="Your statement of purpose">
               <p>
                 The one part of the application entirely within your control.
-                Admissions tutors use it to work out whether you are genuinely
-                interested in the subject and whether you would be worth
-                teaching.
+                Admissions staff use it to work out whether you are genuinely
+                interested in the subject, why you want to study it in the UK,
+                and whether you would be worth teaching.
               </p>
               <ul className="grid gap-4 sm:grid-cols-2">
                 {personalStatementGuidance.map((item) => (
@@ -187,25 +199,34 @@ export default function ApplyPage() {
 
             <Prose id="documents" title="References and documents">
               <p>
-                Your reference is written by a teacher, tutor or employer who
+                Your references are written by teachers, tutors or employers who
                 can speak to your academic ability and suitability for the
                 course. Ask early — a good reference takes time to write, and
-                whoever writes yours is probably writing several others.
+                whoever writes yours is probably writing several others. Most
+                universities here want two.
               </p>
               <p>
-                Alongside it you will need transcripts and certificates for
-                qualifications you already hold, predicted grades for those you
-                do not, and evidence of English language ability if the course
-                requires it. International applicants should gather certified
-                translations well before the deadline rather than during it.
+                Alongside them you will need transcripts and certificates for
+                qualifications you already hold, a provisional or predicted
+                transcript for those you do not, your passport, a CV, and
+                evidence of English language ability. Anything not already in
+                English needs a certified translation, and those take weeks —
+                gather them well before you apply rather than during.
+              </p>
+              <p>
+                Financial evidence is not part of the university application at
+                all; it belongs to the visa, months later. Start it anyway. The
+                funds usually have to have been held for a set period before you
+                apply, so it is the one item that cannot be rushed at the end.
               </p>
             </Prose>
 
-            <Prose id="offers" title="Offers, and how to reply">
+            <Prose id="offers" title="Offers, the CAS and the visa">
               <p>
-                Decisions arrive one at a time over several months, not
-                together. Once they are all in, you hold two: a firm choice and
-                an insurance choice.
+                Decisions arrive one at a time over weeks or months, not
+                together, and you may hold as many as you are given. Only one
+                becomes a place: you accept it, pay that university&rsquo;s
+                deposit, and decline the rest.
               </p>
               <ul className="grid gap-4 sm:grid-cols-2">
                 {offerTypes.map((item) => (
@@ -222,9 +243,11 @@ export default function ApplyPage() {
                 ))}
               </ul>
               <Callout>
-                An insurance choice only protects you if its entry requirements
-                are genuinely lower than your firm choice. Two equally
-                competitive offers give you no backup at all.
+                Accepting is the point of no return in practice. The deposit is
+                what starts your <strong>CAS</strong> &mdash; the Confirmation
+                of Acceptance for Studies, which the university issues once the
+                payment clears and without which a UK Student visa cannot be
+                applied for at all. Be sure before you pay, not after.
               </Callout>
             </Prose>
 
@@ -365,7 +388,7 @@ export default function ApplyPage() {
                 </p>
                 <p className="mt-2">
                   Admissions decisions belong to universities and visa decisions
-                  to UKVI. Ignition will not write your personal statement for
+                  to UKVI. Ignition will not write your statement of purpose for
                   you, will not submit a document it has reason to doubt, and
                   will tell you plainly if a university on your shortlist is out
                   of reach on your grades rather than taking the application

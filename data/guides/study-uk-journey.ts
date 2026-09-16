@@ -365,7 +365,7 @@ export const studyUkStages: JourneyStage[] = [
         blurb: "The step between accepting a place and being able to apply for a visa.",
         icon: Building2,
         details: [
-          "You accept one offer as your firm choice. Only the university you accept will sponsor your visa.",
+          "You accept one offer and pay its deposit. Only the university you accept will sponsor your visa.",
           "A conditional offer becomes unconditional once you provide the results, English scores and documents the university asked for.",
           "The university then issues a Confirmation of Acceptance for Studies — a reference number confirming your sponsored place.",
           "The CAS lists the qualifications the offer was made on. Those are the documents the visa application will expect to see.",

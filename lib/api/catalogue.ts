@@ -4,8 +4,8 @@ import { universities as fallbackUniversities } from "@/data/universities";
 import type { Course } from "@/data/courses";
 import type { Scholarship } from "@/data/scholarships";
 import type { University } from "@/data/universities";
-import { REVALIDATE, TAG_CATALOGUE, get } from "./client";
-import type { GetOptions } from "./client";
+import { REVALIDATE, TAG_CATALOGUE, get, getResult } from "./client";
+import type { ApiResult, GetOptions } from "./client";
 import {
   toCourse,
   toFacets,
@@ -155,22 +155,44 @@ export async function getUniversitiesWithCounts(): Promise<{
   };
 }
 
-export async function getUniversity(slug: string): Promise<University | null> {
-  const dto = await get<UniversityDetailDto>(`/public/universities/${encodeURIComponent(slug)}`, {
-    revalidate: REVALIDATE.universities,
-    tags: [TAG_CATALOGUE],
-  });
+/**
+ * One university, with the reason attached when there isn't one.
+ *
+ * The page needs the distinction. `notFound()` is the right answer to "the
+ * catalogue does not list this institution" and the wrong answer to "the API
+ * did not reply in time" — and for a while it was the answer to both, so every
+ * university page on the site rendered "That page isn't here" whenever a read
+ * overran the fetch budget. A record that exists but could not be loaded is an
+ * error, not a missing page: the reader should be told to try again, search
+ * engines should not be told the URL is dead, and the next request should
+ * attempt the read again rather than serve a cached 404.
+ */
+export async function getUniversityResult(slug: string): Promise<ApiResult<University>> {
+  const result = await getResult<UniversityDetailDto>(
+    `/public/universities/${encodeURIComponent(slug)}`,
+    { revalidate: REVALIDATE.universities, tags: [TAG_CATALOGUE] },
+  );
 
-  if (dto) return toUniversity(dto);
+  if (result.ok) return { ok: true, data: toUniversity(result.data) };
 
   // A 404 from a live API means "no such university", and the fixtures must
   // not answer it — otherwise the six fictional institutions stay reachable by
   // URL for as long as the site is up, beside forty-four real ones. They are
   // only the answer when the API gave us nothing at all, which is the
   // build-time-outage case the fallback exists for.
+  if (result.reason === "missing") return result;
+
   const catalogue = await getUniversities();
-  if (!isExampleCatalogue(catalogue)) return null;
-  return catalogue.find((university) => university.id === slug) ?? null;
+  if (!isExampleCatalogue(catalogue)) return result;
+  const match = catalogue.find((university) => university.id === slug);
+  return match ? { ok: true, data: match } : result;
+}
+
+/** The same lookup, flattened, for callers with nothing useful to do about the
+ * difference — `generateMetadata`, which returns `{}` either way. */
+export async function getUniversity(slug: string): Promise<University | null> {
+  const result = await getUniversityResult(slug);
+  return result.ok ? result.data : null;
 }
 
 // ── Offerings ────────────────────────────────────────────────────────────────
@@ -284,13 +306,27 @@ export async function getCourse(slug: string): Promise<Course | null> {
  * that cannot answer here means the course does not exist, and inventing one
  * would put a student on a page describing a course nobody teaches.
  */
-export async function getOffering(slug: string): Promise<OfferingDetail | null> {
-  const dto = await get<OfferingDetailDto>(`/public/courses/${encodeURIComponent(slug)}`, {
-    revalidate: REVALIDATE.universities,
-    tags: [TAG_CATALOGUE],
-  });
+/**
+ * One offering, with the reason attached when there isn't one.
+ *
+ * Same distinction, and for the same reason, as `getUniversityResult`: all
+ * 4,797 of these pages were serving "Course not found — it may have been
+ * withdrawn from the catalogue" while every one of them was in the catalogue.
+ * The endpoint was 500ing, and a 500 read as a withdrawal.
+ */
+export async function getOfferingResult(slug: string): Promise<ApiResult<OfferingDetail>> {
+  const result = await getResult<OfferingDetailDto>(
+    `/public/courses/${encodeURIComponent(slug)}`,
+    { revalidate: REVALIDATE.universities, tags: [TAG_CATALOGUE] },
+  );
 
-  return dto ? toOfferingDetail(dto) : null;
+  return result.ok ? { ok: true, data: toOfferingDetail(result.data) } : result;
+}
+
+/** The same lookup, flattened, for `generateMetadata`. */
+export async function getOffering(slug: string): Promise<OfferingDetail | null> {
+  const result = await getOfferingResult(slug);
+  return result.ok ? result.data : null;
 }
 
 // ── Scholarships ─────────────────────────────────────────────────────────────

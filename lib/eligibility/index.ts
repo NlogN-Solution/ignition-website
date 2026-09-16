@@ -11,15 +11,19 @@ import type { University } from "@/data/universities";
  * and then says, in the result itself, that the real answer comes from the
  * university.
  *
- * The tariff table for A-level is UCAS's published one. Everything below it is
+ * The A-level table is the standard UK points scale (A* = 56 down to E = 16),
+ * which is what university offers are written against. Everything below it is
  * Ignition's own rough guide, marked as such wherever it is shown, and it is
  * the first thing to replace when real per-course requirements arrive.
+ *
+ * Nothing here is a route. It is a yardstick for "am I in range", and the
+ * student applies direct to the university either way — see `data/guides/apply.ts`.
  */
 
 export const eligibilityNotice =
   "This is an indicative guide, not a decision. Universities set their own conversions from international qualifications, publish them per course rather than per institution, and change them between intakes — always confirm against the official course page before you rely on it.";
 
-/** UCAS tariff points for a single A-level grade. */
+/** Points for a single A-level grade, on the standard UK scale. */
 const aLevelPoints: Record<string, number> = {
   "A*": 56,
   A: 48,
@@ -68,7 +72,7 @@ export const defaultAnswers: Answers = {
 };
 
 /**
- * Everything reduces to a UCAS-style tariff so one comparison serves every
+ * Everything reduces to one points scale so a single comparison serves every
  * qualification. The non-UK scales are linear approximations of the bands
  * universities commonly publish, deliberately conservative at the top: a
  * calculator that flatters a student into applying somewhere they will be

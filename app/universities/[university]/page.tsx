@@ -20,7 +20,12 @@ import {
   FinancialsPanel,
   InterviewPanel,
 } from "@/components/universities/panels";
-import { getOfferingsAt, getUniversities, getUniversity } from "@/lib/api/catalogue";
+import {
+  getOfferingsAt,
+  getUniversities,
+  getUniversity,
+  getUniversityResult,
+} from "@/lib/api/catalogue";
 import { pageMetadata } from "@/lib/seo";
 
 /** Institutional records change rarely, and by hand. */
@@ -92,8 +97,18 @@ export default async function UniversityPage({
   params: Promise<{ university: string }>;
 }) {
   const slug = (await params).university;
-  const university = await getUniversity(slug);
-  if (!university) notFound();
+  const lookup = await getUniversityResult(slug);
+
+  // `notFound()` only when the catalogue actually answered "no such
+  // institution". An unreachable or too-slow API is an error, and rendering it
+  // as a missing page is how all forty-four of these URLs came to serve "That
+  // page isn't here" — the records were fine, the reads were over budget. See
+  // `getUniversityResult`.
+  if (!lookup.ok) {
+    if (lookup.reason === "missing") notFound();
+    throw new Error(`The catalogue is unreachable, so /universities/${slug} cannot be rendered.`);
+  }
+  const university = lookup.data;
 
   // What this university teaches is its own offerings — the real ~4,800-row
   // grain — not the editorial course explainers.

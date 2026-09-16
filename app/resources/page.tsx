@@ -90,7 +90,7 @@ const shelves = [
     eyebrow: "Official",
     title: "Where the real numbers live",
     blurb:
-      "Fees, visa thresholds and deadlines are set by universities, UKVI and UCAS. Ignition explains them and links to them; it never restates them as fact.",
+      "Fees, visa thresholds and deadlines are set by each university and by UKVI. Ignition explains them and links to them; it never restates them as fact.",
     href: "/apply/entry-requirements#visa-journey",
     meta: "Sources on every page",
   },

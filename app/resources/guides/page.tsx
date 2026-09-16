@@ -108,7 +108,7 @@ const codedGroups: Group[] = [
         icon: ClipboardList,
         title: "How to apply",
         blurb:
-          "The UCAS timeline end to end, what a personal statement is for, the kinds of offer you can get and the mistakes that cost places.",
+          "The application timeline end to end, what a statement of purpose is for, the kinds of offer you can get and the mistakes that cost places.",
         href: "/apply",
       },
       {
@@ -181,9 +181,9 @@ export default async function GuidesPage() {
           <div className="mb-10">
             <Callout compact tone="official">
               These guides explain how things work. They do not restate fees,
-              visa thresholds or deadlines as fact — those are set by
-              universities, UKVI and UCAS and change between cycles, so every
-              guide links to whoever publishes them.
+              visa thresholds or deadlines as fact — those are set by each
+              university and by UKVI and change between cycles, so every guide
+              links to whoever publishes them.
             </Callout>
           </div>
 

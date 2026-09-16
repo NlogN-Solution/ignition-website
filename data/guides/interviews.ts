@@ -31,7 +31,7 @@ export const generalQuestions: PracticeQuestion[] = [
   },
   {
     id: "statement",
-    question: "You mentioned something in your personal statement — can you tell me more about it?",
+    question: "You mentioned something in your statement of purpose — can you tell me more about it?",
     focus:
       "That you wrote your own statement and can discuss anything in it in more depth than you wrote.",
   },
@@ -118,7 +118,7 @@ export const interviewGuidance = [
     body: "Interviewers are largely assessing whether you would be good to teach. Being stuck is normal; saying nothing is not. Talk through your reasoning and say when you are unsure.",
   },
   {
-    title: "Know your personal statement",
+    title: "Know your statement of purpose",
     body: "Anything you wrote is fair material. If you claimed to have read something, expect to be asked what you made of it.",
   },
   {

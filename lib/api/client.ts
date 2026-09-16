@@ -31,7 +31,25 @@ import { apiBaseUrl } from "@/lib/config";
 export const TAG_CATALOGUE = "catalogue";
 export const TAG_CONTENT = "content";
 
-const TIMEOUT_MS = 8_000;
+/**
+ * How long a single API read may take before it is abandoned.
+ *
+ * This was 8 seconds, and 8 seconds was silently turning a slow catalogue into
+ * a missing one. `get` returns `null` for an abandoned read exactly as it does
+ * for a 404, and `getUniversity` read that `null` as "no such university" — so
+ * every university page on the site served "That page isn't here" whenever the
+ * API took longer than the budget. Which it did: uncached, a university detail
+ * read against the Neon instance in `us-east-2` costs 2–5 seconds from a
+ * developer machine before the page's second read has even started.
+ *
+ * Two things changed. The API now caches its own public responses in Redis
+ * (`backend/app/core/public_cache.py`), so the warm path is milliseconds and
+ * this number is only ever the cold one. And `getResult` below now
+ * distinguishes "the API said no" from "the API did not answer", so a page can
+ * refuse to 404 on the second — which is the real fix. The larger budget is
+ * the belt to that braces.
+ */
+const TIMEOUT_MS = 20_000;
 
 export interface GetOptions {
   /** Seconds before Next rebuilds the page in the background. */
@@ -55,7 +73,24 @@ export function withQuery(
   return query ? `${path}?${query}` : path;
 }
 
-export async function get<T>(path: string, options: GetOptions): Promise<T | null> {
+/**
+ * A read that says *why* it has nothing, for the callers that need to know.
+ *
+ * `get` below collapses every failure to `null`, which is right for a caller
+ * whose answer is "render the fixture". It is wrong for a caller whose answer
+ * is `notFound()`, because "the catalogue does not have this university" and
+ * "we could not reach the catalogue" are not the same fact and only one of
+ * them is the reader's problem.
+ *
+ *   - `missing` — the API answered, and the answer was 404.
+ *   - `unavailable` — a timeout, a network failure, or a 5xx. The record may
+ *     well exist; we do not know.
+ */
+export type ApiResult<T> =
+  | { ok: true; data: T }
+  | { ok: false; reason: "missing" | "unavailable" };
+
+export async function getResult<T>(path: string, options: GetOptions): Promise<ApiResult<T>> {
   const url = `${apiBaseUrl}${withQuery(path, options.params)}`;
 
   try {
@@ -76,17 +111,21 @@ export async function get<T>(path: string, options: GetOptions): Promise<T | nul
     // what to do with it. It is not a reason to fall back to a fixture that
     // would then show a page for something the catalogue does not have.
     if (!response.ok) {
-      if (response.status !== 404) {
-        console.warn(`[api] ${response.status} from ${path}`);
-      }
-      return null;
+      if (response.status === 404) return { ok: false, reason: "missing" };
+      console.warn(`[api] ${response.status} from ${path}`);
+      return { ok: false, reason: "unavailable" };
     }
 
-    return (await response.json()) as T;
+    return { ok: true, data: (await response.json()) as T };
   } catch (error) {
     console.warn(`[api] ${path} unreachable:`, error instanceof Error ? error.message : error);
-    return null;
+    return { ok: false, reason: "unavailable" };
   }
+}
+
+export async function get<T>(path: string, options: GetOptions): Promise<T | null> {
+  const result = await getResult<T>(path, options);
+  return result.ok ? result.data : null;
 }
 
 /** How long each kind of read stays fresh (CATALOGUE-CMS-PLAN.md §10.3). */

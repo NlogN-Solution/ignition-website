@@ -18,7 +18,7 @@ export const revalidate = 300;
 export const metadata = pageMetadata({
   title: "Blog",
   description:
-    "Articles on choosing a course, what a UK year costs, writing a personal statement, the visa financial requirement and the routes into a degree.",
+    "Articles on choosing a course, what a UK year costs, writing a statement of purpose, the visa financial requirement and the routes into a degree.",
   path: "/resources/blog",
 });
 
@@ -109,7 +109,7 @@ export default async function BlogIndexPage() {
 
           <p className="mt-10 max-w-[70ch] text-[14px] font-medium leading-[1.6] text-muted-light">
             Nothing here restates a fee, a visa threshold or a deadline as fact.
-            Those are set by universities, UKVI and UCAS, they change between
+            Those are set by each university and by UKVI, they change between
             cycles, and every article that touches one links to whoever
             publishes it.{" "}
             <Link

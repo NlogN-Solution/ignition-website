@@ -5,7 +5,7 @@
  * Editorial rules, because this is the one part of the site that is opinion
  * rather than catalogue:
  *
- * 1. Nothing datable. Fee levels, visa thresholds, UCAS deadlines and salary
+ * 1. Nothing datable. Fee levels, visa thresholds, intake deadlines and salary
  *    figures move every cycle, and a blog post is the worst possible place to
  *    pin one. Where a post touches a regulated number it says who publishes it
  *    and links there, through `source`.
@@ -147,19 +147,19 @@ export const posts: BlogPost[] = [
   },
   {
     id: "personal-statement-without-the-myths",
-    title: "The personal statement, without the myths",
+    title: "The statement of purpose, without the myths",
     excerpt:
       "It is not a life story, it is not a list of adjectives, and nobody is counting your extracurriculars. What it is, and how to draft one.",
     published: "2026-06-30",
     readingMinutes: 8,
     tag: "Applying",
     standfirst:
-      "The personal statement is the only part of a UCAS application you fully control, which is exactly why so much folklore has grown around it. Most of that folklore makes statements worse.",
+      "Your statement of purpose is the only part of an application you fully control, which is exactly why so much folklore has grown around it. Most of that folklore makes statements worse.",
     sections: [
       {
         heading: "What an admissions tutor is actually reading for",
         paragraphs: [
-          "One question, mostly: is this person going to cope with, and enjoy, three years of this subject? Everything useful in a statement is evidence for that. Everything else is filler competing for the same limited space.",
+          "One question, mostly: is this person going to cope with, and enjoy, this subject for the length of the course? Everything useful in a statement is evidence for that. Everything else is filler competing for the same limited space.",
           "That reframing kills several myths at once. A dramatic opening line is not evidence. A list of positions held is not evidence. A paragraph explaining that you have been passionate about the subject since childhood is not evidence, because every applicant writes it and none of them can be checked.",
         ],
       },
@@ -187,11 +187,10 @@ export const posts: BlogPost[] = [
         heading: "Drafting",
         paragraphs: [
           "The first draft is never the one you send, and it is not supposed to be. Write it long and badly, then cut. The cutting is where the statement is actually made: everything generic goes, everything specific stays, and what remains is usually both shorter and considerably stronger.",
-          "One statement goes to every course you apply to, so it has to work for all of them. If your choices are too different for one statement to serve them honestly, that is useful information about your shortlist rather than a writing problem.",
+          "Because you apply to each university directly, you write one statement per university rather than one that has to serve all of them. That is an advantage, and wasting it is the commonest mistake here: a reader can tell instantly when the only thing changed was the name. Keep the evidence, rewrite the paragraph that says why this course.",
         ],
       },
     ],
-    source: { label: "ucas.com", href: "https://www.ucas.com" },
     related: [
       { label: "How to apply", href: "/apply" },
       { label: "Entry requirements", href: "/apply/entry-requirements" },

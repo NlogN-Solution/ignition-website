@@ -80,7 +80,7 @@ export const withIgnitionFaqs = [
   {
     question: "Can I still apply to a university directly?",
     answer:
-      "Yes. You are free to apply directly, through UCAS, or through another agent at any point. Nothing you do on Ignition prevents that, and you can stop using the portal whenever you want.",
+      "Yes. You are free to approach a university yourself, or work with another agent, at any point. Nothing you do on Ignition prevents that, and you can stop using the portal whenever you want — we would rather say so plainly than have you find out later.",
   },
   {
     question: "What happens to the shortlist I built before signing up?",

@@ -123,14 +123,14 @@ export default function EntryRequirementsPage() {
           <div className="mb-10">
             <Callout tone="official">
               {requirementsNotice}{" "}
-              <a
-                href="https://www.ucas.com"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/universities"
                 className="font-semibold text-blue-link underline-offset-2 hover:underline"
               >
-                ucas.com
-              </a>
+                Every university in the catalogue
+              </Link>{" "}
+              carries the criteria its courses are admitted under, and links to
+              its own admissions page.
             </Callout>
           </div>
 

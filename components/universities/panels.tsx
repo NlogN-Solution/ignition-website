@@ -29,7 +29,7 @@ import {
   applicationTimeline,
   applyFaqs,
   offerTypes,
-  ucasSource,
+  visaSource,
 } from "@/data/guides/apply";
 import { livingCostBreakdown, moneyFaqs, moneyNotice } from "@/data/guides/money";
 import { visaDocuments } from "@/data/guides/visa";
@@ -453,19 +453,26 @@ export function ApplicationPanel({ university }: { university: University }) {
     <Panel>
       <Prose title="How applying works">
         <p>
-          Undergraduate applications to {university.name} go through UCAS, the
-          single service every UK university uses. You apply once, to several
-          courses, on one form. Deadlines and the number of choices allowed are
-          set by UCAS and change between cycles — check{" "}
+          {university.name} sets its own entry criteria, its own intake dates
+          and its own application fee if it charges one, and assesses you on
+          your own merits &mdash; it cannot see which other universities you are
+          applying to. Ignition prepares and lodges your application here, and
+          follows it through review, offer, CAS and visa in your portal.
+        </p>
+        <p>
+          Its requirements differ per course and per intake. The criteria below
+          are the ones this catalogue holds for it; anything datable belongs on
+          the university&rsquo;s own admissions page, and visa requirements
+          on{" "}
           <a
-            href={ucasSource.href}
+            href={visaSource.href}
             target="_blank"
             rel="noopener noreferrer"
             className="font-semibold text-blue-link underline underline-offset-2 transition-colors hover:text-navy"
           >
-            {ucasSource.label}
-          </a>{" "}
-          for the current cycle.
+            {visaSource.label}
+          </a>
+          .
         </p>
         <div className="pt-2">
           <Timeline stages={applicationTimeline} />
