@@ -1,0 +1,188 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { AnimatePresence, motion } from "motion/react";
+import { MessageCircle, Phone, X } from "lucide-react";
+import { contact, telUrl, whatsappUrl } from "@/lib/config";
+import { WhatsappIcon } from "../ui/WhatsappIcon";
+import { useCtaOnScreen } from "../apply/ctaVisibility";
+
+/**
+ * The two ways to reach a person, parked in the bottom corner.
+ *
+ * A student researching a move to another country hits a question the site
+ * cannot answer — a qualification that maps to nothing, a visa edge case, a
+ * deadline they have already missed — and the alternative to a visible way of
+ * asking is that they close the tab. So this is on every page.
+ *
+ * WHY THE LINKS ARE PLAIN ANCHORS. `tel:` and `wa.me` are handled by the
+ * operating system: on a phone the first opens the dialer with the number
+ * already entered, and the second opens WhatsApp with the message already
+ * written. Neither works if JavaScript intercepts the click, so nothing here
+ * calls `preventDefault` — the only client-side behaviour is deciding whether
+ * to render.
+ *
+ * WHY IT HIDES. A page's own call-to-action band makes the same offer with
+ * more room to make it, and a floating card landing on top of the better
+ * treatment in order to repeat the weaker one is how a page starts to feel
+ * like a pop-up farm. It stands down while that band is on screen, through
+ * the shared observer in components/apply/ctaVisibility.ts.
+ */
+
+export function ContactWidget() {
+  const pathname = usePathname();
+  const ctaOnScreen = useCtaOnScreen();
+  const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Mount-gated so the server markup and the first client paint agree — the
+  // widget animates in, and animating on hydration is a flash.
+  useEffect(() => setMounted(true), []);
+
+  // A route change should not leave the panel hanging open over a new page.
+  useEffect(() => setOpen(false), [pathname]);
+
+  if (!mounted || ctaOnScreen) return null;
+
+  const message = whatsappUrl(pageContext(pathname));
+
+  return (
+    <div
+      className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-3 sm:bottom-6 sm:right-6"
+      role="complementary"
+      aria-label="Contact Ignition"
+    >
+      <AnimatePresence>
+        {open ? (
+          <motion.div
+            initial={{ opacity: 0, y: 12, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.98 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            className="w-[min(19rem,calc(100vw-2rem))] origin-bottom-right rounded-md border border-hairline bg-white p-4 shadow-[0_8px_24px_-8px_rgba(10,14,28,0.18)]"
+          >
+            <p className="text-[15px] font-bold leading-[1.3] tracking-[-0.01em] text-ink">
+              Talk to an adviser<span className="text-orange">.</span>
+            </p>
+            <p className="mt-[6px] text-[13.5px] font-medium leading-[1.5] text-muted">
+              {contact.hours}. Ask anything — there is no charge for a
+              conversation.
+            </p>
+
+            <div className="mt-4 space-y-2">
+              <a
+                href={message}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-3 rounded-md border border-hairline p-3 transition-colors duration-200 hover:border-[#25d366]/40 hover:bg-[#25d366]/[0.06]"
+              >
+                <span
+                  aria-hidden
+                  className="flex size-[36px] shrink-0 items-center justify-center rounded-md bg-[#25d366]/12 text-[#128c4a]"
+                >
+                  <WhatsappIcon size={19} />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[14.5px] font-semibold leading-[1.3] text-ink">
+                    Message on WhatsApp
+                  </span>
+                  <span className="block text-[12.5px] font-medium text-muted-light">
+                    Opens with your message written
+                  </span>
+                </span>
+              </a>
+
+              <a
+                href={telUrl}
+                className="group flex items-center gap-3 rounded-md border border-hairline p-3 transition-colors duration-200 hover:border-navy/25 hover:bg-navy/[0.04]"
+              >
+                <span
+                  aria-hidden
+                  className="flex size-[36px] shrink-0 items-center justify-center rounded-md bg-navy/[0.08] text-navy"
+                >
+                  <Phone size={17} strokeWidth={2.2} />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[14.5px] font-semibold leading-[1.3] text-ink">
+                    Call {contact.phone}
+                  </span>
+                  <span className="block text-[12.5px] font-medium text-muted-light">
+                    Dials straight from your phone
+                  </span>
+                </span>
+              </a>
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      {/* Both actions stay one tap away on a phone even with the panel shut:
+          the two icon buttons are the links themselves, not a menu opener. */}
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setOpen((value) => !value)}
+          aria-expanded={open}
+          aria-label={open ? "Close contact options" : "Contact an adviser"}
+          className="flex size-[46px] items-center justify-center rounded-full border border-hairline bg-white text-navy shadow-[0_8px_24px_-8px_rgba(10,14,28,0.18)] transition-colors duration-200 hover:text-orange active:scale-95"
+        >
+          {open ? (
+            <X size={19} strokeWidth={2.4} aria-hidden />
+          ) : (
+            <MessageCircle size={20} strokeWidth={2.1} aria-hidden />
+          )}
+        </button>
+
+        <a
+          href={telUrl}
+          aria-label={`Call Ignition on ${contact.phone}`}
+          className="flex size-[52px] items-center justify-center rounded-full bg-navy text-white shadow-[0_8px_24px_-8px_rgba(10,14,28,0.18)] transition-colors duration-200 hover:bg-navy-ink active:scale-95"
+        >
+          <Phone size={21} strokeWidth={2.1} aria-hidden />
+        </a>
+
+        <a
+          href={message}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Message Ignition on WhatsApp"
+          className="flex size-[52px] items-center justify-center rounded-full bg-[#25d366] text-white shadow-[0_8px_24px_-8px_rgba(10,14,28,0.18)] transition-opacity duration-200 hover:opacity-90 active:scale-95"
+        >
+          <WhatsappIcon size={24} />
+        </a>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Turns the current route into the phrase that goes in the WhatsApp message,
+ * so an adviser opens the thread already knowing what the student was reading.
+ * Unknown routes contribute nothing rather than a slug.
+ */
+function pageContext(pathname: string): string | undefined {
+  const map: Record<string, string> = {
+    "/": "the homepage",
+    "/start": "where to start",
+    "/study-in-uk": "why study in the UK",
+    "/careers": "careers",
+    "/careers/quiz": "the career quiz",
+    "/courses": "courses",
+    "/universities": "universities",
+    "/apply": "how to apply",
+    "/apply/entry-requirements": "entry requirements and the visa",
+    "/apply/interviews": "interview preparation",
+    "/money": "tuition and living costs",
+    "/money/calculator": "the cost calculator",
+    "/money/scholarships": "scholarships",
+    "/life-in-uk": "life in the UK",
+  };
+
+  if (map[pathname]) return map[pathname];
+  if (pathname.startsWith("/courses/")) return "a course page";
+  if (pathname.startsWith("/universities/")) return "a university page";
+  if (pathname.startsWith("/careers/")) return "a career page";
+
+  return undefined;
+}

@@ -1,0 +1,105 @@
+/**
+ * Where the two halves of Ignition live.
+ *
+ * The public platform and the student portal are separate deployments, so
+ * every link between them is an absolute URL rather than a route. Both are
+ * overridable per environment: `next dev` on this machine talks to the CRA
+ * portal on :3001 (it is pinned there by `student-frontend/.env`, because a
+ * plain `next dev` already holds :3000), production points at the hosted
+ * dashboard.
+ */
+
+const trimSlash = (url: string) => url.replace(/\/+$/, "");
+
+export const portalUrl = trimSlash(
+  process.env.NEXT_PUBLIC_PORTAL_URL ?? "https://ignition-studentdashboard.onrender.com",
+);
+
+/**
+ * The Ignition API, which serves the catalogue and every word of editorial
+ * copy on this site.
+ *
+ * `NEXT_PUBLIC_` because the value is baked into the build: reads happen at
+ * build and revalidation time from the server, but the variable has to be
+ * readable wherever a module that calls the API is imported. It carries no
+ * secret — everything under `/public` is unauthenticated by design.
+ */
+/**
+ * Adds the scheme back when the environment forgot it.
+ *
+ * `NEXT_PUBLIC_API_BASE_URL=localhost:8001/api/v1` — no `http://` — was
+ * committed for a while, and a schemeless base makes every `fetch` throw
+ * "Failed to parse URL" one page at a time, which reads as the API being down
+ * rather than as a typo in a config file. Loopback gets `http`, anything else
+ * `https`, so neither guess can be the wrong one.
+ */
+function withScheme(url: string): string {
+  if (/^https?:\/\//.test(url)) return url;
+  const scheme = /^(localhost|127\.0\.0\.1|\[::1\])(:|\/|$)/.test(url) ? "http" : "https";
+  console.warn(`[config] NEXT_PUBLIC_API_BASE_URL has no scheme; reading it as ${scheme}://${url}`);
+  return `${scheme}://${url}`;
+}
+
+export const apiBaseUrl = trimSlash(
+  withScheme(process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8001/api/v1"),
+);
+
+export const portalRoutes = {
+  login: `${portalUrl}/login`,
+  register: `${portalUrl}/registration`,
+  dashboard: `${portalUrl}/`,
+  applications: `${portalUrl}/applications`,
+} as const;
+
+/**
+ * Name of the hint cookie the portal sets on login and clears on logout.
+ *
+ * It carries no identity and grants nothing — it exists only so the public
+ * site can say "Dashboard" instead of "Login". Real authorisation is the
+ * portal's JWT, checked server-side; this is chrome.
+ *
+ * Cookies are shared across ports on the same host, so this works in
+ * development (both halves on `localhost`) and in any production setup where
+ * the two are subdomains of one registrable domain. It does NOT cross two
+ * unrelated hosts — with the landing site and the dashboard on separate
+ * `onrender.com` subdomains the cookie cannot be shared, because
+ * `onrender.com` is a public suffix. The nav then simply keeps showing
+ * "Login", which is the correct degraded state rather than a broken one.
+ */
+export const sessionHintCookie = "ignition_session";
+
+/**
+ * How a student reaches a human — Ignition's number, used for calls and
+ * WhatsApp alike, everywhere on the site.
+ *
+ * Hardcoded on purpose, not read from the environment: one number, and no
+ * CI variable or .env file can replace it with a placeholder. `whatsapp` is
+ * digits only with the country code and no leading `+` — the form wa.me
+ * requires; `phone` keeps the `+` so `tel:` dials correctly from every country.
+ */
+export const contact = {
+  phone: "+977 971-3561804",
+  whatsapp: "9779713561804",
+  /** Shown next to the number so a student knows when calling is pointless. */
+  hours: process.env.NEXT_PUBLIC_CONTACT_HOURS || "Mon–Fri, 9am–6pm UK time",
+} as const;
+
+/**
+ * The message a student's WhatsApp opens pre-filled.
+ *
+ * Pre-filling is the whole point of the widget: a blank thread asks the
+ * student to compose an opening line, which is exactly the friction that stops
+ * them writing at all. `context` is the page they were on, so the adviser
+ * picking it up knows whether they were reading about visas or comparing
+ * courses before the first reply is typed.
+ */
+export function whatsappMessage(context?: string) {
+  const base = "Hi Ignition, I'd like some help with studying in the UK.";
+  return context ? `${base} (I was reading: ${context})` : base;
+}
+
+export function whatsappUrl(context?: string) {
+  return `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(whatsappMessage(context))}`;
+}
+
+export const telUrl = `tel:${contact.phone.replace(/[^\d+]/g, "")}`;
