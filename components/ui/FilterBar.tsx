@@ -47,14 +47,8 @@ export function FilterBar({ children }: { children: React.ReactNode }) {
   return (
     <section
       aria-label="Filters"
-      className="relative rounded-[20px] border border-hairline bg-gradient-to-b from-white via-white to-canvas p-[13px] shadow-[0_1px_2px_rgba(1,22,111,0.04),0_28px_56px_-40px_rgba(1,22,111,0.45)] sm:p-[17px]"
+      className="rounded-md border border-hairline bg-white p-[13px] sm:p-[17px]"
     >
-      {/* A one-pixel highlight along the top edge. Cheap, and it is what keeps
-          a white card on a near-white page from reading as flat paper. */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-x-[18px] top-0 h-px bg-gradient-to-r from-transparent via-navy/15 to-transparent"
-      />
       {children}
     </section>
   );
@@ -106,13 +100,13 @@ export function FilterFooter({
         {activeCount > 0 ? (
           <>
             <p className="inline-flex items-center gap-[7px] text-[12.5px] font-semibold text-muted">
-              <SlidersHorizontal size={13} strokeWidth={2.4} aria-hidden className="text-blue-link" />
+              <SlidersHorizontal size={13} strokeWidth={2.4} aria-hidden className="text-navy" />
               {activeCount} {activeCount === 1 ? "filter" : "filters"}
             </p>
             <button
               type="button"
               onClick={onClear}
-              className="rounded-full border border-hairline bg-white px-[13px] py-[6px] text-[12.5px] font-bold text-blue-link transition-colors duration-200 hover:border-blue-link/40 hover:text-navy"
+              className="rounded-md border border-hairline bg-white px-[13px] py-[6px] text-[12.5px] font-bold text-navy transition-colors duration-200 hover:border-ink/35 hover:text-orange"
             >
               Clear all
             </button>
@@ -149,15 +143,13 @@ export function FilterSearch({
 
   return (
     <div
-      className={`relative mb-[11px] flex h-[54px] items-center rounded-[14px] border bg-white pl-[13px] pr-[10px] transition-[border-color,box-shadow] duration-200 ${
-        focused
-          ? "border-navy shadow-[0_0_0_3px_rgba(1,22,111,0.08)]"
-          : "border-hairline hover:border-ring-idle"
+      className={`relative mb-[11px] flex h-[54px] items-center rounded-md border bg-white pl-[13px] pr-[10px] transition-colors duration-200 ${
+        focused ? "border-navy" : "border-hairline hover:border-ink/35"
       }`}
     >
       <span
         aria-hidden
-        className={`mr-[11px] flex size-[32px] shrink-0 items-center justify-center rounded-[10px] transition-colors duration-200 ${
+        className={`mr-[11px] flex size-[32px] shrink-0 items-center justify-center rounded-md transition-colors duration-200 ${
           focused || value ? "bg-navy text-white" : "bg-canvas text-muted-light"
         }`}
       >
@@ -182,7 +174,7 @@ export function FilterSearch({
           type="button"
           onClick={() => onChange("")}
           aria-label="Clear search"
-          className="ml-2 inline-flex size-[30px] shrink-0 items-center justify-center rounded-[9px] text-muted-light transition-colors duration-200 hover:bg-canvas hover:text-navy"
+          className="ml-2 inline-flex size-[30px] shrink-0 items-center justify-center rounded-md text-muted-light transition-colors duration-200 hover:bg-canvas hover:text-navy"
         >
           <X size={15} strokeWidth={2.6} aria-hidden />
         </button>
@@ -194,7 +186,7 @@ export function FilterSearch({
 /* --------------------------------------------------------------- fields -- */
 
 const trigger =
-  "group relative flex h-[58px] w-full min-w-0 flex-col justify-center gap-[3px] rounded-[13px] border px-[13px] text-left transition-[border-color,background-color,box-shadow] duration-200";
+  "group relative flex h-[58px] w-full min-w-0 flex-col justify-center gap-[3px] rounded-md border px-[13px] text-left transition-[border-color,background-color] duration-200";
 
 /**
  * One dropdown field.
@@ -251,10 +243,10 @@ function Field({
         aria-expanded={open}
         className={`${trigger} pr-[34px] ${
           open
-            ? "border-navy bg-white shadow-[0_0_0_3px_rgba(1,22,111,0.08)]"
+            ? "border-navy bg-white"
             : active
               ? "border-navy/25 bg-navy/[0.035] hover:border-navy/45"
-              : "border-hairline bg-white hover:border-ring-idle hover:shadow-[0_8px_20px_-14px_rgba(1,22,111,0.45)]"
+              : "border-hairline bg-white hover:border-ink/35"
         }`}
       >
         <span className="flex items-center gap-[6px]">
@@ -287,7 +279,7 @@ function Field({
 
       {open ? (
         <div
-          className={`filter-pop absolute top-[calc(100%+7px)] z-40 w-[min(320px,calc(100vw-2rem))] rounded-[16px] border border-hairline bg-white p-[7px] shadow-[0_32px_64px_-30px_rgba(1,22,111,0.5)] ${
+          className={`filter-pop absolute top-[calc(100%+7px)] z-40 w-[min(320px,calc(100vw-2rem))] rounded-md border border-hairline bg-white p-[7px] shadow-[0_8px_24px_-8px_rgba(10,14,28,0.18)] ${
             flip ? "right-0" : "left-0"
           }`}
         >
@@ -299,7 +291,7 @@ function Field({
                 onClear();
                 setOpen(false);
               }}
-              className="mt-[6px] w-full rounded-[10px] border border-hairline px-2 py-[8px] text-[12.5px] font-bold text-orange transition-colors duration-150 hover:border-orange/40 hover:bg-orange/[0.05]"
+              className="mt-[6px] w-full rounded-md border border-hairline px-2 py-[8px] text-[12.5px] font-bold text-orange transition-colors duration-150 hover:border-orange/40 hover:bg-orange/[0.05]"
             >
               Clear {label.toLowerCase()}
             </button>
@@ -329,7 +321,7 @@ function OptionRow({
       aria-pressed={active}
       disabled={disabled}
       onClick={onClick}
-      className={`flex w-full items-center gap-[10px] rounded-[10px] px-[9px] py-[8px] text-left text-[13.5px] font-semibold transition-colors duration-150 ${
+      className={`flex w-full items-center gap-[10px] rounded-md px-[9px] py-[8px] text-left text-[13.5px] font-semibold transition-colors duration-150 ${
         active
           ? "bg-navy/[0.06] text-navy"
           : disabled
@@ -339,7 +331,7 @@ function OptionRow({
     >
       <span
         aria-hidden
-        className={`flex size-[17px] shrink-0 items-center justify-center rounded-[5px] border transition-colors duration-150 ${
+        className={`flex size-[17px] shrink-0 items-center justify-center rounded-sm border transition-colors duration-150 ${
           active
             ? "border-navy bg-navy text-white"
             : disabled
@@ -444,7 +436,7 @@ export function SearchableSelectField({
               onChange={(event) => setTerm(event.target.value)}
               placeholder={placeholder}
               autoFocus
-              className="h-[38px] w-full rounded-[10px] border border-hairline bg-canvas/60 pl-[32px] pr-3 text-[13.5px] font-medium text-ink outline-none placeholder:text-muted-light focus:border-blue-link focus:bg-white"
+              className="h-[38px] w-full rounded-md border border-hairline bg-canvas/60 pl-[32px] pr-3 text-[13.5px] font-medium text-ink outline-none placeholder:text-muted-light focus:border-navy focus:bg-white"
             />
           </div>
           <ul className="max-h-[248px] space-y-px overflow-y-auto overscroll-contain">
@@ -494,17 +486,17 @@ export function ToggleChip({
       aria-pressed={active}
       disabled={disabled}
       onClick={() => onChange(!active)}
-      className={`inline-flex items-center gap-[8px] rounded-full border px-[13px] py-[7px] text-[13px] font-semibold transition-colors duration-200 ${
+      className={`inline-flex items-center gap-[8px] rounded-md border px-[13px] py-[7px] text-[13px] font-semibold transition-colors duration-200 ${
         active
           ? "border-navy/30 bg-navy/[0.06] text-navy"
           : disabled
             ? "cursor-not-allowed border-hairline text-faint"
-            : "border-hairline bg-white text-muted hover:border-ring-idle hover:text-navy"
+            : "border-hairline bg-white text-muted hover:border-ink/35 hover:text-navy"
       }`}
     >
       <span
         aria-hidden
-        className={`flex size-[15px] shrink-0 items-center justify-center rounded-[4px] border transition-colors duration-150 ${
+        className={`flex size-[15px] shrink-0 items-center justify-center rounded-sm border transition-colors duration-150 ${
           active ? "border-navy bg-navy text-white" : disabled ? "border-hairline" : "border-ring-idle"
         }`}
       >

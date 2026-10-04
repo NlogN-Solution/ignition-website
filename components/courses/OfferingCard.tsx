@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Check } from "lucide-react";
-import { Card } from "../ui/Card";
+import { Check } from "lucide-react";
 import { Badge } from "../ui/Badge";
 import { StartApplicationButton } from "../apply/StartApplicationButton";
 import { courseImage, courseMosaicExtras } from "@/data/courses/imagery";
@@ -32,9 +31,8 @@ export function OfferingCard({
   const initials = university?.name.slice(0, 2).toUpperCase() ?? "—";
 
   return (
-    <Card
-      interactive
-      className={`h-full overflow-hidden ${selected ? "ring-2 ring-blue-bright ring-offset-2 ring-offset-canvas" : ""}`}
+    <div
+      className={`group flex h-full flex-col overflow-hidden rounded-[20px] border border-hairline bg-white shadow-[0_8px_24px_-14px_rgba(10,14,28,0.18)] transition-[box-shadow,transform] duration-200 hover:-translate-y-[2px] hover:shadow-[0_20px_40px_-16px_rgba(10,14,28,0.24)] ${selected ? "ring-2 ring-blue-bright ring-offset-2 ring-offset-canvas" : ""}`}
     >
       <div className="relative grid h-[160px] grid-cols-[1.55fr_1fr] grid-rows-2 gap-[2px] bg-navy/5">
         <div className="relative row-span-2 overflow-hidden">
@@ -104,7 +102,11 @@ export function OfferingCard({
             {offering.campus ?? university?.city ?? "—"}
           </span>
           {offering.level ? (
-            <span className="shrink-0 font-bold text-blue-link">{offering.level}</span>
+            // A literal blue rather than the site's `navy` token: this tag is
+            // the one place on the card meant to read as a category chip, not
+            // as brand ink, and the reference this card matches keeps it
+            // visually distinct from the navy price figures below it.
+            <span className="shrink-0 font-bold text-[#2450dc]">{offering.level}</span>
           ) : null}
         </div>
 
@@ -140,27 +142,12 @@ export function OfferingCard({
         </p>
 
         <div className="mt-auto flex flex-col gap-3 pt-4">
-          {offering.profileSlug ? (
-            <Link
-              href={`/courses/${offering.profileSlug}`}
-              className="group/cta inline-flex items-center gap-[7px] self-start text-[13.5px] font-bold text-blue-link transition-colors hover:text-navy"
-            >
-              About this subject
-              <ArrowUpRight
-                size={14}
-                strokeWidth={2.4}
-                aria-hidden
-                className="transition-transform duration-200 group-hover/cta:translate-x-[2px] group-hover/cta:-translate-y-[2px]"
-              />
-            </Link>
-          ) : null}
-
           {/* The card has always known which offering it is. Handing the
               slug over is what stops the portal asking the student to find
               the same course again after they register. */}
           <StartApplicationButton
             tone="accent"
-            className="h-[46px] w-full gap-[6px] text-[13px] uppercase tracking-[0.03em]"
+            className="h-[46px] w-full gap-[6px] rounded-[10px] text-[13px] uppercase tracking-[0.03em]"
             iconSize={14}
             courseSlug={offering.slug}
           >
@@ -168,6 +155,6 @@ export function OfferingCard({
           </StartApplicationButton>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }

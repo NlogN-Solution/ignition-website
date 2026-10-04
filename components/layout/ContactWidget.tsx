@@ -60,9 +60,9 @@ export function ContactWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.98 }}
             transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            className="w-[min(19rem,calc(100vw-2rem))] origin-bottom-right rounded-xl border border-hairline bg-white p-4 shadow-[0_28px_60px_-24px_rgba(1,22,111,0.45)]"
+            className="w-[min(19rem,calc(100vw-2rem))] origin-bottom-right rounded-md border border-hairline bg-white p-4 shadow-[0_8px_24px_-8px_rgba(10,14,28,0.18)]"
           >
-            <p className="text-[15px] font-bold leading-[1.3] tracking-[-0.01em] text-navy">
+            <p className="text-[15px] font-bold leading-[1.3] tracking-[-0.01em] text-ink">
               Talk to an adviser<span className="text-orange">.</span>
             </p>
             <p className="mt-[6px] text-[13.5px] font-medium leading-[1.5] text-muted">
@@ -75,16 +75,16 @@ export function ContactWidget() {
                 href={message}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-3 rounded-lg border border-hairline p-3 transition-colors duration-200 hover:border-[#25d366]/40 hover:bg-[#25d366]/[0.06]"
+                className="group flex items-center gap-3 rounded-md border border-hairline p-3 transition-colors duration-200 hover:border-[#25d366]/40 hover:bg-[#25d366]/[0.06]"
               >
                 <span
                   aria-hidden
-                  className="flex size-[36px] shrink-0 items-center justify-center rounded-[10px] bg-[#25d366]/12 text-[#128c4a]"
+                  className="flex size-[36px] shrink-0 items-center justify-center rounded-md bg-[#25d366]/12 text-[#128c4a]"
                 >
                   <WhatsappIcon size={19} />
                 </span>
                 <span className="min-w-0">
-                  <span className="block text-[14.5px] font-semibold leading-[1.3] text-navy">
+                  <span className="block text-[14.5px] font-semibold leading-[1.3] text-ink">
                     Message on WhatsApp
                   </span>
                   <span className="block text-[12.5px] font-medium text-muted-light">
@@ -95,16 +95,16 @@ export function ContactWidget() {
 
               <a
                 href={telUrl}
-                className="group flex items-center gap-3 rounded-lg border border-hairline p-3 transition-colors duration-200 hover:border-navy/25 hover:bg-navy/[0.04]"
+                className="group flex items-center gap-3 rounded-md border border-hairline p-3 transition-colors duration-200 hover:border-navy/25 hover:bg-navy/[0.04]"
               >
                 <span
                   aria-hidden
-                  className="flex size-[36px] shrink-0 items-center justify-center rounded-[10px] bg-navy/[0.08] text-navy"
+                  className="flex size-[36px] shrink-0 items-center justify-center rounded-md bg-navy/[0.08] text-navy"
                 >
                   <Phone size={17} strokeWidth={2.2} />
                 </span>
                 <span className="min-w-0">
-                  <span className="block text-[14.5px] font-semibold leading-[1.3] text-navy">
+                  <span className="block text-[14.5px] font-semibold leading-[1.3] text-ink">
                     Call {contact.phone}
                   </span>
                   <span className="block text-[12.5px] font-medium text-muted-light">
@@ -125,7 +125,7 @@ export function ContactWidget() {
           onClick={() => setOpen((value) => !value)}
           aria-expanded={open}
           aria-label={open ? "Close contact options" : "Contact an adviser"}
-          className="flex size-[46px] items-center justify-center rounded-full border border-hairline bg-white text-navy shadow-[0_14px_32px_-16px_rgba(1,22,111,0.5)] transition-[transform,color] duration-200 hover:scale-[1.04] hover:text-orange active:scale-95"
+          className="flex size-[46px] items-center justify-center rounded-full border border-hairline bg-white text-navy shadow-[0_8px_24px_-8px_rgba(10,14,28,0.18)] transition-colors duration-200 hover:text-orange active:scale-95"
         >
           {open ? (
             <X size={19} strokeWidth={2.4} aria-hidden />
@@ -137,7 +137,7 @@ export function ContactWidget() {
         <a
           href={telUrl}
           aria-label={`Call Ignition on ${contact.phone}`}
-          className="flex size-[52px] items-center justify-center rounded-full bg-navy text-white shadow-[0_16px_36px_-14px_rgba(1,22,111,0.7)] transition-transform duration-200 hover:scale-[1.05] active:scale-95"
+          className="flex size-[52px] items-center justify-center rounded-full bg-navy text-white shadow-[0_8px_24px_-8px_rgba(10,14,28,0.18)] transition-colors duration-200 hover:bg-navy-ink active:scale-95"
         >
           <Phone size={21} strokeWidth={2.1} aria-hidden />
         </a>
@@ -147,7 +147,7 @@ export function ContactWidget() {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Message Ignition on WhatsApp"
-          className="flex size-[52px] items-center justify-center rounded-full bg-[#25d366] text-white shadow-[0_16px_36px_-14px_rgba(37,211,102,0.75)] transition-transform duration-200 hover:scale-[1.05] active:scale-95"
+          className="flex size-[52px] items-center justify-center rounded-full bg-[#25d366] text-white shadow-[0_8px_24px_-8px_rgba(10,14,28,0.18)] transition-opacity duration-200 hover:opacity-90 active:scale-95"
         >
           <WhatsappIcon size={24} />
         </a>

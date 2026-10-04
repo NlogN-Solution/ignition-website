@@ -24,7 +24,7 @@ export function Accordion({
   const editorial = size === "editorial";
 
   return (
-    <div className="divide-y divide-hairline overflow-hidden rounded-xl border border-hairline bg-white">
+    <div className="divide-y divide-hairline overflow-hidden rounded-md border border-hairline bg-white">
       {items.map((item) => (
         <details key={item.question} className="details-reveal group">
           <summary
@@ -48,7 +48,7 @@ export function Accordion({
             {editorial ? (
               <span
                 aria-hidden
-                className="flex size-[32px] shrink-0 items-center justify-center rounded-full border border-hairline bg-canvas text-blue-link transition-[transform,background-color,color,border-color] duration-300 group-hover:border-ring-idle group-open:rotate-45 group-open:border-navy group-open:bg-navy group-open:text-white"
+                className="flex size-[32px] shrink-0 items-center justify-center rounded-full border border-hairline bg-canvas text-navy transition-[transform,background-color,color,border-color] duration-300 group-hover:border-ink/35 group-open:rotate-45 group-open:border-navy group-open:bg-navy group-open:text-white"
               >
                 <Plus size={17} strokeWidth={2.4} />
               </span>
@@ -57,7 +57,7 @@ export function Accordion({
                 size={18}
                 strokeWidth={2.4}
                 aria-hidden
-                className="shrink-0 text-blue-link transition-transform duration-200 group-open:rotate-180"
+                className="shrink-0 text-navy transition-transform duration-200 group-open:rotate-180"
               />
             )}
           </summary>

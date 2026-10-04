@@ -4,6 +4,9 @@ import { Footer } from "@/components/layout/Footer";
 import { JourneyClose } from "@/components/apply/JourneyClose";
 import { Hero } from "@/components/home/Hero";
 import { CourseSearch } from "@/components/home/CourseSearch";
+import { PopularCourses } from "@/components/home/PopularCourses";
+import { PopularUniversities } from "@/components/home/PopularUniversities";
+import { CostAndScholarships } from "@/components/home/CostAndScholarships";
 import { WhyUk } from "@/components/home/WhyUk";
 import { WhyIgnition } from "@/components/home/WhyIgnition";
 import { IntentCards } from "@/components/home/IntentCards";
@@ -11,9 +14,16 @@ import { CommunityStat } from "@/components/home/CommunityStat";
 import { NextStep } from "@/components/journey/NextStep";
 import { LeadCapture } from "@/components/lead/LeadCapture";
 import { JourneyPipeline } from "@/components/journey/JourneyPipeline";
+import { HowToApply } from "@/components/home/HowToApply";
 import { Section } from "@/components/ui/Section";
 import { trustIntro } from "@/data/home/trust";
-import { getCourses, getUniversities } from "@/lib/api/catalogue";
+import { livingCostBreakdown } from "@/data/guides/money";
+import {
+  pickFeaturedScholarships,
+  publishedTuitionRange,
+  pickPopularUniversities,
+} from "@/data/home/popular";
+import { getScholarships, getUniversities, searchOfferings } from "@/lib/api/catalogue";
 import {
   JsonLd,
   organizationSchema,
@@ -42,52 +52,22 @@ export const metadata: Metadata = {
   },
 };
 
-/**
- * The homepage answers four questions in the order a student asks them.
- *
- * 1. "Do you have my course?" — the search, directly under the hero, because
- *    a student who arrives with a subject in mind should not have to navigate
- *    to find out. This is where every UK study site puts it and the pattern is
- *    recognised before it is read.
- * 2. "Why the UK at all?" — three cards, the one saturated block on the page,
- *    for the students who have not settled that yet. Shorter degrees, the
- *    universities at the top of the world tables, and the fact that teaching,
- *    research and standards are all checked by someone other than the
- *    university itself.
- * 3. "Where do I start?" — the entry points, then the end-to-end route, then
- *    the next step, then `CommunityStat` ("will I be alone"), and the
- *    adviser form last. Everything from the entry points onward is rational —
- *    a map, a next action, a claim. None of it answers the one question a
- *    reader who is otherwise convinced still hesitates on, so `CommunityStat`
- *    closes on it, in sourced numbers rather than sentiment, immediately
- *    before asking the reader to leave their number. The same section, same
- *    reasoning, closes `/study-in-uk` right before its own CTA.
- *
- * THE ROUTE COMES BEFORE THE NEXT-STEP PANEL, NOT AFTER. What used to sit
- * here was a section asking "Where are you in your UK journey?" above a
- * section showing the journey — a question about a map printed before the
- * map, which is backwards for the same reason it still is now: you cannot
- * sensibly point someone at "the one thing worth doing next" until they have
- * seen the full shape of what's ahead of them. The route runs first, so
- * `NextStep`'s recommendation — and the one-click "I'm here" marker inside
- * `JourneyPipeline` itself — both land on a map the reader has already been
- * shown, not one still below the fold.
- *
- * The adviser form used to sit directly under the journey selector, on the
- * reasoning that asking for a phone number is easier once the student has just
- * been given something. That reasoning still holds; what was wrong was where
- * it left the pipeline. The form is the largest request on the page, and
- * putting it mid-scroll made the two sections after it read as afterthoughts.
- * It now closes the page instead: a student who has scrolled past the whole
- * journey has seen everything Ignition does, which is a better moment to ask
- * than four sections earlier.
- *
- * The entry-point grid no longer carries "Find a course": the search above it
- * does that job better, and offering the same destination twice on one screen
- * makes the second offer read as a different thing than it is.
- */
+/** Course discovery, application guidance and a persistent next-step selector. */
 export default async function Home() {
-  const [catalogue, courses] = await Promise.all([getUniversities(), getCourses()]);
+  const [catalogue, scholarships, offerings] = await Promise.all([
+    getUniversities(),
+    getScholarships(),
+    searchOfferings({ limit: 1 }),
+  ]);
+
+  const popularUniversities = pickPopularUniversities(catalogue);
+  const featuredScholarships = pickFeaturedScholarships(scholarships);
+
+  const tuitionRange = publishedTuitionRange(catalogue);
+  const monthlyLivingRange = {
+    low: livingCostBreakdown.reduce((sum, row) => sum + row.low, 0),
+    high: livingCostBreakdown.reduce((sum, row) => sum + row.high, 0),
+  };
 
   // Slimmed here rather than in the component: what crosses to the browser is
   // what the search box matches on, not the records behind it.
@@ -96,14 +76,6 @@ export default async function Home() {
     name: university.name,
     city: university.city,
     region: university.region,
-  }));
-  const courseSuggestions = courses.map((course) => ({
-    id: course.id,
-    title: course.title,
-    qualification: course.qualification,
-    subject: course.subject,
-    level: course.level,
-    outcomes: course.careerOutcomes,
   }));
 
   return (
@@ -115,7 +87,15 @@ export default async function Home() {
       <main>
         <Hero />
 
-        <CourseSearch universities={universitySuggestions} courses={courseSuggestions} />
+        <CourseSearch universities={universitySuggestions} courseCount={offerings.total} />
+
+        <Section
+          eyebrow="Popular searches"
+          title="Or start from what others are asking for."
+          intro="Explore three popular subjects in the course catalogue, then compare the courses and universities that match."
+        >
+          <PopularCourses />
+        </Section>
 
         <Section
           eyebrow="Why the UK"
@@ -131,6 +111,27 @@ export default async function Home() {
         </Section>
 
         <Section
+          eyebrow="Where to go"
+          title="Some of the universities already in our catalogue."
+          intro="Picked by graduate outcomes and recognition where we have them on record — not a ranking, just a reasonable place to start looking."
+          surface
+        >
+          <PopularUniversities universities={popularUniversities} />
+        </Section>
+
+        <Section
+          eyebrow="Before you go further"
+          title="What this actually costs, and what brings it down."
+          intro="The two numbers every applicant asks before anything else, and the scholarships that change them."
+        >
+          <CostAndScholarships
+            tuition={tuitionRange}
+            monthlyLiving={monthlyLivingRange}
+            scholarships={featuredScholarships}
+          />
+        </Section>
+
+        <Section
           eyebrow="Start anywhere"
           title="What do you need help with?"
           intro="Five ways in. Pick whichever matches the question you actually have right now — you can come back for the rest."
@@ -138,11 +139,13 @@ export default async function Home() {
           <IntentCards />
         </Section>
 
+        <HowToApply />
+
         <Section
           id="route"
           eyebrow="End to end"
           title="From first idea to first week."
-          intro="The whole route to a UK university — not just the application. Mark the chapter you're in and the step below starts from there."
+          intro="Mark the chapter you’re in so your next step starts from there."
         >
           <JourneyPipeline />
         </Section>

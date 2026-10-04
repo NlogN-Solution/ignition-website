@@ -13,7 +13,8 @@ import {
 } from "lucide-react";
 import { useReveal } from "../ui/motion";
 import { Container } from "../ui/Container";
-import { studyRoute, studyRoutes, type CourseLevel, type StudyRouteId } from "@/data/courses";
+import { studyRoutes, type StudyRouteId } from "@/data/courses";
+import { popularSearchTerms } from "@/data/home/popular";
 
 /**
  * One search line, not a section.
@@ -60,22 +61,31 @@ export type UniversitySuggestion = {
   region: string;
 };
 
-export type CourseSuggestion = {
-  id: string;
+/**
+ * What `/api/courses/suggest` returns for each row.
+ *
+ * Courses are not handed in like universities: there are ~4,800 real
+ * offerings, far too many to ship to the browser, so the field asks the API
+ * as you type. Matching them here against the editorial course profiles was
+ * the old approach — and with no profiles written yet, that matched the
+ * invented fixtures in `data/courses` and offered courses nobody teaches.
+ */
+type OfferingSuggestion = {
+  slug: string;
   title: string;
-  qualification: string;
-  subject: string;
-  level: CourseLevel;
-  outcomes: string[];
+  level?: string;
+  university?: string;
 };
 
 const MAX_SUGGESTIONS = 6;
+const SUGGEST_DEBOUNCE_MS = 180;
 
-/** The subjects students actually arrive typing. */
-const popular = ["Computer Science", "Business", "Nursing", "Engineering"];
+/** The subjects students actually arrive typing — shared with the homepage's
+ *  "Popular courses" cards so the two can't name different subjects. */
+const popular = popularSearchTerms;
 
 const fieldBase =
-  "h-[52px] w-full appearance-none rounded-[10px] border border-hairline bg-white pl-[15px] pr-10 text-[15px] font-semibold text-navy transition-colors duration-200 hover:border-ring-idle focus:border-ring-idle";
+  "h-[52px] w-full appearance-none rounded-md border border-hairline bg-white pl-[15px] pr-10 text-[15px] font-semibold text-navy transition-colors duration-200 hover:border-ink/35 focus:border-ink/35";
 
 function SelectShell({ children }: { children: React.ReactNode }) {
   return (
@@ -109,10 +119,11 @@ function Highlight({ text, needle }: { text: string; needle: string }) {
 
 export function CourseSearch({
   universities,
-  courses,
+  courseCount,
 }: {
   universities: UniversitySuggestion[];
-  courses: CourseSuggestion[];
+  /** How many real offerings the catalogue lists, for the placeholder. */
+  courseCount: number;
 }) {
   const router = useRouter();
   const { container, item } = useReveal(0.09);
@@ -127,6 +138,39 @@ export function CourseSearch({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const needle = query.trim().toLowerCase();
+
+  /* The rows the API returned, tagged with the query and route they answer,
+     so a stale reply is never shown under a newer query. */
+  const [offerings, setOfferings] = useState<{
+    key: string;
+    items: OfferingSuggestion[];
+  } | null>(null);
+  const offeringsKey = `${route}:${needle}`;
+
+  useEffect(() => {
+    if (target !== "courses" || needle.length < 2) return;
+
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        const params = new URLSearchParams({ q: needle, route });
+        const response = await fetch(`/api/courses/suggest?${params}`, {
+          signal: controller.signal,
+        });
+        if (!response.ok) return;
+        const body = (await response.json()) as { items: OfferingSuggestion[] };
+        setOfferings({ key: offeringsKey, items: body.items });
+      } catch {
+        // Aborted by the next keystroke, or the API is down — either way the
+        // "search all courses" row still works, so there is nothing to show.
+      }
+    }, SUGGEST_DEBOUNCE_MS);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [target, needle, route, offeringsKey]);
 
   const suggestions = useMemo<Suggestion[]>(() => {
     if (needle.length < 2) return [];
@@ -147,33 +191,23 @@ export function CourseSearch({
         }));
     }
 
-    const levels = studyRoute(route)?.levels ?? null;
+    if (offerings?.key !== offeringsKey) return [];
 
-    return courses
-      .filter((course) => {
-        if (levels && !levels.includes(course.level)) return false;
-
-        return (
-          course.title.toLowerCase().includes(needle) ||
-          course.subject.toLowerCase().includes(needle) ||
-          course.qualification.toLowerCase().includes(needle) ||
-          course.outcomes.some((outcome) => outcome.toLowerCase().includes(needle))
-        );
-      })
-      .slice(0, MAX_SUGGESTIONS)
-      .map((course) => ({
-        id: course.id,
-        href: `/courses/${course.id}`,
-        title: `${course.title} ${course.qualification}`,
-        meta: `${course.subject} · ${course.level}`,
-      }));
-  }, [needle, target, route, universities, courses]);
+    return offerings.items.slice(0, MAX_SUGGESTIONS).map((offering) => ({
+      id: offering.slug,
+      href: `/courses/at/${offering.slug}`,
+      // Imported titles already lead with the award ("BA (Hons) Nursing"), so
+      // the qualification is not appended again.
+      title: offering.title,
+      meta: [offering.university, offering.level].filter(Boolean).join(" · "),
+    }));
+  }, [needle, target, universities, offerings, offeringsKey]);
 
   /* A stale highlight would send Return to the wrong row after the list under
      it changed, so it resets whenever the list is rebuilt. */
   useEffect(() => {
     setActive(-1);
-  }, [needle, target, route]);
+  }, [needle, target, route, suggestions]);
 
   const listHref = useMemo(() => {
     const params = new URLSearchParams();
@@ -231,7 +265,7 @@ export function CourseSearch({
     }
   }
 
-  const count = target === "courses" ? courses.length : universities.length;
+  const count = target === "courses" ? courseCount : universities.length;
 
   return (
     <section
@@ -265,7 +299,7 @@ export function CourseSearch({
             <div
               role="radiogroup"
               aria-label="What are you looking for"
-              className="inline-flex h-[52px] shrink-0 items-center rounded-[10px] border border-hairline bg-white p-[3px]"
+              className="inline-flex h-[52px] shrink-0 items-center rounded-md border border-hairline bg-white p-[3px]"
             >
               {(["courses", "universities"] as const).map((option) => {
                 const selected = target === option;
@@ -280,7 +314,7 @@ export function CourseSearch({
                       setTarget(option);
                       setActive(-1);
                     }}
-                    className={`inline-flex h-full flex-1 items-center justify-center gap-[7px] rounded-[7px] px-[15px] text-[14.5px] font-semibold transition-colors duration-200 lg:flex-none ${
+                    className={`inline-flex h-full flex-1 items-center justify-center gap-[7px] rounded-sm px-[15px] text-[14.5px] font-semibold transition-colors duration-200 lg:flex-none ${
                       selected
                         ? "bg-navy text-white"
                         : "text-muted hover:text-navy"
@@ -360,10 +394,10 @@ export function CourseSearch({
                   onKeyDown={onKeyDown}
                   placeholder={
                     target === "courses"
-                      ? `Search ${count} courses — try “computer science”`
-                      : `Search ${count} universities — try “Manchester”`
+                      ? `Search ${count ? `${count.toLocaleString("en-GB")} ` : ""}courses — try “computer science”`
+                      : `Search ${count ? `${count} ` : ""}universities — try “Manchester”`
                   }
-                  className="h-[52px] w-full appearance-none rounded-[10px] border border-hairline bg-white pl-[45px] pr-4 text-[15px] font-medium text-ink transition-colors duration-200 placeholder:text-muted-light hover:border-ring-idle focus:border-ring-idle [&::-webkit-search-cancel-button]:hidden"
+                  className="h-[52px] w-full appearance-none rounded-md border border-hairline bg-white pl-[45px] pr-4 text-[15px] font-medium text-ink transition-colors duration-200 placeholder:text-muted-light hover:border-ink/35 focus:border-ink/35 [&::-webkit-search-cancel-button]:hidden"
                 />
               </label>
 
@@ -372,7 +406,7 @@ export function CourseSearch({
                   id={listId}
                   role="listbox"
                   aria-label="Suggestions"
-                  className="absolute left-0 right-0 top-[calc(100%+6px)] z-40 max-h-[336px] overflow-y-auto rounded-xl border border-hairline bg-white p-[6px] shadow-[0_24px_48px_-24px_rgba(1,22,111,0.35)]"
+                  className="absolute left-0 right-0 top-[calc(100%+6px)] z-40 max-h-[336px] overflow-y-auto rounded-md border border-hairline bg-white p-[6px] shadow-[0_8px_24px_-8px_rgba(10,14,28,0.18)]"
                 >
                   {suggestions.map((suggestion, index) => (
                     <li key={suggestion.id}>
@@ -383,7 +417,7 @@ export function CourseSearch({
                         aria-selected={active === index}
                         onMouseEnter={() => setActive(index)}
                         onClick={() => go(suggestion.href)}
-                        className={`flex w-full items-center gap-3 rounded-lg px-3 py-[9px] text-left transition-colors duration-150 ${
+                        className={`flex w-full items-center gap-3 rounded-md px-3 py-[9px] text-left transition-colors duration-150 ${
                           active === index ? "bg-canvas" : ""
                         }`}
                       >
@@ -392,14 +426,14 @@ export function CourseSearch({
                             size={16}
                             strokeWidth={2.2}
                             aria-hidden
-                            className="shrink-0 text-blue-link"
+                            className="shrink-0 text-navy"
                           />
                         ) : (
                           <Building2
                             size={16}
                             strokeWidth={2.2}
                             aria-hidden
-                            className="shrink-0 text-blue-link"
+                            className="shrink-0 text-navy"
                           />
                         )}
                         <span className="min-w-0 flex-1">
@@ -423,7 +457,7 @@ export function CourseSearch({
                         aria-selected={active === suggestions.length}
                         onMouseEnter={() => setActive(suggestions.length)}
                         onClick={() => go(listHref)}
-                        className={`flex w-full items-center gap-3 rounded-lg px-3 py-[9px] text-left transition-colors duration-150 ${
+                        className={`flex w-full items-center gap-3 rounded-md px-3 py-[9px] text-left transition-colors duration-150 ${
                           suggestions.length > 0 ? "mt-[2px] border-t border-hairline pt-[11px]" : ""
                         } ${active === suggestions.length ? "bg-canvas" : ""}`}
                       >
@@ -433,7 +467,7 @@ export function CourseSearch({
                           aria-hidden
                           className="shrink-0 text-muted-light"
                         />
-                        <span className="min-w-0 flex-1 truncate text-[14px] font-semibold text-blue-link">
+                        <span className="min-w-0 flex-1 truncate text-[14px] font-semibold text-navy">
                           {suggestions.length > 0
                             ? `See all ${target === "courses" ? "courses" : "universities"} matching “${query.trim()}”`
                             : `Search all ${target === "courses" ? "courses" : "universities"} for “${query.trim()}”`}
@@ -453,7 +487,7 @@ export function CourseSearch({
 
             <button
               type="submit"
-              className="group inline-flex h-[52px] shrink-0 items-center justify-center gap-[12px] rounded-[10px] bg-orange px-7 text-[15.5px] font-semibold text-white transition-[transform,background-color,box-shadow] duration-200 hover:bg-[#e04f04] hover:shadow-[0_12px_30px_-12px_rgba(252,90,7,0.7)] active:scale-[0.985]"
+              className="group inline-flex h-[52px] shrink-0 items-center justify-center gap-[12px] rounded-md bg-orange px-7 text-[15.5px] font-semibold text-white transition-[transform,background-color] duration-200 hover:bg-[#e04f04] active:scale-[0.985]"
             >
               Search
               <ArrowRight
@@ -484,7 +518,7 @@ export function CourseSearch({
                   setOpen(true);
                   inputRef.current?.focus();
                 }}
-                className="rounded-md px-[6px] py-[2px] text-[13px] font-semibold text-blue-link transition-colors duration-200 hover:bg-white hover:text-navy"
+                className="rounded-md px-[6px] py-[2px] text-[13px] font-semibold text-navy transition-colors duration-200 hover:bg-white hover:text-orange"
               >
                 {term}
               </button>

@@ -46,17 +46,18 @@ const icons: Record<Intent["icon"], LucideIcon> = {
 };
 
 /**
- * One colour per secondary card, each tied to the site's own established
- * palette (the same navy/blue/orange/emerald set `/study-in-uk` uses) rather
- * than a fifth invented hue. Four identical grey tiles in a row read as one
- * flat row of options; four distinct colours read as four different kinds of
- * help before the label is even read.
+ * Three tiles in navy, one in orange — not four invented hues. A row of
+ * identical grey tiles reads as one flat set of options with nothing to
+ * distinguish them, but a row of four *different* colours reads as
+ * decoration rather than a system. Orange goes to "plane" — the one entry
+ * point about the move itself — and stays the only tile that competes for
+ * attention.
  */
 const tileTones: Partial<Record<Intent["icon"], string>> = {
   landmark: "border-navy/15 bg-navy/[0.08] text-navy group-hover:border-navy/25",
-  clipboard: "border-blue-bright/20 bg-blue-bright/[0.08] text-blue-bright group-hover:border-blue-bright/30",
+  clipboard: "border-navy/15 bg-navy/[0.08] text-navy group-hover:border-navy/25",
   plane: "border-orange/20 bg-orange/[0.08] text-orange group-hover:border-orange/30",
-  luggage: "border-emerald/20 bg-emerald/[0.08] text-emerald group-hover:border-emerald/30",
+  luggage: "border-navy/15 bg-navy/[0.08] text-navy group-hover:border-navy/25",
 };
 
 /** The line-icon with the orange dot, in a tinted tile. */
@@ -67,7 +68,7 @@ function IconTile({ icon, tone = "light" }: { icon: Intent["icon"]; tone?: "ligh
 
   return (
     <span
-      className={`relative flex size-[46px] shrink-0 items-center justify-center rounded-[12px] border transition-colors duration-200 ${
+      className={`relative flex size-[46px] shrink-0 items-center justify-center rounded-md border transition-colors duration-200 ${
         dark ? "border-white/15 bg-white/10 text-white" : lightTone
       }`}
     >
@@ -104,7 +105,7 @@ export function IntentCards() {
       <motion.li {...item} className="min-w-0 sm:col-span-2 lg:row-span-2">
         <Link
           href={feature.href}
-          className="group relative isolate flex h-full min-h-[236px] flex-col overflow-hidden rounded-xl border border-navy bg-navy p-6 shadow-[0_18px_40px_-24px_rgba(1,22,111,0.55)] transition-[transform,box-shadow] duration-200 hover:-translate-y-[2px] hover:shadow-[0_28px_56px_-24px_rgba(1,22,111,0.65)] sm:p-8"
+          className="group relative isolate flex h-full min-h-[236px] flex-col overflow-hidden rounded-md border border-navy bg-navy p-6 transition-colors duration-200 hover:bg-navy-ink sm:p-8"
         >
           {/* The brand's rising path, bleeding off the right edge. Hidden
               below sm, where the card is too narrow to carry it without
@@ -127,7 +128,7 @@ export function IntentCards() {
             />
           </div>
 
-          <h3 className="mt-6 max-w-[16ch] text-[clamp(1.375rem,2.1vw,1.75rem)] font-bold leading-[1.15] tracking-[-0.018em] text-white">
+          <h3 className="font-display mt-6 max-w-[16ch] text-[clamp(1.375rem,2.1vw,1.75rem)] font-extrabold leading-[1.15] tracking-[-0.02em] text-white">
             {feature.title}
             <span className="text-orange">.</span>
           </h3>
@@ -159,11 +160,11 @@ export function IntentCards() {
                 size={18}
                 strokeWidth={2.4}
                 aria-hidden
-                className="mt-[3px] shrink-0 text-faint transition-[transform,color] duration-200 group-hover:translate-x-[2px] group-hover:-translate-y-[2px] group-hover:text-blue-link"
+                className="mt-[3px] shrink-0 text-faint transition-[transform,color] duration-200 group-hover:translate-x-[2px] group-hover:-translate-y-[2px] group-hover:text-navy"
               />
             </div>
 
-            <h3 className="mt-5 text-[17.5px] font-bold leading-[1.28] tracking-[-0.012em] text-navy">
+            <h3 className="font-display mt-5 text-[17.5px] font-bold leading-[1.28] tracking-[-0.012em] text-ink">
               {intent.title}
             </h3>
             <p className="mt-[6px] text-[14.5px] font-medium leading-[1.5] text-muted">

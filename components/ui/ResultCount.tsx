@@ -20,7 +20,7 @@ export function ResultCount({
         <button
           type="button"
           onClick={onClear}
-          className="text-[13.5px] font-semibold text-blue-link transition-colors hover:text-navy"
+          className="text-[13.5px] font-semibold text-navy transition-colors hover:text-orange"
         >
           Clear all filters
         </button>
@@ -31,7 +31,7 @@ export function ResultCount({
 
 export function EmptyResults({ children }: { children: React.ReactNode }) {
   return (
-    <p className="rounded-xl border border-dashed border-hairline bg-white/60 p-8 text-[15.5px] font-medium text-muted">
+    <p className="rounded-md border border-dashed border-hairline bg-white/60 p-8 text-[15.5px] font-medium text-muted">
       {children}
     </p>
   );

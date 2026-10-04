@@ -29,7 +29,7 @@ export function ApplyPrompt({
       </p>
       <div className="mt-5">
         <StartApplicationButton
-          className="h-[46px] w-full gap-[12px] px-5 text-[15px]"
+          className="h-[46px] w-full gap-[12px] rounded-md px-5 text-[15px]"
           iconSize={16}
           signedInLabel="Open my dashboard"
         >

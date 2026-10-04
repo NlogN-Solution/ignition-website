@@ -22,7 +22,7 @@ export function CtaBand({
       <Container className="py-[clamp(3rem,5vw,5rem)]">
         <div className="flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
           <div className="max-w-[54ch]">
-            <h2 className="text-[clamp(1.5rem,2.4vw,2.125rem)] font-bold leading-[1.12] tracking-[-0.02em] text-navy">
+            <h2 className="font-display text-[clamp(1.5rem,2.4vw,2.125rem)] font-extrabold leading-[1.12] tracking-[-0.025em] text-ink">
               <AccentText>{title}</AccentText>
             </h2>
             {intro ? (

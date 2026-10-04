@@ -37,10 +37,10 @@ export function FilterChips<T extends string>({
               type="button"
               aria-pressed={active}
               onClick={() => onChange(active ? null : option)}
-              className={`inline-flex items-center gap-[6px] rounded-lg border px-[11px] py-[6px] text-[13.5px] font-semibold transition-colors duration-200 ${
+              className={`inline-flex items-center gap-[6px] rounded-md border px-[11px] py-[6px] text-[13.5px] font-semibold transition-colors duration-200 ${
                 active
                   ? "border-navy bg-navy text-white"
-                  : "border-hairline bg-white text-muted hover:border-ring-idle hover:text-navy"
+                  : "border-hairline bg-white text-muted hover:border-ink/35 hover:text-navy"
               }`}
             >
               {format ? format(option) : option}

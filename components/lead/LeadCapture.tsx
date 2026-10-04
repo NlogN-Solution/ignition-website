@@ -148,12 +148,12 @@ export function LeadCapture() {
         >
           <span
             aria-hidden
-            className="mt-[2px] flex size-[38px] shrink-0 items-center justify-center rounded-[11px] bg-orange/10"
+            className="mt-[2px] flex size-[38px] shrink-0 items-center justify-center rounded-md bg-orange/10"
           >
             <Check size={19} strokeWidth={2.6} className="text-orange" />
           </span>
           <div className="min-w-0">
-            <p className="text-[18px] font-bold leading-[1.3] tracking-[-0.012em] text-navy">
+            <p className="font-display text-[18px] font-extrabold leading-[1.3] tracking-[-0.015em] text-ink">
               Thanks, {name.split(" ")[0] || "we've got it"}
               <span className="text-orange">.</span>
             </p>
@@ -162,7 +162,7 @@ export function LeadCapture() {
               not wait, call us on{" "}
               <a
                 href={telUrl}
-                className="font-semibold text-blue-link underline-offset-2 hover:underline"
+                className="font-semibold text-navy underline-offset-2 hover:underline"
               >
                 {contact.phone}
               </a>{" "}
@@ -187,12 +187,12 @@ export function LeadCapture() {
       <Card tone="flat" className="p-6 sm:p-8">
         <span
           aria-hidden
-          className="flex size-[42px] items-center justify-center rounded-[12px] bg-navy/[0.07]"
+          className="flex size-[42px] items-center justify-center rounded-md bg-navy/[0.07]"
         >
           <Phone size={19} strokeWidth={2.2} className="text-navy" />
         </span>
 
-        <p className="mt-5 max-w-[34ch] text-[17px] font-semibold leading-[1.45] tracking-[-0.01em] text-navy">
+        <p className="font-display mt-5 max-w-[34ch] text-[17px] font-bold leading-[1.45] tracking-[-0.012em] text-ink">
           A real adviser, on the phone, at no cost
           <span className="text-orange">.</span>
         </p>
@@ -226,7 +226,7 @@ export function LeadCapture() {
           <p className="mt-[10px] text-[17px] font-bold tracking-[-0.01em] text-navy">
             <a
               href={telUrl}
-              className="transition-colors hover:text-blue-link"
+              className="transition-colors hover:text-orange"
             >
               {contact.phone}
             </a>
@@ -291,7 +291,7 @@ export function LeadCapture() {
           <button
             type="submit"
             disabled={status === "sending"}
-            className="group inline-flex h-[52px] items-center justify-center gap-[14px] rounded-[10px] bg-navy px-7 text-[15.5px] font-semibold text-white transition-[transform,background-color,box-shadow] duration-200 hover:bg-navy-ink hover:shadow-[0_10px_30px_-12px_rgba(1,22,111,0.65)] active:scale-[0.985] disabled:pointer-events-none disabled:opacity-60"
+            className="group inline-flex h-[52px] items-center justify-center gap-[14px] rounded-md bg-navy px-7 text-[15.5px] font-semibold text-white transition-[transform,background-color] duration-200 hover:bg-navy-ink active:scale-[0.985] disabled:pointer-events-none disabled:opacity-60"
           >
             {status === "sending" ? (
               <>
@@ -319,13 +319,13 @@ export function LeadCapture() {
         {status === "error" ? (
           <p
             role="alert"
-            className="mt-5 rounded-lg border border-orange/25 bg-orange/[0.06] p-4 text-[14px] font-medium leading-[1.55] text-ink-soft"
+            className="mt-5 rounded-md border border-orange/25 bg-orange/[0.06] p-4 text-[14px] font-medium leading-[1.55] text-ink-soft"
           >
             That didn&rsquo;t send — your details are saved in this browser, so
             nothing is lost. Try again, or call us on{" "}
             <a
               href={telUrl}
-              className="font-semibold text-blue-link underline-offset-2 hover:underline"
+              className="font-semibold text-navy underline-offset-2 hover:underline"
             >
               {contact.phone}
             </a>
@@ -374,8 +374,8 @@ function Field({
         onChange={(event) => onChange(event.target.value)}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${id}-error` : undefined}
-        className={`mt-[9px] h-[50px] w-full rounded-[10px] border bg-white px-4 text-[15.5px] font-medium text-ink placeholder:text-muted-light ${
-          error ? "border-orange" : "border-hairline focus:border-ring-idle"
+        className={`mt-[9px] h-[50px] w-full rounded-md border bg-white px-4 text-[15.5px] font-medium text-ink placeholder:text-muted-light ${
+          error ? "border-orange" : "border-hairline focus:border-ink/35"
         }`}
       />
       {error ? (

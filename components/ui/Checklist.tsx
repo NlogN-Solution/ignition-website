@@ -24,7 +24,7 @@ export function Checklist({
   const percent = Math.round((completed / items.length) * 100);
 
   return (
-    <div className="rounded-xl border border-hairline bg-white p-5 sm:p-6">
+    <div className="rounded-md border border-hairline bg-white p-5 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
         <p className="text-[14.5px] font-semibold text-ink-soft">
           <span className="tabular-nums text-navy">{completed}</span> of{" "}
@@ -35,7 +35,7 @@ export function Checklist({
           <button
             type="button"
             onClick={clear}
-            className="group inline-flex items-center gap-[7px] text-[13.5px] font-semibold text-blue-link transition-colors hover:text-navy"
+            className="group inline-flex items-center gap-[7px] text-[13.5px] font-semibold text-navy transition-colors hover:text-orange"
           >
             <RotateCcw
               size={13}
@@ -54,7 +54,7 @@ export function Checklist({
         aria-label={`${percent} percent complete`}
       >
         <div
-          className="h-full rounded-full bg-blue-bright transition-[width] duration-500"
+          className="h-full rounded-full bg-orange transition-[width] duration-500"
           style={{ width: `${percent}%` }}
         />
       </div>
@@ -70,11 +70,11 @@ export function Checklist({
                 role="checkbox"
                 aria-checked={checked}
                 onClick={() => toggle(item.id)}
-                className="group -mx-2 flex w-full items-start gap-3 rounded-lg px-2 py-[10px] text-left transition-colors duration-200 hover:bg-canvas"
+                className="group -mx-2 flex w-full items-start gap-3 rounded-md px-2 py-[10px] text-left transition-colors duration-200 hover:bg-canvas"
               >
                 <span
                   aria-hidden
-                  className={`mt-[1px] flex size-[21px] shrink-0 items-center justify-center rounded-md border-[2px] transition-colors duration-200 ${
+                  className={`mt-[1px] flex size-[21px] shrink-0 items-center justify-center rounded-sm border-[2px] transition-colors duration-200 ${
                     checked
                       ? "border-navy bg-navy text-white"
                       : "border-[#e0e3eb] text-transparent group-hover:border-ring-idle"

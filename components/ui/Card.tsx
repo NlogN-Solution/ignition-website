@@ -1,14 +1,14 @@
 import Link from "next/link";
 
 /**
- * The card language is lifted from the navbar dropdown panel — white on
- * canvas, hairline border, 12px radius, navy-tinted shadow — so cards read as
- * the same material as the chrome. `interactive` adds the button's hover
- * contract: a small lift plus the deeper navy shadow over 200ms.
+ * Flat, hairline-bordered, 4px radius — no soft shadow at rest. `interactive`
+ * swaps the lift-and-glow hover for a border that darkens to ink and a thin
+ * orange rule that draws in along the top edge: depth comes from a line, not
+ * a blur.
  */
 type CardProps = {
   children: React.ReactNode;
-  /** Lift and deepen the shadow on hover. Implied when `href` is set. */
+  /** Border darkens, top rule draws in. Implied when `href` is set. */
   interactive?: boolean;
   /** Recede the card into the canvas — used for supporting or nested content. */
   tone?: "raised" | "flat";
@@ -17,15 +17,14 @@ type CardProps = {
 };
 
 const base =
-  "relative flex flex-col rounded-xl border bg-white transition-[transform,border-color,box-shadow] duration-200";
+  "relative flex flex-col rounded-md border transition-colors duration-200 before:absolute before:inset-x-0 before:top-0 before:h-[2px] before:scale-x-0 before:bg-orange before:transition-transform before:duration-200 before:content-['']";
 
 const tones = {
-  raised: "border-hairline shadow-[0_18px_40px_-28px_rgba(1,22,111,0.28)]",
-  flat: "border-hairline bg-white/60 shadow-none",
+  raised: "border-hairline bg-white",
+  flat: "border-hairline bg-white/60",
 } as const;
 
-const lift =
-  "hover:-translate-y-[2px] hover:border-ring-idle hover:shadow-[0_24px_48px_-24px_rgba(1,22,111,0.35)]";
+const lift = "hover:border-ink/35 hover:before:scale-x-100";
 
 export function Card({
   children,
@@ -67,7 +66,7 @@ export function CardLink({
   return (
     <Link
       href={href}
-      className={`after:absolute after:inset-0 after:rounded-xl after:content-[''] ${className}`}
+      className={`after:absolute after:inset-0 after:rounded-md after:content-[''] ${className}`}
     >
       {children}
     </Link>

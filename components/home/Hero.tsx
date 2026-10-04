@@ -25,17 +25,17 @@ export function Hero() {
       >
         <motion.h1
           {...item}
-          className="max-w-[9ch] text-[clamp(2.75rem,8.6vw,6.5rem)] font-bold leading-[0.94] tracking-[-0.012em] text-navy lg:text-[length:var(--hs)]"
+          className="font-display max-w-[13ch] text-[clamp(2.75rem,8.6vw,6.5rem)] font-extrabold leading-[0.94] tracking-[-0.03em] text-ink lg:text-[length:var(--hs)]"
         >
-          Everything you need
+          Find the right UK university
           <span className="mt-[0.29em] block text-orange">
-            to study in the UK.
+            for your future.
           </span>
         </motion.h1>
 
         <motion.p
           {...item}
-          className="mt-[clamp(1.25rem,2.6vw,2.5rem)] max-w-[38ch] text-[clamp(0.95rem,1.31vw,1.25rem)] font-medium leading-[1.55] text-[#51556e] lg:mt-[calc(var(--hs)*0.34)] lg:text-[length:calc(var(--hs)*0.195)]"
+          className="mt-[clamp(1.25rem,2.6vw,2.5rem)] max-w-[38ch] text-[clamp(0.95rem,1.31vw,1.25rem)] font-medium leading-[1.55] text-muted lg:mt-[calc(var(--hs)*0.34)] lg:text-[length:calc(var(--hs)*0.195)]"
         >
           Discover the right career, find the right course, compare UK
           universities, understand how to apply and prepare for your journey to
@@ -46,21 +46,26 @@ export function Hero() {
           {...item}
           className="mt-[clamp(1.5rem,2.4vw,2.32rem)] flex flex-wrap items-center gap-3 sm:gap-4 lg:mt-[calc(var(--hs)*0.33)]"
         >
+          {/* Points at the instant matcher on /resources/eligibility rather
+              than the old /start journey map — "find my university" is a
+              promise this page can now actually keep in one screen, not a
+              reason to read the whole route first. */}
           <ArrowButton
-            href="/start"
+            href="/resources/eligibility"
             iconSize={21}
             className="h-[54px] w-full gap-[20px] px-7 text-[17px] sm:h-[62px] sm:w-auto sm:text-[19px] lg:h-[calc(var(--hs)*0.654)] lg:gap-[calc(var(--hs)*0.22)] lg:px-[calc(var(--hs)*0.42)] lg:text-[length:calc(var(--hs)*0.192)]"
           >
-            Start Your Journey
+            Find My University
           </ArrowButton>
-          {/* The career quiz already has a permanent home in the navbar, so
-              the hero's second slot goes to the thing a visitor who is further
-              along wants: a straight answer about whether they can apply. */}
+          {/* The second slot goes to browsing rather than eligibility now
+              that eligibility is the primary button's own destination — a
+              reader who would rather look at courses first than answer
+              questions about their grades gets a straight path to that. */}
           <GhostButton
-            href="/resources/eligibility"
+            href="/courses"
             className="h-[54px] w-full px-7 text-[17px] sm:h-[62px] sm:w-auto sm:text-[19px] lg:h-[calc(var(--hs)*0.654)] lg:px-[calc(var(--hs)*0.42)] lg:text-[length:calc(var(--hs)*0.192)]"
           >
-            Check Your Eligibility
+            Explore Courses
           </GhostButton>
         </motion.div>
       </motion.div>

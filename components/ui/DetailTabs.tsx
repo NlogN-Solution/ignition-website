@@ -120,8 +120,8 @@ export function DetailTabs({
     <>
       {/* Sticky under the header, so a student six screens into the fees
           table can still switch to documents without scrolling back up. */}
-      <div className="sticky top-[68px] z-30 border-b border-hairline bg-canvas/95 backdrop-blur-md xl:top-[90px]">
-        <div className="mx-auto flex w-full max-w-[1240px] items-center gap-6 px-5 py-[11px] sm:px-8 lg:px-12">
+      <div className="sticky top-[68px] z-30 border-b border-hairline bg-canvas xl:top-[90px]">
+        <div className="mx-auto flex w-full max-w-[1320px] items-center gap-6 px-5 py-[11px] sm:px-8 lg:px-12">
           <div
             ref={listRef}
             role="tablist"
@@ -131,7 +131,7 @@ export function DetailTabs({
                wrapping to two rows, which would push the content down on
                every phone. The negative margins let it bleed to the screen
                edge while the pills keep their inset. */
-            className="-mx-1 flex min-w-0 flex-1 snap-x gap-1 overflow-x-auto rounded-[13px] border border-hairline bg-white p-[5px] shadow-[0_10px_30px_-24px_rgba(1,22,111,0.5)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="-mx-1 flex min-w-0 flex-1 snap-x gap-1 overflow-x-auto rounded-md border border-hairline bg-white p-[5px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {tabs.map((tab) => {
               const selected = tab.id === active;
@@ -146,9 +146,9 @@ export function DetailTabs({
                   aria-controls={`panel-${tab.id}`}
                   tabIndex={selected ? 0 : -1}
                   onClick={() => select(tab.id)}
-                  className={`inline-flex shrink-0 snap-start items-center gap-[9px] whitespace-nowrap rounded-[9px] px-[15px] py-[9px] text-[14px] font-semibold transition-colors duration-200 ${
+                  className={`inline-flex shrink-0 snap-start items-center gap-[9px] whitespace-nowrap rounded-md px-[15px] py-[9px] text-[14px] font-semibold transition-colors duration-200 ${
                     selected
-                      ? "bg-navy text-white shadow-[0_8px_18px_-10px_rgba(1,22,111,0.8)]"
+                      ? "bg-ink text-white"
                       : "text-muted hover:bg-canvas hover:text-navy"
                   }`}
                 >

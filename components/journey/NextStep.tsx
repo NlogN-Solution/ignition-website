@@ -35,16 +35,16 @@ const actionIcons: Record<string, LucideIcon> = {
   settled: Sparkles,
 };
 
-/** One colour per milestone domain, the same disciplined set used on the
- * homepage's own entry-point cards — not a fifth invented hue. */
+/** Navy for three domains, orange for the one that's a hard number — the
+ * same split `IntentCards` and `JourneyPipeline` use, not a fourth hue. */
 const milestoneTheme: Record<
   Milestone["id"],
   { icon: LucideIcon; tone: string }
 > = {
   career: { icon: Compass, tone: "border-navy/20 bg-navy/[0.06] text-navy" },
-  position: { icon: MapPin, tone: "border-blue-bright/25 bg-blue-bright/[0.07] text-blue-bright" },
+  position: { icon: MapPin, tone: "border-navy/20 bg-navy/[0.06] text-navy" },
   budget: { icon: PoundSterling, tone: "border-orange/25 bg-orange/[0.07] text-orange" },
-  eligibility: { icon: ClipboardCheck, tone: "border-emerald/25 bg-emerald/[0.07] text-emerald" },
+  eligibility: { icon: ClipboardCheck, tone: "border-navy/20 bg-navy/[0.06] text-navy" },
 };
 
 /**
@@ -84,7 +84,7 @@ export function NextStep() {
   const ActionIcon = actionIcons[next.id] ?? Compass;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,1fr)] lg:gap-10">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,1fr)] lg:items-start lg:gap-10">
       {/* The recommendation. Keyed on the action so a milestone completed in
           another tab swaps the card rather than mutating it in place. */}
       <motion.div
@@ -102,7 +102,7 @@ export function NextStep() {
               <ActionIcon size={14} strokeWidth={2.3} aria-hidden className="text-orange" />
               {next.eyebrow}
             </p>
-            <p className="mt-[10px] text-[clamp(1.25rem,1.9vw,1.5rem)] font-bold leading-[1.25] tracking-[-0.018em]">
+            <p className="font-display mt-[10px] text-[clamp(1.25rem,1.9vw,1.5rem)] font-extrabold leading-[1.25] tracking-[-0.02em]">
               {next.title}
             </p>
           </div>
@@ -134,7 +134,7 @@ export function NextStep() {
             <div className="mt-7">
               <Link
                 href={next.href}
-                className="group inline-flex h-[50px] w-full items-center justify-center gap-[12px] rounded-[10px] bg-navy px-6 text-[15px] font-semibold text-white transition-[background-color,box-shadow] duration-200 hover:bg-navy-ink hover:shadow-[0_14px_34px_-14px_rgba(1,22,111,0.65)] sm:w-auto"
+                className="group inline-flex h-[50px] w-full items-center justify-center gap-[12px] rounded-md bg-navy px-6 text-[15px] font-semibold text-white transition-colors duration-200 hover:bg-navy-ink sm:w-auto"
               >
                 {next.cta}
                 <ArrowRight
@@ -203,7 +203,7 @@ function Rung({ milestone }: { milestone: Milestone }) {
 
   return (
     <div
-      className={`flex items-start gap-[13px] rounded-[12px] border px-4 py-[13px] transition-colors duration-200 ${
+      className={`flex items-start gap-[13px] rounded-md border px-4 py-[13px] transition-colors duration-200 ${
         done ? "border-navy/15 bg-navy/[0.035]" : "border-hairline bg-white"
       }`}
     >

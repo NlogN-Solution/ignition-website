@@ -17,7 +17,8 @@ import {
   type QualificationId,
   type Verdict,
 } from "@/lib/eligibility";
-import type { University } from "@/data/universities";
+import { regions, type Region, type University } from "@/data/universities";
+import { subjects, type Subject } from "@/data/courses";
 
 const gbp = new Intl.NumberFormat("en-GB", {
   style: "currency",
@@ -118,7 +119,43 @@ export function EligibilityCalculator({
           </p>
 
           <div className="mt-6 space-y-5">
-            <Field label="What are you studying?" htmlFor="qualification">
+            <Field label="What do you want to study?" htmlFor="subject">
+              <select
+                id="subject"
+                value={answers.subject ?? ""}
+                onChange={(event) =>
+                  set("subject", (event.target.value || null) as Subject | null)
+                }
+                className={fieldBase}
+              >
+                <option value="">Any subject</option>
+                {subjects.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </Field>
+
+            <Field label="Where in the UK?" htmlFor="region">
+              <select
+                id="region"
+                value={answers.region ?? ""}
+                onChange={(event) =>
+                  set("region", (event.target.value || null) as Region | null)
+                }
+                className={fieldBase}
+              >
+                <option value="">Anywhere</option>
+                {regions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </Field>
+
+            <Field label="Your prior qualification" htmlFor="qualification">
               <select
                 id="qualification"
                 value={answers.qualification}
@@ -270,6 +307,13 @@ export function EligibilityCalculator({
           </p>
           <Badge tone="demo">Example data</Badge>
         </div>
+
+        {results.length === 0 ? (
+          <p className="mt-5 rounded-md border border-dashed border-hairline bg-white/60 p-6 text-[14.5px] font-medium leading-[1.6] text-muted">
+            Nobody in the catalogue teaches that subject in that region yet.
+            Try "Any subject" or "Anywhere" and narrow it down from there.
+          </p>
+        ) : null}
 
         <ul className="mt-5 space-y-3">
           {results.map((result) => {

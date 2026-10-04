@@ -36,7 +36,7 @@ export function Navbar({ dimmed = false }: { dimmed?: boolean }) {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full border-b border-hairline/70 bg-canvas/90 backdrop-blur-md transition-opacity duration-500 ${
+      className={`sticky top-0 z-50 w-full border-b border-hairline bg-canvas transition-opacity duration-500 ${
         dimmed ? "opacity-40 hover:opacity-100 focus-within:opacity-100" : ""
       }`}
     >
@@ -59,9 +59,9 @@ export function Navbar({ dimmed = false }: { dimmed?: boolean }) {
                     href={item.href}
                     aria-haspopup="true"
                     aria-current={active ? "page" : undefined}
-                    className={`flex cursor-pointer items-center gap-[6px] whitespace-nowrap rounded-[10px] px-[10px] py-[8px] text-[13.5px] font-semibold tracking-[-0.005em] transition-colors duration-200 xl:px-[12px] ${
+                    className={`flex cursor-pointer items-center gap-[6px] whitespace-nowrap px-[10px] py-[8px] text-[13.5px] font-semibold tracking-[-0.005em] transition-colors duration-200 xl:px-[12px] ${
                       active ? "text-navy" : "text-nav group-hover:text-navy"
-                    } group-hover:bg-navy/[0.045]`}
+                    }`}
                   >
                     {item.label}
                     <ChevronDown
@@ -74,13 +74,14 @@ export function Navbar({ dimmed = false }: { dimmed?: boolean }) {
                     />
                   </Link>
 
-                  {/* The marker for the section you are in. Under the label
-                      rather than behind it, so the hover pill and the current
-                      page never argue over the same background. */}
+                  {/* The marker for the section you are in — and, at lower
+                      opacity, the hover affordance for every other label. An
+                      underline reveal rather than a pill background, so the
+                      bar stays flat chrome rather than soft UI. */}
                   <span
                     aria-hidden
-                    className={`pointer-events-none absolute inset-x-[12px] -bottom-[3px] h-[2px] rounded-full bg-orange transition-opacity duration-200 ${
-                      active ? "opacity-100" : "opacity-0"
+                    className={`pointer-events-none absolute inset-x-[12px] -bottom-[3px] h-[2px] bg-orange transition-opacity duration-200 ${
+                      active ? "opacity-100" : "opacity-0 group-hover:opacity-60"
                     }`}
                   />
 
@@ -88,12 +89,12 @@ export function Navbar({ dimmed = false }: { dimmed?: boolean }) {
                       the gap between label and panel is a dead strip that
                       closes the menu as the pointer crosses it. */}
                   <div className="invisible absolute left-1/2 top-full z-10 w-[244px] -translate-x-1/2 translate-y-[6px] pt-[9px] opacity-0 transition-all duration-200 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
-                    <div className="rounded-[14px] border border-hairline bg-white p-[6px] shadow-[0_28px_56px_-28px_rgba(1,22,111,0.4)]">
+                    <div className="rounded-md border border-hairline bg-white p-[6px] shadow-[0_8px_24px_-8px_rgba(10,14,28,0.18)]">
                       {item.items.map((sub) => (
                         <Link
                           key={sub.label}
                           href={sub.href}
-                          className="block rounded-[9px] px-[11px] py-[8px] text-[13.5px] font-medium text-muted transition-colors duration-150 hover:bg-canvas hover:text-navy"
+                          className="block rounded-md px-[11px] py-[8px] text-[13.5px] font-medium text-muted transition-colors duration-150 hover:bg-canvas hover:text-navy"
                         >
                           {sub.label}
                         </Link>
@@ -122,7 +123,7 @@ export function Navbar({ dimmed = false }: { dimmed?: boolean }) {
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-label={open ? "Close menu" : "Open menu"}
-          className="justify-self-end rounded-lg p-2 text-nav lg:hidden"
+          className="justify-self-end rounded-md p-2 text-nav lg:hidden"
         >
           {open ? <X size={24} /> : <Menu size={24} />}
         </button>

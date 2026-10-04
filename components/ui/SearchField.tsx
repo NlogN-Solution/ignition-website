@@ -36,7 +36,7 @@ export function SearchField({
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
-          className="h-[52px] w-full appearance-none rounded-xl border border-hairline bg-white pl-[46px] pr-11 text-[15.5px] font-medium text-ink shadow-[0_10px_30px_-24px_rgba(1,22,111,0.5)] transition-colors duration-200 placeholder:text-muted-light hover:border-ring-idle focus:border-ring-idle [&::-webkit-search-cancel-button]:hidden"
+          className="h-[52px] w-full appearance-none rounded-md border border-hairline bg-white pl-[46px] pr-11 text-[15.5px] font-medium text-ink transition-colors duration-200 placeholder:text-muted-light hover:border-ink/35 focus:border-ink/35 [&::-webkit-search-cancel-button]:hidden"
         />
       </label>
 
@@ -45,7 +45,7 @@ export function SearchField({
           type="button"
           onClick={() => onChange("")}
           aria-label="Clear search"
-          className="absolute right-[10px] top-1/2 inline-flex size-8 -translate-y-1/2 items-center justify-center rounded-lg text-muted-light transition-colors duration-200 hover:bg-canvas hover:text-navy"
+          className="absolute right-[10px] top-1/2 inline-flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-light transition-colors duration-200 hover:bg-canvas hover:text-navy"
         >
           <X size={16} strokeWidth={2.5} aria-hidden />
         </button>

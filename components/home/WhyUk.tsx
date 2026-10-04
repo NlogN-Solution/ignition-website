@@ -67,7 +67,7 @@ export function WhyUk() {
   const Icon = icons[point.id] ?? Clock;
 
   return (
-    <div>
+    <div className="grid gap-5 lg:grid-cols-[1.6fr_1fr]">
       <AccordionGallery
         items={galleryItems}
         defaultIndex={0}
@@ -77,7 +77,7 @@ export function WhyUk() {
         textColor="#ffffff"
         height={400}
         gap={8}
-        radius={12}
+        radius={4}
         expandRatio={0.5}
         tilt={6}
         trigger="hover"
@@ -87,17 +87,22 @@ export function WhyUk() {
         dim={0.14}
       />
 
-      <div className="mt-5 rounded-xl border border-hairline bg-white p-5 sm:min-h-[210px] sm:p-6">
+      {/* Sits beside the gallery rather than under it — a text block the
+          width of the whole band left a dead strip of white to the right of
+          a paragraph that never needed that much room. Narrower and
+          vertically centred, it reads as the gallery's companion column
+          instead of a second, under-filled band. */}
+      <div className="flex flex-col justify-center rounded-md border border-hairline bg-white p-5 sm:p-6 lg:h-[400px]">
         <div className="flex flex-wrap items-start gap-x-5 gap-y-3">
           <span
             aria-hidden
-            className="flex size-[40px] shrink-0 items-center justify-center rounded-[11px] bg-navy text-white"
+            className="flex size-[40px] shrink-0 items-center justify-center rounded-md bg-navy text-white"
           >
             <Icon size={19} strokeWidth={1.9} />
           </span>
 
           <div className="min-w-0 flex-1">
-            <p className="text-[clamp(1.375rem,2.1vw,1.625rem)] font-bold leading-[1.05] tracking-[-0.02em] text-navy">
+            <p className="font-display text-[clamp(1.375rem,2.1vw,1.625rem)] font-extrabold tabular-nums leading-[1.05] tracking-[-0.02em] text-ink">
               {point.stat}
             </p>
             <p className="mt-[5px] text-[12.5px] font-semibold uppercase tracking-[0.08em] text-muted-light">
@@ -109,7 +114,7 @@ export function WhyUk() {
         {/* `key` on the copy, so a panel change replays the fade rather than
             cross-dissolving one sentence into another mid-word. */}
         <div key={point.id} className="mt-4 animate-[ag-copy-in_260ms_ease-out]">
-          <p className="max-w-[68ch] text-[14.5px] font-medium leading-[1.6] text-muted">
+          <p className="text-[14.5px] font-medium leading-[1.6] text-muted">
             {point.body}
           </p>
 
@@ -121,7 +126,7 @@ export function WhyUk() {
 
           <Link
             href={point.href}
-            className="group mt-4 inline-flex items-center gap-[9px] text-[14px] font-bold text-blue-link transition-colors duration-200 hover:text-navy"
+            className="group mt-4 inline-flex items-center gap-[9px] text-[14px] font-bold text-navy transition-colors duration-200 hover:text-orange"
           >
             {point.linkLabel}
             <ArrowRight

@@ -47,7 +47,7 @@ export function RadioOption({
       />
       <span
         aria-hidden
-        className={`relative flex shrink-0 items-center justify-center rounded-full border-[2px] transition-colors duration-300 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-[3px] peer-focus-visible:outline-blue-bright ${ring} ${ringClassName}`}
+        className={`relative flex shrink-0 items-center justify-center rounded-full border-[2px] transition-colors duration-300 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-[3px] peer-focus-visible:outline-navy ${ring} ${ringClassName}`}
       >
         <span
           className={`rounded-full transition-all duration-300 ${

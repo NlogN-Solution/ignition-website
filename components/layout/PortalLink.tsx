@@ -21,10 +21,10 @@ export function PortalLink({ className = "" }: { className?: string }) {
   const signedIn = useSessionHint();
   const { handoff } = useResearch();
 
-  const styles = `inline-flex items-center justify-center gap-[8px] whitespace-nowrap rounded-[10px] border font-semibold transition-colors duration-200 ${
+  const styles = `inline-flex items-center justify-center gap-[8px] whitespace-nowrap rounded-md border font-semibold transition-colors duration-200 ${
     signedIn
       ? "border-navy/20 bg-navy/[0.06] text-navy hover:border-navy/35 hover:bg-navy/[0.1]"
-      : "border-hairline bg-white/70 text-navy hover:border-ring-idle hover:bg-white"
+      : "border-hairline bg-white/70 text-navy hover:border-ink/35 hover:bg-white"
   } ${className}`;
 
   if (signedIn) {

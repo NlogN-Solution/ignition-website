@@ -22,7 +22,7 @@ export function Callout({
 
   return (
     <aside
-      className={`flex rounded-xl border ${compact ? "gap-3 p-[14px] sm:px-4" : "gap-4 p-5 sm:p-6"} ${
+      className={`flex rounded-md border ${compact ? "gap-3 p-[14px] sm:px-4" : "gap-4 p-5 sm:p-6"} ${
         official
           ? "border-orange/25 bg-orange/[0.05]"
           : "border-hairline bg-white"
@@ -32,7 +32,7 @@ export function Callout({
         size={compact ? 17 : 20}
         strokeWidth={2}
         aria-hidden
-        className={`mt-[2px] shrink-0 ${official ? "text-orange" : "text-blue-link"}`}
+        className={`mt-[2px] shrink-0 ${official ? "text-orange" : "text-navy"}`}
       />
       <div
         className={`min-w-0 font-medium text-ink-soft ${

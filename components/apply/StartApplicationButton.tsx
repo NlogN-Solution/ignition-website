@@ -34,22 +34,23 @@ import { useSessionHint } from "@/lib/session/useSessionHint";
  * behind them, and inventing one would be worse than carrying none.
  */
 
+// No radius here on purpose — it lives in each call site's own `className`
+// instead, so one card type (the course listing's `OfferingCard`) can round
+// its corners differently from the rest of the site without the two radius
+// utilities fighting over which one wins in the generated stylesheet.
 const base =
-  "group inline-flex items-center justify-center rounded-[10px] font-semibold transition-[transform,background-color,box-shadow] duration-200 active:scale-[0.985]";
+  "group inline-flex items-center justify-center font-semibold transition-[transform,background-color] duration-200 active:scale-[0.985]";
 
 const tones = {
-  primary:
-    "bg-navy text-white hover:bg-navy-ink hover:shadow-[0_10px_30px_-12px_rgba(1,22,111,0.65)]",
-  accent:
-    "bg-orange text-white hover:brightness-[0.94] hover:shadow-[0_10px_30px_-12px_rgba(252,90,7,0.7)]",
-  ghost:
-    "border border-hairline bg-white/70 text-navy hover:border-ring-idle hover:bg-white",
+  primary: "bg-navy text-white hover:bg-navy-ink",
+  accent: "bg-orange text-white hover:brightness-[0.94]",
+  ghost: "border border-hairline bg-white/70 text-navy hover:border-ink/35 hover:bg-white",
 } as const;
 
 export function StartApplicationButton({
   children = "Start my application",
   tone = "primary",
-  className = "h-[52px] gap-[16px] px-7 text-[16px]",
+  className = "h-[52px] gap-[16px] rounded-md px-7 text-[16px]",
   iconSize = 18,
   /** Copy shown instead of `children` once the session hint says signed in. */
   signedInLabel = "Go to my application",

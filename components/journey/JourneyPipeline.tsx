@@ -20,18 +20,21 @@ import skyline from "@/public/images/skyline-panel.jpg";
  * an accurate list and a poor map: it tells a student the journey has ten
  * steps without telling them where any of them sit. Here they are grouped into
  * the four things a student is actually doing — explore, decide, apply, arrive
- * — and a rail runs through the whole row, shifting navy → blue → orange so
- * the colour itself carries the progression. It is the hero's path, continued
- * down the page.
+ * — and a rail runs through the whole row. The rail used to shift navy → blue
+ * → orange, spending three hues to narrate a four-step sequence; it is now one
+ * navy rail with a single orange terminus, the same "one accent, everywhere
+ * else quiet" rule the rest of the site now follows. The sequence is still
+ * legible — it is numbered, and it is a map the reader reads left to right —
+ * it just no longer asks colour to do a job order and the terminus already do.
  *
- * EVERY CARD CARRIES THE RAIL'S OWN COLOUR NOW, NOT JUST THE LAST ONE. Only
- * "Arrive" used to have a photograph — the other three were plain white text
- * boxes, which made the row read as three placeholders and one finished
- * panel rather than four chapters of one journey. Each phase now gets its own
- * photograph and the same tinted-overlay treatment, in the rail's own colour
- * at that point in the sequence (navy at the start, blue-bright through the
- * middle, orange for the push to apply) — `Arrive` keeps its established
- * navy dusk-skyline mood and orange terminus accent unchanged.
+ * EVERY CARD CARRIES A TINT, NOT JUST THE LAST ONE. Only "Arrive" used to have
+ * a photograph — the other three were plain white text boxes, which made the
+ * row read as three placeholders and one finished panel rather than four
+ * chapters of one journey. Each phase now gets its own photograph and the same
+ * tinted-overlay treatment: navy for explore, decide and arrive, orange for
+ * apply — the one step that is a decision to act rather than a stage to pass
+ * through, and the same navy/orange split `IntentCards` uses for the same
+ * reason.
  *
  * IT ALSO ASKS WHERE YOU ARE NOW. That question used to be its own section
  * above this one — seven overlapping self-descriptions and an empty panel
@@ -48,8 +51,7 @@ type PhaseTheme = {
   image: typeof skyline;
   /** object-position for the crop. */
   focus: string;
-  /** "r, g, b" for the overlay gradient — the rail's own palette, not a
-   * fifth invented hue. */
+  /** "r, g, b" for the overlay gradient — navy or orange, never a third hue. */
   tintRgb: string;
   /** Orange reads on navy and on blue; it doesn't read on orange, so the
    * Apply card (already orange-tinted) gets a white label instead. */
@@ -66,7 +68,7 @@ const phaseThemes: Record<PhaseId, PhaseTheme> = {
   decide: {
     image: decideImg,
     focus: "50% 45%",
-    tintRgb: "16, 113, 246",
+    tintRgb: "1, 22, 111",
     labelClass: "text-orange",
   },
   apply: {
@@ -98,7 +100,7 @@ export function JourneyPipeline() {
       {/* The rail. Decorative on its own, so it is hidden from the tree — the
           ordered list below carries the actual sequence. */}
       <div aria-hidden className="relative mb-8 hidden lg:block">
-        <div className="h-[3px] w-full rounded-full bg-[linear-gradient(to_right,var(--color-navy),var(--color-blue-bright)_46%,var(--color-orange))]" />
+        <div className="h-[3px] w-full rounded-full bg-navy" />
         <div className="grid grid-cols-4">
           {journeyPhases.map((phase) => (
             <div key={phase.id} className="relative">
@@ -119,7 +121,7 @@ export function JourneyPipeline() {
           return (
             <motion.li key={phase.id} {...item} className="min-w-0">
               <div
-                className={`relative isolate flex h-full flex-col overflow-hidden rounded-xl border border-transparent bg-navy shadow-[0_18px_40px_-28px_rgba(1,22,111,0.28)] ${
+                className={`relative isolate flex h-full flex-col overflow-hidden rounded-md border border-transparent bg-navy ${
                   here ? "ring-[3px] ring-orange/35" : ""
                 }`}
               >
@@ -160,7 +162,7 @@ export function JourneyPipeline() {
                       <li key={stage.label}>
                         <Link
                           href={stage.href}
-                          className="group -mx-2 flex items-center gap-3 rounded-lg px-2 py-[9px] transition-colors duration-200 hover:bg-white/[0.07]"
+                          className="group -mx-2 flex items-center gap-3 rounded-md px-2 py-[9px] transition-colors duration-200 hover:bg-white/[0.07]"
                         >
                           <span
                             aria-hidden

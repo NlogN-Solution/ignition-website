@@ -56,7 +56,7 @@ export function ReadyToApply({
       <Container className="py-[clamp(3rem,5vw,5rem)]">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] lg:gap-16">
           <div>
-            <h2 className="max-w-[20ch] text-[clamp(1.5rem,2.4vw,2.125rem)] font-bold leading-[1.12] tracking-[-0.02em] text-navy">
+            <h2 className="font-display max-w-[20ch] text-[clamp(1.5rem,2.4vw,2.125rem)] font-extrabold leading-[1.12] tracking-[-0.025em] text-ink">
               <AccentText>{title}</AccentText>
             </h2>
 
@@ -68,8 +68,8 @@ export function ReadyToApply({
             </p>
 
             {summary.length && !signedIn ? (
-              <div className="mt-7 rounded-xl border border-hairline bg-canvas p-5">
-                <p className="text-[12.5px] font-bold uppercase tracking-[0.12em] text-blue-link">
+              <div className="mt-7 rounded-md border border-hairline bg-canvas p-5">
+                <p className="text-[12.5px] font-bold uppercase tracking-[0.12em] text-navy">
                   What comes with you
                 </p>
                 <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
@@ -101,7 +101,7 @@ export function ReadyToApply({
               </StartApplicationButton>
               <Link
                 href="/apply#ignition-what"
-                className="inline-flex h-[52px] items-center justify-center whitespace-nowrap rounded-[10px] border border-hairline bg-white/70 px-7 text-[16px] font-semibold text-navy transition-colors duration-200 hover:border-ring-idle hover:bg-white"
+                className="inline-flex h-[52px] items-center justify-center whitespace-nowrap rounded-md border border-hairline bg-white/70 px-7 text-[16px] font-semibold text-navy transition-colors duration-200 hover:border-ink/35 hover:bg-white"
               >
                 How it works
               </Link>

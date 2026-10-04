@@ -11,9 +11,8 @@ import { ArrowUpRight } from "lucide-react";
 type Tone = "navy" | "white" | "onDark";
 
 const tones: Record<Tone, string> = {
-  navy: "bg-navy text-white hover:bg-navy-ink hover:shadow-[0_10px_30px_-12px_rgba(1,22,111,0.65)]",
-  white:
-    "bg-white text-navy hover:shadow-[0_14px_36px_-14px_rgba(0,0,0,0.45)]",
+  navy: "bg-ink text-white hover:bg-navy",
+  white: "border border-hairline bg-white text-ink hover:border-ink/35",
   onDark:
     "border border-white/20 bg-white/[0.08] text-white hover:border-white/35 hover:bg-white/[0.15]",
 };
@@ -39,7 +38,7 @@ export function ArrowButton({
   return (
     <Link
       href={href}
-      className={`group inline-flex items-center justify-center rounded-[10px] font-semibold transition-[transform,background-color,border-color,box-shadow] duration-200 active:scale-[0.985] ${tones[tone]} ${className}`}
+      className={`group inline-flex items-center justify-center rounded-md font-semibold transition-[transform,background-color,border-color] duration-200 active:scale-[0.985] ${tones[tone]} ${className}`}
     >
       <span className="whitespace-nowrap">{children}</span>
       <ArrowUpRight
@@ -61,7 +60,7 @@ export function GhostButton({
   children: React.ReactNode;
   className?: string;
 }) {
-  const styles = `inline-flex items-center justify-center whitespace-nowrap rounded-[10px] border border-hairline bg-white/70 font-semibold text-navy transition-colors duration-200 hover:border-ring-idle hover:bg-white ${className}`;
+  const styles = `inline-flex items-center justify-center whitespace-nowrap rounded-md border border-hairline bg-white/70 font-semibold text-ink transition-colors duration-200 hover:border-ink/35 hover:bg-white ${className}`;
 
   // Login points at the separately hosted student dashboard, so absolute URLs
   // leave the router alone and go out as a plain anchor.

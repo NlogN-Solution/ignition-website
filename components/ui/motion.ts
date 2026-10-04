@@ -3,7 +3,7 @@
 import { useReducedMotion } from "motion/react";
 
 export const rise = {
-  hidden: { opacity: 0, y: 22 },
+  hidden: { opacity: 0, y: 12 },
   show: { opacity: 1, y: 0 },
 };
 
@@ -27,7 +27,7 @@ export function useEntrance(stagger = 0.08) {
     },
     item: {
       variants: rise,
-      transition: reduce ? { duration: 0 } : { duration: 0.65, ease },
+      transition: reduce ? { duration: 0 } : { duration: 0.5, ease },
     },
   };
 }
@@ -52,7 +52,7 @@ export function useReveal(stagger = 0.08) {
     },
     item: {
       variants: rise,
-      transition: reduce ? { duration: 0 } : { duration: 0.65, ease },
+      transition: reduce ? { duration: 0 } : { duration: 0.5, ease },
     },
   };
 }

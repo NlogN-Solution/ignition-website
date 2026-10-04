@@ -1,4 +1,5 @@
-import type { University } from "@/data/universities";
+import type { University, Region } from "@/data/universities";
+import type { Subject } from "@/data/courses";
 
 /**
  * An indicative check, not an offer.
@@ -59,6 +60,19 @@ export type Answers = {
   ielts: number;
   /** Maximum annual tuition the student can fund, or 0 for no limit. */
   budget: number;
+  /**
+   * What to study and where, or `null` for "show me everything". These
+   * narrow the catalogue before grades are scored at all — a university that
+   * doesn't teach the subject, or isn't in the region asked for, isn't a
+   * near-miss to be ranked "below", it's irrelevant to the search.
+   *
+   * There is deliberately no `level` filter here (foundation / undergraduate /
+   * postgraduate): that's a property of a course or offering, not of a
+   * university record, so it can't be applied at this grain without pulling
+   * in the separate course catalogue — a real follow-on, not a quick add.
+   */
+  subject: Subject | null;
+  region: Region | null;
 };
 
 export const defaultAnswers: Answers = {
@@ -69,6 +83,8 @@ export const defaultAnswers: Answers = {
   percentage: 75,
   ielts: 6,
   budget: 0,
+  subject: null,
+  region: null,
 };
 
 /**
@@ -182,11 +198,26 @@ function assess(university: University, answers: Answers, tariff: number): Asses
   return { university, verdict, notes, margin };
 }
 
-/** `catalogue` is passed in because the records come from the API now. */
+/**
+ * `catalogue` is passed in because the records come from the API now.
+ *
+ * Subject and region are applied first, as a hard filter, before any grade
+ * is scored. The caller still has the unfiltered `catalogue` it passed in,
+ * so it can tell "nobody teaches this here" (`results.length` far below
+ * `catalogue.length`) apart from "nobody's grades are close enough"
+ * (`results.length` unchanged, but every verdict is `below`) — those need
+ * different messages to the student.
+ */
 export function assessAll(answers: Answers, catalogue: University[]) {
   const tariff = toTariff(answers);
 
-  const results = catalogue
+  const inScope = catalogue.filter((university) => {
+    if (answers.subject && !university.subjects.includes(answers.subject)) return false;
+    if (answers.region && university.region !== answers.region) return false;
+    return true;
+  });
+
+  const results = inScope
     .map((university) => assess(university, answers, tariff))
     .sort(
       (a, b) =>

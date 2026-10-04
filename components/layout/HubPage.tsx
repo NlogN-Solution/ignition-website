@@ -38,7 +38,7 @@ export function HubPage({ hub }: { hub: Hub }) {
                   href={hub.notice.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-semibold text-blue-link underline-offset-2 hover:underline"
+                  className="font-semibold text-navy underline-offset-2 hover:underline"
                 >
                   {hub.notice.linkLabel}
                 </a>
@@ -47,7 +47,7 @@ export function HubPage({ hub }: { hub: Hub }) {
             </div>
           ) : null}
 
-          <h2 className="text-[clamp(1.375rem,2vw,1.75rem)] font-bold tracking-[-0.015em] text-navy">
+          <h2 className="font-display text-[clamp(1.375rem,2vw,1.75rem)] font-extrabold tracking-[-0.02em] text-ink">
             What this guide covers
           </h2>
           <p className="mt-3 max-w-[62ch] text-[16px] font-medium leading-[1.6] text-muted">
@@ -66,7 +66,7 @@ export function HubPage({ hub }: { hub: Hub }) {
                   >
                     {String(i + 1).padStart(2, "0")}
                   </span>
-                  <h3 className="mt-3 text-[16.5px] font-bold leading-[1.3] tracking-[-0.01em] text-navy">
+                  <h3 className="font-display mt-3 text-[16.5px] font-bold leading-[1.3] tracking-[-0.01em] text-ink">
                     {section.title}
                   </h3>
                   <p className="mt-[7px] text-[14.5px] font-medium leading-[1.5] text-muted">

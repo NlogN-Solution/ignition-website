@@ -89,7 +89,7 @@ export function Footer() {
               href="https://www.gov.uk/student-visa"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-semibold text-blue-link underline-offset-2 hover:underline"
+              className="font-semibold text-navy underline-offset-2 hover:underline"
             >
               official UK government guidance
             </a>

@@ -65,11 +65,11 @@ function Figure({ entry }: { entry: TrustStat }) {
 
   return (
     <li data-w="stat" className="min-w-0">
-      <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-blue-link sm:text-[12px]">
+      <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-navy sm:text-[12px]">
         <Icon size={15} strokeWidth={2.25} aria-hidden className="shrink-0" />
         {entry.label}
       </p>
-      <p className="mt-2 flex flex-wrap items-baseline gap-x-3 font-extrabold leading-[0.9] tracking-[-0.04em] text-navy">
+      <p className="font-display mt-2 flex flex-wrap items-baseline gap-x-3 font-extrabold leading-[0.9] tracking-[-0.04em] text-ink">
         <span className="text-[clamp(2.75rem,7.2vw,7.25rem)]">
           <span data-w="count" data-to={value ?? undefined} className="tabular-nums">
             {value ?? ""}
@@ -87,12 +87,12 @@ function Figure({ entry }: { entry: TrustStat }) {
           </span>
         </span>
         {entry.statNote ? (
-          <span className="text-[clamp(0.85rem,1.2vw,1.05rem)] font-semibold tracking-normal text-blue-link">
+          <span className="text-[clamp(0.85rem,1.2vw,1.05rem)] font-semibold tracking-normal text-navy">
             {entry.statNote}
           </span>
         ) : null}
       </p>
-      <p className="mt-3 hidden max-w-[36ch] text-[clamp(0.9rem,1.05vw,1rem)] font-medium leading-[1.6] text-navy/75 sm:block">
+      <p className="mt-3 hidden max-w-[36ch] text-[clamp(0.9rem,1.05vw,1rem)] font-medium leading-[1.6] text-ink/70 sm:block">
         {entry.body}
       </p>
     </li>
@@ -152,8 +152,8 @@ export function WhyIgnition() {
         // 0 → 0.5: the window opens on her face and the photograph settles.
         tl.fromTo(
           frame,
-          { clipPath: inset(top, 100 - left - win.w, 100 - top - win.h, left, 32) },
-          { clipPath: inset(0, 0, 0, 0, 24), duration: 0.5, ease: "power2.inOut" },
+          { clipPath: inset(top, 100 - left - win.w, 100 - top - win.h, left, 12) },
+          { clipPath: inset(0, 0, 0, 0, 4), duration: 0.5, ease: "power2.inOut" },
           0,
         )
           .fromTo(
@@ -224,7 +224,7 @@ export function WhyIgnition() {
       >
         <div
           data-w="frame"
-          className="relative h-full w-full overflow-hidden rounded-[24px] bg-[linear-gradient(to_bottom,#eef2fc,#d9e4f9)]"
+          className="relative h-full w-full overflow-hidden rounded-md bg-[linear-gradient(to_bottom,#f2f3f6,#e2e4ea)]"
         >
           <div
             data-w="media"

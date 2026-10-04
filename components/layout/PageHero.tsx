@@ -48,7 +48,7 @@ export function PageHero({
           {eyebrow || (compact && children) ? (
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               {eyebrow ? (
-                <p className="text-[12.5px] font-bold uppercase tracking-[0.14em] text-blue-link">
+                <p className="text-[12.5px] font-bold uppercase tracking-[0.14em] text-navy">
                   {eyebrow}
                 </p>
               ) : null}
@@ -57,7 +57,7 @@ export function PageHero({
           ) : null}
 
           <h1
-            className={`font-bold tracking-[-0.022em] text-navy ${
+            className={`font-display font-extrabold tracking-[-0.025em] text-ink ${
               compact
                 ? "max-w-[34ch] text-[clamp(1.625rem,2.6vw,2.125rem)] leading-[1.12]"
                 : "max-w-[20ch] text-[clamp(2.125rem,4.4vw,3.75rem)] leading-[1.03]"

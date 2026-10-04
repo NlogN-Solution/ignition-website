@@ -79,7 +79,7 @@ export function FilterSidebar({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="inline-flex h-[46px] flex-1 items-center justify-center gap-[9px] rounded-[10px] border border-hairline bg-white text-[14.5px] font-semibold text-navy transition-colors duration-200 hover:border-ring-idle sm:flex-none sm:px-6"
+          className="inline-flex h-[46px] flex-1 items-center justify-center gap-[9px] rounded-md border border-hairline bg-white text-[14.5px] font-semibold text-navy transition-colors duration-200 hover:border-ink/35 sm:flex-none sm:px-6"
         >
           <SlidersHorizontal size={16} strokeWidth={2.2} aria-hidden />
           Filters
@@ -93,7 +93,7 @@ export function FilterSidebar({
           <button
             type="button"
             onClick={onClear}
-            className="shrink-0 text-[13.5px] font-semibold text-blue-link transition-colors hover:text-navy"
+            className="shrink-0 text-[13.5px] font-semibold text-navy transition-colors hover:text-orange"
           >
             Clear all
           </button>
@@ -110,12 +110,12 @@ export function FilterSidebar({
         <div
           aria-hidden
           onClick={() => setOpen(false)}
-          className="absolute inset-0 bg-navy-ink/45 backdrop-blur-[2px] lg:hidden"
+          className="absolute inset-0 bg-navy-ink/45 lg:hidden"
         />
 
         <aside
           aria-label="Filters"
-          className="absolute inset-x-0 bottom-0 top-[9vh] flex flex-col overflow-hidden rounded-t-2xl border border-hairline bg-white shadow-[0_-24px_60px_-30px_rgba(1,22,111,0.5)] lg:static lg:max-h-[calc(100svh-var(--nav-h)-2.5rem)] lg:rounded-xl lg:shadow-[0_18px_40px_-28px_rgba(1,22,111,0.28)]"
+          className="absolute inset-x-0 bottom-0 top-[9vh] flex flex-col overflow-hidden rounded-t-md border border-hairline bg-white lg:static lg:max-h-[calc(100svh-var(--nav-h)-2.5rem)] lg:rounded-md"
         >
           <div className="flex shrink-0 items-center justify-between gap-3 border-b border-hairline px-4 py-[13px] lg:px-[18px]">
             <p className="inline-flex items-center gap-[9px] text-[14.5px] font-bold tracking-[-0.01em] text-navy">
@@ -123,7 +123,7 @@ export function FilterSidebar({
                 size={15}
                 strokeWidth={2.3}
                 aria-hidden
-                className="hidden text-blue-link lg:block"
+                className="hidden text-navy lg:block"
               />
               Filters
               {activeCount > 0 ? (
@@ -138,7 +138,7 @@ export function FilterSidebar({
                 <button
                   type="button"
                   onClick={onClear}
-                  className="text-[13px] font-semibold text-blue-link transition-colors hover:text-navy"
+                  className="text-[13px] font-semibold text-navy transition-colors hover:text-orange"
                 >
                   Clear all
                 </button>
@@ -147,7 +147,7 @@ export function FilterSidebar({
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Close filters"
-                className="-mr-1 ml-1 inline-flex size-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-canvas hover:text-navy lg:hidden"
+                className="-mr-1 ml-1 inline-flex size-8 items-center justify-center rounded-md text-muted transition-colors hover:bg-canvas hover:text-navy lg:hidden"
               >
                 <X size={17} strokeWidth={2.4} aria-hidden />
               </button>
@@ -162,7 +162,7 @@ export function FilterSidebar({
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="h-[46px] w-full rounded-[10px] bg-navy text-[15px] font-semibold text-white transition-colors duration-200 hover:bg-navy-ink"
+              className="h-[46px] w-full rounded-md bg-ink text-[15px] font-semibold text-white transition-colors duration-200 hover:bg-navy"
             >
               {resultSummary}
             </button>
@@ -239,7 +239,7 @@ export function FilterGroup({
 }
 
 const rowBase =
-  "group flex w-full items-center gap-[10px] rounded-lg px-2 py-[6.5px] text-left text-[13.5px] font-semibold transition-colors duration-150";
+  "group flex w-full items-center gap-[10px] rounded-md px-2 py-[6.5px] text-left text-[13.5px] font-semibold transition-colors duration-150";
 
 function Marker({
   active,
@@ -378,7 +378,7 @@ export function ActiveFilters({
           <button
             type="button"
             onClick={item.onRemove}
-            className="inline-flex items-center gap-[7px] rounded-lg border border-navy/15 bg-navy/[0.045] py-[5px] pl-[10px] pr-[8px] text-[13px] font-semibold text-navy transition-colors duration-200 hover:border-navy/30 hover:bg-navy/[0.08]"
+            className="inline-flex items-center gap-[7px] rounded-md border border-navy/15 bg-navy/[0.045] py-[5px] pl-[10px] pr-[8px] text-[13px] font-semibold text-navy transition-colors duration-200 hover:border-navy/30 hover:bg-navy/[0.08]"
           >
             {item.label}
             <X size={13} strokeWidth={2.8} aria-hidden className="text-muted" />

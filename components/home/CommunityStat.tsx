@@ -23,13 +23,13 @@ export function CommunityStat({ id }: { id?: string }) {
       id={id}
       className="scroll-mt-[calc(var(--nav-h)_+_2rem)] bg-white px-5 py-[clamp(3rem,5vw,4.5rem)] sm:px-8 lg:px-24"
     >
-      <div className="mx-auto max-w-[1240px] overflow-hidden rounded-[22px] bg-orange text-white shadow-[0_28px_60px_-30px_rgba(252,90,7,0.55)]">
+      <div className="mx-auto max-w-[1320px] overflow-hidden rounded-md bg-orange text-white">
         <div className="grid lg:grid-cols-[1.15fr_1fr]">
           <div className="p-8 sm:p-10 lg:p-12">
             <p className="text-[13px] font-bold uppercase tracking-[0.1em] text-white/70">
               {communityStat.eyebrow}
             </p>
-            <h2 className="mt-[14px] text-[clamp(1.75rem,3vw,2.375rem)] font-bold leading-[1.15] tracking-[-0.02em]">
+            <h2 className="font-display mt-[14px] text-[clamp(1.75rem,3vw,2.375rem)] font-extrabold leading-[1.15] tracking-[-0.025em]">
               {communityStat.headline}
             </h2>
             <p className="mt-[12px] max-w-[46ch] text-[15px] font-medium leading-[1.6] text-white/85">
@@ -38,7 +38,7 @@ export function CommunityStat({ id }: { id?: string }) {
 
             <div className="mt-[clamp(1.5rem,2.5vw,2rem)] grid grid-cols-2 gap-[20px] sm:gap-[28px]">
               <div>
-                <p className="text-[clamp(2rem,4vw,2.75rem)] font-bold leading-[1] tracking-[-0.02em] tabular-nums">
+                <p className="font-display text-[clamp(2rem,4vw,2.75rem)] font-extrabold leading-[1] tracking-[-0.025em] tabular-nums">
                   {enrolled.figure}
                 </p>
                 <p className="mt-[8px] text-[13.5px] font-semibold leading-[1.4]">
@@ -50,7 +50,7 @@ export function CommunityStat({ id }: { id?: string }) {
               </div>
 
               <div>
-                <p className="text-[clamp(2rem,4vw,2.75rem)] font-bold leading-[1] tracking-[-0.02em] tabular-nums">
+                <p className="font-display text-[clamp(2rem,4vw,2.75rem)] font-extrabold leading-[1] tracking-[-0.025em] tabular-nums">
                   {visaGrant.figure}
                 </p>
                 <p className="mt-[8px] text-[13.5px] font-semibold leading-[1.4]">
