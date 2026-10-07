@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Check, ChevronDown, SlidersHorizontal, X } from "lucide-react";
 
 /**
@@ -47,6 +47,9 @@ export function FilterSidebar({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const panelRef = useRef<HTMLElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelId = useId();
 
   /**
    * While the sheet is up it owns the screen: the page behind it must not
@@ -59,14 +62,43 @@ export function FilterSidebar({
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
+    const panel = panelRef.current;
+    const trigger = triggerRef.current;
+    const inactive: { element: HTMLElement; inert: boolean }[] = [];
+    let branch: HTMLElement | null = panel;
+    while (branch?.parentElement) {
+      for (const sibling of branch.parentElement.children) {
+        if (sibling !== branch && sibling instanceof HTMLElement && !sibling.hasAttribute("aria-hidden")) {
+          inactive.push({ element: sibling, inert: sibling.inert });
+          sibling.inert = true;
+        }
+      }
+      if (branch.parentElement === document.body) break;
+      branch = branch.parentElement;
+    }
+    const focusable = () => Array.from(panel?.querySelectorAll<HTMLElement>('button:not([disabled]), input, select, [tabindex="0"]') ?? []).filter(element => element.getClientRects().length > 0);
+    focusable()[0]?.focus();
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") { event.preventDefault(); setOpen(false); }
+      if (event.key === "Tab") {
+        const controls = focusable();
+        const first = controls[0];
+        const last = controls[controls.length - 1];
+        if (!first) { event.preventDefault(); panel?.focus(); }
+        else if (event.shiftKey && (document.activeElement === first || !panel?.contains(document.activeElement))) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }
     };
+    const media = window.matchMedia("(min-width: 1024px)");
+    const onDesktop = () => { if (media.matches) setOpen(false); };
+    media.addEventListener("change", onDesktop);
     window.addEventListener("keydown", onKey);
-
     return () => {
       document.body.style.overflow = previous;
+      inactive.forEach(({ element, inert }) => { element.inert = inert; });
       window.removeEventListener("keydown", onKey);
+      media.removeEventListener("change", onDesktop);
+      trigger?.focus();
     };
   }, [open]);
 
@@ -78,6 +110,9 @@ export function FilterSidebar({
       <div className="flex items-center gap-3 lg:hidden">
         <button
           type="button"
+          ref={triggerRef}
+          aria-expanded={open}
+          aria-controls={panelId}
           onClick={() => setOpen(true)}
           className="inline-flex h-[46px] flex-1 items-center justify-center gap-[9px] rounded-md border border-hairline bg-white text-[14.5px] font-semibold text-navy transition-colors duration-200 hover:border-ink/35 sm:flex-none sm:px-6"
         >
@@ -114,6 +149,11 @@ export function FilterSidebar({
         />
 
         <aside
+          ref={panelRef}
+          id={panelId}
+          role={open ? "dialog" : undefined}
+          aria-modal={open || undefined}
+          tabIndex={-1}
           aria-label="Filters"
           className="absolute inset-x-0 bottom-0 top-[9vh] flex flex-col overflow-hidden rounded-t-md border border-hairline bg-white lg:static lg:max-h-[calc(100svh-var(--nav-h)-2.5rem)] lg:rounded-md"
         >
@@ -366,8 +406,10 @@ export function SwitchRow({
  */
 export function ActiveFilters({
   items,
+  onRemove,
 }: {
-  items: { key: string; label: string; onRemove: () => void }[];
+  items: { key: string; label: string; onRemove?: () => void }[];
+  onRemove?: (key: string) => void;
 }) {
   if (items.length === 0) return null;
 
@@ -377,7 +419,7 @@ export function ActiveFilters({
         <li key={item.key}>
           <button
             type="button"
-            onClick={item.onRemove}
+            onClick={() => { item.onRemove?.(); onRemove?.(item.key); }}
             className="inline-flex items-center gap-[7px] rounded-md border border-navy/15 bg-navy/[0.045] py-[5px] pl-[10px] pr-[8px] text-[13px] font-semibold text-navy transition-colors duration-200 hover:border-navy/30 hover:bg-navy/[0.08]"
           >
             {item.label}

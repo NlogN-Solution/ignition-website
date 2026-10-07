@@ -49,7 +49,7 @@ export default function MoneyPage() {
             { label: "Money", href: "/money" },
           ]}
         >
-          <Badge tone="demo">Example data</Badge>
+          <Badge tone="demo">Data</Badge>
         </PageHero>
 
         <Container className="py-[clamp(2.5rem,4.5vw,4.5rem)]">
@@ -70,7 +70,7 @@ export default function MoneyPage() {
                   <h3 className="text-[17px] font-bold tracking-[-0.01em] text-navy">
                     Monthly living costs
                   </h3>
-                  <Badge tone="demo">Example data</Badge>
+                  <Badge tone="demo">Data</Badge>
                 </div>
 
                 <ul className="mt-5 divide-y divide-hairline">

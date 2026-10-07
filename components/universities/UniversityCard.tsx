@@ -29,17 +29,17 @@ import { isRemoteImage } from "@/lib/image";
  * the same "talk to an adviser" pattern used elsewhere on the site, rather
  * than sending a reader straight into the portal's registration flow.
  */
-export function UniversityCard({ university }: { university: University }) {
+export function UniversityCard({ university, roomy = false }: { university: University; roomy?: boolean }) {
   const { card, gallery, own } = universityImagery(university);
   const [second, third] = gallery;
 
   return (
-    <Card interactive className="h-full overflow-hidden">
+    <Card interactive className={`h-full overflow-hidden ${roomy ? "min-h-[520px]" : ""}`}>
       {/* A university's own card photograph fills the whole frame: flanking it
           with two stock shots would put somebody else's campus beside it. The
           mosaic is only for universities still on stock imagery. */}
       <div
-        className={`relative grid h-[188px] gap-[2px] bg-navy/5 sm:h-[206px] ${
+        className={`relative grid shrink-0 gap-[2px] bg-navy/5 ${roomy ? "h-[240px]" : "h-[188px] sm:h-[206px]"} ${
           own ? "grid-cols-1" : "grid-cols-[1.55fr_1fr] grid-rows-2"
         }`}
       >
@@ -90,7 +90,7 @@ export function UniversityCard({ university }: { university: University }) {
         ) : null}
       </div>
 
-      <div className="relative flex flex-1 flex-col px-5 pb-5 sm:px-6 sm:pb-6">
+      <div className={`relative flex flex-1 flex-col ${roomy ? "px-6 pb-7 sm:px-7" : "px-5 pb-5 sm:px-6 sm:pb-6"}`}>
         <span className="relative -mt-[30px] flex size-[64px] shrink-0 items-center justify-center overflow-hidden rounded-full border-[3px] border-white bg-white shadow-[0_14px_30px_-16px_rgba(2,15,83,0.55)] sm:size-[72px]">
           {university.logo ? (
             <Image

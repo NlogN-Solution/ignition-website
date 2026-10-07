@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useHydrated } from "@/lib/search/useHydrated";
 import { Check, ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 
 /**
@@ -68,9 +69,9 @@ export function FilterBar({ children }: { children: React.ReactNode }) {
  * across the full width and leaving "Any" adrift in half a metre of white.
  * Neither explorer has to know how many fields it ended up with.
  */
-export function FilterFields({ children }: { children: React.ReactNode }) {
+export function FilterFields({ children, vertical = false }: { children: React.ReactNode; vertical?: boolean }) {
   return (
-    <div className="flex flex-wrap gap-[10px] [&>*]:min-w-[164px] [&>*]:max-w-[300px] [&>*]:flex-1">
+    <div className={vertical ? "grid gap-4 py-4 [&>*]:min-w-0 [&_.filter-pop]:static [&_.filter-pop]:mt-2 [&_.filter-pop]:w-full [&_.filter-pop]:shadow-none" : "flex flex-wrap gap-[10px] [&>*]:min-w-[164px] [&>*]:max-w-[300px] [&>*]:flex-1"}>
       {children}
     </div>
   );
@@ -139,6 +140,7 @@ export function FilterSearch({
   onChange: (value: string) => void;
   placeholder: string;
 }) {
+  const ready = useHydrated();
   const [focused, setFocused] = useState(false);
 
   return (
@@ -160,6 +162,7 @@ export function FilterSearch({
         <span className="sr-only">{label}</span>
         <input
           type="search"
+          disabled={!ready}
           value={value}
           onChange={(event) => onChange(event.target.value)}
           onFocus={() => setFocused(true)}

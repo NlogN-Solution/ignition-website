@@ -1,6 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { updateExplorerUrl, type UniversityParams } from "@/lib/search/explorerQuery";
+import { trackSearch } from "@/lib/search/analytics";
+import { normalizeQuery } from "@/lib/search/query";
 import { UniversityCard } from "./UniversityCard";
 import {
   FilterBar,
@@ -12,7 +16,7 @@ import {
   ToggleChip,
   type FilterOption,
 } from "../ui/FilterBar";
-import { ActiveFilters } from "../ui/filters";
+import { ExplorerShell, FilterSidebar, ActiveFilters } from "../ui/filters";
 import { EmptyResults, ResultCount } from "../ui/ResultCount";
 import { facetCounts } from "@/lib/search/facets";
 import { subjects, type Subject } from "@/data/courses";
@@ -60,28 +64,41 @@ function toOptions<T extends string>(
  * and a round trip per keystroke would only add latency, which is the
  * opposite of the call made for `CourseExplorer` and its ~4,800 offerings.
  */
-export function UniversityExplorer({ universities }: { universities: University[] }) {
-  const [query, setQuery] = useState("");
-  const [region, setRegion] = useState<Region | null>(null);
-  const [subject, setSubject] = useState<Subject | null>(null);
-  const [tuition, setTuition] = useState<TuitionBand | null>(null);
-  const [placementOnly, setPlacementOnly] = useState(false);
-  const [scholarshipsOnly, setScholarshipsOnly] = useState(false);
-
-  /**
-   * The URL seeds the search and is then let go of. Added so the homepage
-   * search can send a student here with their words intact — before this,
-   * switching that search to "Universities" threw the query away and dropped
-   * them on an unfiltered list.
-   *
-   * Read from `location` in an effect rather than through `useSearchParams`,
-   * which would put this whole subtree — the 44 cards included — behind a
-   * Suspense boundary that only fills in on the client. The seed is a
-   * convenience; the list is the page, and the list belongs in the HTML.
-   */
+export function UniversityExplorer({ universities, params }: { universities: University[]; params: UniversityParams }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [query, setQuery] = useState(params.q ?? "");
+  const [previousQuery, setPreviousQuery] = useState(params.q);
+  if (previousQuery !== params.q) {
+    setPreviousQuery(params.q);
+    setQuery(params.q ?? "");
+  }
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const region = regions.find(value => value === params.region) ?? null;
+  const subject = subjects.find(value => value === params.subject) ?? null;
+  const tuition = tuitionBands.find(value => value === params.tuition) ?? null;
+  const placementOnly = Boolean(params.placement);
+  const scholarshipsOnly = Boolean(params.scholarships);
+  function commit(changes: Record<string, string | null>) {
+    if (timer.current) clearTimeout(timer.current);
+    trackSearch("search_filter_changed", { keys: Object.keys(changes).join(","), explorer: "universities" });
+    router.push(updateExplorerUrl(pathname, { ...params }, { ...(query !== (params.q ?? "") ? { q: query.trim() || null } : {}), ...changes }), { scroll: false });
+  }
+  const setRegion = (value: Region | null) => commit({ region: value });
+  const setSubject = (value: Subject | null) => commit({ subject: value });
+  const setTuition = (value: TuitionBand | null) => commit({ tuition: value });
+  const setPlacementOnly = (value: boolean) => commit({ placement: value ? "true" : null });
+  const setScholarshipsOnly = (value: boolean) => commit({ scholarships: value ? "true" : null });
+  function changeQuery(value: string) {
+    setQuery(value);
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => commit({ q: value.trim() || null }), 350);
+  }
+  useEffect(() => { if (timer.current) clearTimeout(timer.current); }, [params]);
   useEffect(() => {
-    const incoming = new URLSearchParams(window.location.search).get("q");
-    if (incoming) setQuery(incoming.slice(0, 80));
+    const cancel = () => { if (timer.current) clearTimeout(timer.current); };
+    window.addEventListener("popstate", cancel);
+    return () => { cancel(); window.removeEventListener("popstate", cancel); };
   }, []);
 
   /**
@@ -99,7 +116,7 @@ export function UniversityExplorer({ universities }: { universities: University[
   );
 
   const pools = useMemo(() => {
-    const needle = query.trim().toLowerCase();
+    const needle = normalizeQuery(query);
 
     const tests: Record<FilterKey, (university: University) => boolean> = {
       region: (university) => !region || university.region === region,
@@ -112,9 +129,9 @@ export function UniversityExplorer({ universities }: { universities: University[
 
     const matchesQuery = (university: University) =>
       !needle ||
-      university.name.toLowerCase().includes(needle) ||
-      university.city.toLowerCase().includes(needle) ||
-      university.tagline.toLowerCase().includes(needle);
+      normalizeQuery(university.name).includes(needle) ||
+      normalizeQuery(university.city).includes(needle) ||
+      normalizeQuery(university.tagline).includes(needle);
 
     const subset = (except?: FilterKey) =>
       universities.filter(
@@ -160,41 +177,19 @@ export function UniversityExplorer({ universities }: { universities: University[
   const barCount = activeCount + (query.trim() ? 1 : 0);
 
   function clearAll() {
+    if (timer.current) clearTimeout(timer.current);
     setQuery("");
-    setRegion(null);
-    setSubject(null);
-    setTuition(null);
-    setPlacementOnly(false);
-    setScholarshipsOnly(false);
+    router.push(pathname, { scroll: false });
   }
 
   const applied = [
-    region && { key: "region", label: region, onRemove: () => setRegion(null) },
-    subject && { key: "subject", label: subject, onRemove: () => setSubject(null) },
-    tuition && { key: "tuition", label: tuition, onRemove: () => setTuition(null) },
-    placementOnly && {
-      key: "placement",
-      label: "Placement year",
-      onRemove: () => setPlacementOnly(false),
-    },
-    scholarshipsOnly && {
-      key: "scholarships",
-      label: "Offers scholarships",
-      onRemove: () => setScholarshipsOnly(false),
-    },
-  ].filter(Boolean) as { key: string; label: string; onRemove: () => void }[];
+    { key: "region", label: region }, { key: "subject", label: subject }, { key: "tuition", label: tuition },
+    { key: "placement", label: placementOnly ? "Placement year" : null },
+    { key: "scholarships", label: scholarshipsOnly ? "Offers scholarships" : null },
+  ].filter((entry): entry is { key: string; label: string } => Boolean(entry.label));
 
-  return (
-    <div>
-      <FilterBar>
-        <FilterSearch
-          label="Search universities"
-          value={query}
-          onChange={setQuery}
-          placeholder="Search by university or city — “Coventry”, “Manchester”…"
-        />
-
-        <FilterFields>
+  const fields = (
+        <FilterFields vertical={Boolean(params.q)}>
           <SelectField
             label="Location"
             options={toOptions(regions, counts.region)}
@@ -223,7 +218,8 @@ export function UniversityExplorer({ universities }: { universities: University[
             />
           ) : null}
         </FilterFields>
-
+  );
+  const footer = (
         <FilterFooter activeCount={barCount} onClear={clearAll}>
           <ToggleChip
             label="Placement year available"
@@ -238,11 +234,14 @@ export function UniversityExplorer({ universities }: { universities: University[
             count={counts.scholarships}
           />
         </FilterFooter>
-      </FilterBar>
+  );
+  const search = <FilterSearch label="Search universities" value={query} onChange={changeQuery} placeholder="Search by university or city…" />;
+  const resultContent = <>
+
 
       {applied.length > 0 ? (
         <div className="mt-4">
-          <ActiveFilters items={applied} />
+          <ActiveFilters items={applied} onRemove={key => commit({ [key]: null })} />
         </div>
       ) : null}
 
@@ -260,7 +259,7 @@ export function UniversityExplorer({ universities }: { universities: University[
              would stretch each card past 500px, which the three-photo header
              was never drawn for — and this is the width the course grid
              uses. */
-          className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          className={`mt-4 grid gap-4 sm:grid-cols-2 ${params.q ? "xl:grid-cols-2" : "lg:grid-cols-3"}`}
         >
           {results.map((university) => (
             <li key={university.id} className="min-w-0">
@@ -276,6 +275,7 @@ export function UniversityExplorer({ universities }: { universities: University[
           </EmptyResults>
         </div>
       )}
-    </div>
-  );
+    </>;
+  return params.q ? <ExplorerShell sidebar={<FilterSidebar activeCount={barCount} onClear={clearAll} resultSummary={`Show ${results.length} universities`}>{fields}{footer}</FilterSidebar>}>{search}{resultContent}</ExplorerShell>
+    : <div><FilterBar>{search}{fields}{footer}</FilterBar>{resultContent}</div>;
 }

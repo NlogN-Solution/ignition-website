@@ -3958,6 +3958,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/public/search/suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Public Search Suggestions
+         * @description Small discovery intents, never individual course records.
+         */
+        get: operations["public_search_suggestions_api_v1_public_search_suggestions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -5797,6 +5817,16 @@ export interface components {
         };
         /** CourseFacets */
         CourseFacets: {
+            /**
+             * Qualification
+             * @default []
+             */
+            qualification: components["schemas"]["FacetOption"][];
+            /**
+             * Location
+             * @default []
+             */
+            location: components["schemas"]["FacetOption"][];
             /** Route */
             route: components["schemas"]["FacetOption"][];
             /** Level */
@@ -11551,6 +11581,56 @@ export interface components {
             /** Is Active */
             is_active?: boolean | null;
         };
+        /** SearchSuggestions */
+        SearchSuggestions: {
+            /** Items */
+            items: components["schemas"]["SearchSuggestion"][];
+        };
+        /** SearchSuggestion */
+        SearchSuggestion: {
+            /** Label */
+            label: string;
+            /** Value */
+            value: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "subject" | "course" | "university" | "location" | "degree" | "keyword";
+            destination: components["schemas"]["SearchDestination"];
+            /** Result Count */
+            result_count?: number | null;
+            /**
+             * Exact Entity
+             * @default false
+             */
+            exact_entity: boolean;
+            /** Entity Slug */
+            entity_slug?: string | null;
+        };
+        /** SearchDestination */
+        SearchDestination: {
+            /**
+             * Path
+             * @default /courses
+             * @enum {string}
+             */
+            path: "/courses" | "/universities";
+            /** Q */
+            q: string;
+            /** University */
+            university?: string | null;
+            /** Qualification */
+            qualification?: string | null;
+            /** Location */
+            location?: string | null;
+            /** Route */
+            route?: string | null;
+            /** Level */
+            level?: string | null;
+            /** Subject */
+            subject?: string | null;
+        };
     };
     responses: never;
     parameters: never;
@@ -14456,6 +14536,8 @@ export interface operations {
                 university?: string | null;
                 placement?: boolean | null;
                 duration?: string | null;
+                qualification?: string | null;
+                location?: string | null;
                 sort?: string;
                 page?: number;
                 limit?: number;
@@ -14496,6 +14578,8 @@ export interface operations {
                 university?: string | null;
                 placement?: boolean | null;
                 duration?: string | null;
+                qualification?: string | null;
+                location?: string | null;
             };
             header?: never;
             path?: never;
@@ -21356,6 +21440,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PortalAccessRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    public_search_suggestions_api_v1_public_search_suggestions_get: {
+        parameters: {
+            query?: {
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchSuggestions"];
                 };
             };
             /** @description Validation Error */

@@ -30,7 +30,7 @@ export default function CalculatorPage() {
             { label: "Cost calculator", href: "/money/calculator" },
           ]}
         >
-          <Badge tone="demo">Example data</Badge>
+          <Badge tone="demo">Data</Badge>
         </PageHero>
 
         <Container className="py-[clamp(2.5rem,4.5vw,4.5rem)]">

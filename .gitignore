@@ -5,3 +5,7 @@ out
 next-env.d.ts
 .env
 
+
+# Browser validation artifacts
+/test-results/
+/playwright-report/

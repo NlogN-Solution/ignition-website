@@ -9,14 +9,7 @@ import { ArrowButton } from "../ui/ArrowButton";
 import { PortalLink } from "./PortalLink";
 import { navItems, type NavItem } from "@/lib/navigation";
 
-/**
- * Which group the current page belongs to.
- *
- * Two groups can legitimately claim one page — the cost calculator is listed
- * under both "Life in UK" and "Resources" — so the first match wins rather
- * than lighting up two labels at once. Prefix matching is what makes a detail
- * page (`/courses/computer-science`) still highlight its section.
- */
+/** Match the current page to its navigation group. */
 function activeIndex(pathname: string, items: NavItem[]): number {
   return items.findIndex((item) =>
     [item.href, ...item.items.map((sub) => sub.href)].some(
@@ -43,11 +36,6 @@ export function Navbar({ dimmed = false }: { dimmed?: boolean }) {
       <div className="mx-auto grid h-[68px] grid-cols-[auto_1fr_auto] items-center gap-4 px-5 sm:px-8 lg:grid-cols-[1fr_auto_1fr] xl:h-[90px] xl:px-12">
         <Logo className="justify-self-start" />
 
-        {/* Six groups, and the width they need is bought with type size rather
-            than by dropping one: the labels sit at 13.5px with the gaps
-            carried inside each link as padding, so what separates them is a
-            hover target rather than dead space. The old bar spent 32px of
-            nothing between six 14.5px labels and still read as a clump. */}
         <nav aria-label="Main" className="hidden justify-self-center lg:block">
           <ul className="flex items-center gap-[1px] xl:gap-[5px]">
             {navItems.map((item, index) => {
@@ -109,11 +97,7 @@ export function Navbar({ dimmed = false }: { dimmed?: boolean }) {
 
         <div className="hidden items-center gap-[10px] justify-self-end lg:flex">
           <PortalLink className="h-[38px] px-[17px] text-[13.5px]" />
-          <ArrowButton
-            href="/careers/quiz"
-            iconSize={15}
-            className="h-[38px] gap-[8px] px-[16px] text-[13.5px]"
-          >
+          <ArrowButton href="/careers/quiz" iconSize={15} className="h-[38px] gap-[8px] px-[16px] text-[13.5px]">
             Take Career Quiz
           </ArrowButton>
         </div>
@@ -161,11 +145,7 @@ export function Navbar({ dimmed = false }: { dimmed?: boolean }) {
           </ul>
           <div className="mt-5 flex items-center gap-3">
             <PortalLink className="h-[44px] flex-1 px-5 text-[15px]" />
-            <ArrowButton
-              href="/careers/quiz"
-              iconSize={16}
-              className="h-[44px] flex-1 gap-[10px] px-5 text-[15px]"
-            >
+            <ArrowButton href="/careers/quiz" iconSize={16} className="h-[44px] flex-1 gap-[10px] px-5 text-[15px]">
               Career Quiz
             </ArrowButton>
           </div>

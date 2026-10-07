@@ -198,6 +198,8 @@ export async function getUniversity(slug: string): Promise<University | null> {
 // ── Offerings ────────────────────────────────────────────────────────────────
 
 export interface OfferingQuery {
+  qualification?: string;
+  location?: string;
   q?: string;
   route?: string;
   level?: string;

@@ -1,29 +1,9 @@
 import type { Metadata } from "next";
-import { Archivo, IBM_Plex_Sans } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { ContactWidget } from "@/components/layout/ContactWidget";
 import { siteName, siteTagline, siteUrl } from "@/lib/seo";
 import "./globals.css";
-
-// Display face — headlines only. Set at 800/900 with tight tracking, it
-// carries the editorial authority the brand's rounded wordmark deliberately
-// doesn't attempt in running UI type.
-const archivo = Archivo({
-  subsets: ["latin"],
-  weight: ["600", "700", "800", "900"],
-  variable: "--font-archivo",
-  display: "swap",
-});
-
-// Body/UI face — replaces Plus Jakarta Sans. Jakarta's roundness reads as
-// friendly ed-tech; Plex is plainer and more serious without defaulting to
-// Inter, which is what every other site reaches for.
-const plex = IBM_Plex_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-plex",
-  display: "swap",
-});
+import "./fonts.css";
 
 // GA4 property for the public site. Only production builds report, so local
 // dev and preview runs don't pollute the numbers; NEXT_PUBLIC_GA_ID overrides
@@ -47,7 +27,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en-GB" className={`${archivo.variable} ${plex.variable}`}>
+    <html lang="en-GB">
+      <head>
+        <link rel="preload" href="/fonts/1a4aa50920b5315c-s.p.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/26d4368bf94c0ec4-s.p.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+      </head>
       <body>
         {children}
         {/* Site-wide, and it stands down while a page's own CTA band is on

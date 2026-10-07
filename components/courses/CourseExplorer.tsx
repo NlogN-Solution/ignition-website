@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { OfferingCard } from "./OfferingCard";
 import { CourseCompareTray } from "./CourseCompareTray";
@@ -14,8 +14,10 @@ import {
   SelectField,
   ToggleChip,
 } from "../ui/FilterBar";
-import { ActiveFilters } from "../ui/filters";
+import { ExplorerShell, FilterSidebar, ActiveFilters } from "../ui/filters";
 import { EmptyResults, ResultCount } from "../ui/ResultCount";
+import { courseSortOptions, updateExplorerUrl, type CourseFilterKey, type ExplorerParams } from "@/lib/search/explorerQuery";
+import { trackSearch } from "@/lib/search/analytics";
 import { studyRoute, studyRoutes } from "@/data/courses";
 import type { Facets, FacetOption, Offering } from "@/lib/api/types";
 
@@ -54,18 +56,7 @@ import type { Facets, FacetOption, Offering } from "@/lib/api/types";
  */
 
 /** The facets, in the order they appear in the bar. */
-type FilterKey = "route" | "level" | "subject" | "duration" | "university" | "placement";
-
-export interface ExplorerParams {
-  q?: string;
-  route?: string;
-  level?: string;
-  subject?: string;
-  duration?: string;
-  university?: string;
-  placement?: boolean;
-  page?: number;
-}
+type FilterKey = CourseFilterKey;
 
 const PAGE_SIZE = 24;
 const MAX_COMPARE = 4;
@@ -100,7 +91,12 @@ export function CourseExplorer({
   // keystroke would put one server round trip and one history entry behind
   // every letter.
   const [query, setQuery] = useState(params.q ?? "");
-  useEffect(() => setQuery(params.q ?? ""), [params.q]);
+  const [previousQuery, setPreviousQuery] = useState(params.q);
+  if (previousQuery !== params.q) {
+    setPreviousQuery(params.q);
+    setQuery(params.q ?? "");
+  }
+  const queryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Selection for the compare popup. Kept as component state rather than the
   // shared storage layer — this is "look at these two side by side right
@@ -111,15 +107,10 @@ export function CourseExplorer({
   const [selected, setSelected] = useState<string[]>([]);
   const [compareOpen, setCompareOpen] = useState(false);
   const [knownOfferings, setKnownOfferings] = useState<Record<string, Offering>>({});
-  useEffect(() => {
-    setKnownOfferings((previous) => {
-      const next = { ...previous };
-      for (const offering of offerings) next[offering.slug] = offering;
-      return next;
-    });
-  }, [offerings]);
 
   function toggleCompare(slug: string) {
+    const offering = offerings.find(entry => entry.slug === slug);
+    if (offering) setKnownOfferings(previous => ({ ...previous, [slug]: offering }));
     setSelected((previous) => {
       if (previous.includes(slug)) return previous.filter((entry) => entry !== slug);
       if (previous.length >= MAX_COMPARE) return previous;
@@ -127,47 +118,25 @@ export function CourseExplorer({
     });
   }
 
-  function commit(changes: Partial<Record<FilterKey | "q" | "page", string | null>>) {
-    const next = new URLSearchParams();
-
-    // Rebuilt from what the server parsed rather than from `location.search`,
-    // so the two can never disagree.
-    const current: Record<string, string | undefined> = {
-      q: params.q,
-      route: params.route,
-      level: params.level,
-      subject: params.subject,
-      duration: params.duration,
-      university: params.university,
-      placement: params.placement ? "true" : undefined,
-      page: params.page && params.page > 1 ? String(params.page) : undefined,
-    };
-    for (const [key, value] of Object.entries(current)) {
-      if (value) next.set(key, value);
-    }
-
-    for (const [key, value] of Object.entries(changes)) {
-      if (value === null || value === "") next.delete(key);
-      else next.set(key, value);
-    }
-
-    // Any filter change puts the reader back on the first page: page 7 of the
-    // old result set is a different thing entirely in the new one.
-    if (!("page" in changes)) next.delete("page");
-
-    const queryString = next.toString();
-    startTransition(() => {
-      router.push(queryString ? `${pathname}?${queryString}` : pathname, { scroll: false });
-    });
+  function commit(changes: Partial<Record<FilterKey | "q" | "page" | "sort", string | null>>) {
+    if (queryTimer.current) clearTimeout(queryTimer.current);
+    const merged = { ...(query !== (params.q ?? "") ? { q: query.trim() || null } : {}), ...changes };
+    const url = updateExplorerUrl(pathname, { ...params }, merged);
+    trackSearch("search_filter_changed", { keys: Object.keys(changes).join(","), explorer: "courses" });
+    startTransition(() => router.push(url, { scroll: false }));
   }
 
+  function changeQuery(value: string) {
+    setQuery(value);
+    if (queryTimer.current) clearTimeout(queryTimer.current);
+    queryTimer.current = setTimeout(() => commit({ q: value.trim() || null, sort: value.trim() ? "relevance" : "title" }), 350);
+  }
   useEffect(() => {
-    if (query === (params.q ?? "")) return;
-    const timer = setTimeout(() => commit({ q: query || null }), 350);
-    return () => clearTimeout(timer);
-    // `commit` closes over the current URL, which is exactly what is wanted.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query]);
+    const cancel = () => { if (queryTimer.current) clearTimeout(queryTimer.current); };
+    window.addEventListener("popstate", cancel);
+    return () => { cancel(); window.removeEventListener("popstate", cancel); };
+  }, []);
+  useEffect(() => { if (queryTimer.current) clearTimeout(queryTimer.current); }, [params]);
 
   const route = studyRoute(params.route);
 
@@ -182,27 +151,16 @@ export function CourseExplorer({
   const levelOptions = facets?.level ?? [];
   const showLevels = levelOptions.length > 1;
 
-  const applied = useMemo(() => {
-    const entries: { key: string; label: string; onRemove: () => void }[] = [];
-    const add = (key: FilterKey, label: string | null) => {
-      if (label) entries.push({ key, label, onRemove: () => commit({ [key]: null }) });
-    };
-
-    add("route", route?.label ?? null);
-    add("level", labelFor(levelOptions, params.level));
-    add("subject", labelFor(facets?.subject ?? [], params.subject));
-    add("duration", labelFor(facets?.duration ?? [], params.duration));
-    add("university", labelFor(facets?.university ?? [], params.university));
-    if (params.placement) {
-      entries.push({
-        key: "placement",
-        label: "Placement year",
-        onRemove: () => commit({ placement: null }),
-      });
-    }
-    return entries;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params, facets, route]);
+  const applied = [
+    { key: "route", label: route?.label },
+    { key: "level", label: labelFor(levelOptions, params.level) },
+    { key: "subject", label: labelFor(facets?.subject ?? [], params.subject) },
+    { key: "qualification", label: labelFor(facets?.qualification ?? [], params.qualification) },
+    { key: "location", label: labelFor(facets?.location ?? [], params.location) },
+    { key: "duration", label: labelFor(facets?.duration ?? [], params.duration) },
+    { key: "university", label: labelFor(facets?.university ?? [], params.university) },
+    { key: "placement", label: params.placement ? "Placement year" : null },
+  ].filter((entry): entry is { key: string; label: string } => Boolean(entry.label));
 
   const activeCount = applied.length;
 
@@ -212,6 +170,7 @@ export function CourseExplorer({
   const barCount = activeCount + (params.q ? 1 : 0);
 
   function clearAll() {
+    if (queryTimer.current) clearTimeout(queryTimer.current);
     setQuery("");
     startTransition(() => router.push(pathname, { scroll: false }));
   }
@@ -224,17 +183,8 @@ export function CourseExplorer({
     count: facets ? (counts(facets.route)[entry.id] ?? 0) : 0,
   }));
 
-  return (
-    <div>
-      <FilterBar>
-        <FilterSearch
-          label="Search courses by name"
-          value={query}
-          onChange={setQuery}
-          placeholder="Search by course name — “computer science”, “nursing”…"
-        />
-
-        <FilterFields>
+  const fields = (
+        <FilterFields vertical={Boolean(params.q)}>
           <SelectField
             label="Study level"
             options={routeOptions}
@@ -258,6 +208,8 @@ export function CourseExplorer({
             onChange={(next) => commit({ subject: next })}
           />
 
+          <SelectField label="Qualification" options={facets?.qualification ?? []} value={params.qualification ?? null} onChange={next => commit({ qualification: next })} />
+          <SelectField label="Location" options={facets?.location ?? []} value={params.location ?? null} onChange={next => commit({ location: next })} />
           <SelectField
             label="Duration"
             options={facets?.duration ?? []}
@@ -274,7 +226,8 @@ export function CourseExplorer({
             onChange={(next) => commit({ university: next })}
           />
         </FilterFields>
-
+  );
+  const footer = (
         <FilterFooter activeCount={barCount} onClear={clearAll}>
           <ToggleChip
             label="Placement year available"
@@ -283,7 +236,10 @@ export function CourseExplorer({
             count={facets?.placement}
           />
         </FilterFooter>
-      </FilterBar>
+  );
+  const search = <FilterSearch label="Search courses" value={query} onChange={changeQuery} placeholder="Search courses or universities…" />;
+  const results = <>
+
 
       {route ? (
         <p className="mt-4 text-[14.5px] font-medium leading-[1.55] text-muted">{route.summary}</p>
@@ -291,7 +247,7 @@ export function CourseExplorer({
 
       {applied.length > 0 ? (
         <div className="mt-4">
-          <ActiveFilters items={applied} />
+          <ActiveFilters items={applied} onRemove={key => commit({ [key]: null })} />
         </div>
       ) : null}
 
@@ -305,12 +261,15 @@ export function CourseExplorer({
       {offerings.length ? (
         <>
           <ul
-            className={`mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 ${pending ? "opacity-60 transition-opacity" : ""}`}
+            aria-label="Course results"
+            className={`mt-4 grid grid-cols-1 gap-3 ${pending ? "opacity-60 transition-opacity" : ""}`}
           >
             {offerings.map((offering) => (
               <li key={offering.slug} className="min-w-0">
                 <OfferingCard
                   offering={offering}
+                  realData={Boolean(params.q)}
+                  compact
                   selectable
                   selected={selected.includes(offering.slug)}
                   onToggleSelect={() => toggleCompare(offering.slug)}
@@ -352,8 +311,14 @@ export function CourseExplorer({
           }}
         />
       ) : null}
-    </div>
-  );
+    </>;
+  return params.q ? (
+    <ExplorerShell sidebar={<FilterSidebar activeCount={barCount} onClear={clearAll} resultSummary={`Show ${total} courses`}>{fields}{footer}</FilterSidebar>}>
+      {search}
+      <div className="mt-3 flex items-center justify-end gap-2"><label htmlFor="course-sort" className="text-sm text-muted">Sort</label><select id="course-sort" value={params.sort ?? "relevance"} onChange={event => commit({ sort: event.target.value })} className="rounded-md border border-hairline bg-white p-2 text-sm">{courseSortOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></div>
+      {results}
+    </ExplorerShell>
+  ) : <div><FilterBar>{search}{fields}{footer}</FilterBar>{results}</div>;
 }
 
 /**

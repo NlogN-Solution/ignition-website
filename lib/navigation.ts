@@ -5,17 +5,7 @@ export type NavItem = {
   items: { label: string; href: string; description?: string }[];
 };
 
-/**
- * Six groups rather than one item per journey stage: a label per stage
- * overflows the navbar below ~1440px at the existing type size, and the
- * dropdown pattern already in the header carries the rest without a redesign.
- * Every stage of the journey stays one click from the bar.
- *
- * "Resources" is the reference shelf — the reading and the tools — kept
- * separate from the journey groups above it. A student in the middle of an
- * application is not looking for a blog post, and a student reading around
- * the decision is not yet in a stage.
- */
+/** Main navigation for study, course discovery and resources. */
 export const navItems: NavItem[] = [
   {
     label: "Study in UK",
@@ -36,32 +26,6 @@ export const navItems: NavItem[] = [
   },
 
   {
-    label: "Apply",
-    href: "/apply",
-    items: [
-      { label: "How to apply", href: "/apply" },
-      { label: "Entry requirements & visa", href: "/apply/entry-requirements" },
-      { label: "Interview preparation", href: "/apply/interviews" },
-    ],
-  },
-  {
-    label: "Life in UK",
-    href: "/life-in-uk",
-    items: [
-      { label: "Living in the UK", href: "/life-in-uk" },
-      { label: "Tuition & living costs", href: "/money" },
-      { label: "Cost calculator", href: "/money/calculator" },
-    ],
-  },
-  {
-    label: "Careers",
-    href: "/careers",
-    items: [
-      { label: "Take the career quiz", href: "/careers/quiz" },
-      { label: "Explore careers", href: "/careers" },
-    ],
-  },
-  {
     label: "Resources",
     href: "/resources",
     items: [
@@ -69,7 +33,6 @@ export const navItems: NavItem[] = [
       { label: "Guides", href: "/resources/guides" },
       { label: "Check your eligibility", href: "/resources/eligibility" },
       { label: "Cost calculator", href: "/money/calculator" },
-      { label: "Interview practice", href: "/apply/interviews" },
     ],
   },
 ];

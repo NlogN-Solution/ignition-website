@@ -312,6 +312,9 @@ export function toOffering(dto: OfferingDto): Offering {
     demo: dto.is_example ?? false,
   };
 
+  set(offering, "feeText", dto.fee_text);
+  set(offering, "scholarshipText", dto.scholarship_text);
+  set(offering, "intake", dto.intake);
   set(offering, "qualification", dto.qualification);
   set(offering, "subject", dto.subject);
   set(offering, "level", dto.course_level);
@@ -463,6 +466,8 @@ export function toFacets(dto: FacetsDto): Facets {
     entries.map((entry) => ({ value: entry.value, label: entry.label, count: entry.count }));
 
   return {
+    qualification: options(dto.qualification ?? []),
+    location: options(dto.location ?? []),
     route: options(dto.route),
     level: options(dto.level),
     subject: options(dto.subject),

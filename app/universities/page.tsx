@@ -6,6 +6,7 @@ import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { UniversityExplorer } from "@/components/universities/UniversityExplorer";
 import { getUniversities, isExampleCatalogue } from "@/lib/api/catalogue";
+import { parseUniversityParams } from "@/lib/search/explorerQuery";
 import { pageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
@@ -17,7 +18,8 @@ export const metadata = pageMetadata({
   path: "/universities",
 });
 
-export default async function UniversitiesPage() {
+export default async function UniversitiesPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const params = parseUniversityParams(await searchParams);
   const universities = await getUniversities();
   const isExample = isExampleCatalogue(universities);
 
@@ -38,7 +40,7 @@ export default async function UniversitiesPage() {
         </PageHero>
 
         <Container className="pb-[clamp(2.5rem,4.5vw,4.5rem)] pt-[clamp(1.125rem,1.8vw,1.625rem)]">
-          <UniversityExplorer universities={universities} />
+          <UniversityExplorer universities={universities} params={params} />
         </Container>
       </main>
 

@@ -5,7 +5,7 @@ import { PageHero } from "@/components/layout/PageHero";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { CourseExplorer } from "@/components/courses/CourseExplorer";
-import type { ExplorerParams } from "@/components/courses/CourseExplorer";
+import { parseCourseParams } from "@/lib/search/explorerQuery";
 import { getFacets, searchOfferings } from "@/lib/api/catalogue";
 import { pageMetadata } from "@/lib/seo";
 
@@ -13,12 +13,6 @@ import { pageMetadata } from "@/lib/seo";
 export const revalidate = 300;
 
 const PAGE_SIZE = 24;
-
-/** Read one value out of the query string, ignoring repeats. */
-function one(value: string | string[] | undefined): string | undefined {
-  const first = Array.isArray(value) ? value[0] : value;
-  return first && first.length > 0 ? first : undefined;
-}
 
 export const metadata = pageMetadata({
   title: "Explore courses",
@@ -34,16 +28,7 @@ export default async function CoursesPage({
 }) {
   const raw = await searchParams;
 
-  const params: ExplorerParams = {
-    q: one(raw.q),
-    route: one(raw.route),
-    level: one(raw.level),
-    subject: one(raw.subject),
-    duration: one(raw.duration),
-    university: one(raw.university),
-    placement: one(raw.placement) === "true",
-    page: Math.max(1, Number(one(raw.page) ?? 1) || 1),
-  };
+  const params = parseCourseParams(raw);
 
   // Results and counts are one round trip each rather than one combined call:
   // they cache under different keys, and a page change reuses the facets it

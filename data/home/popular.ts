@@ -1,8 +1,8 @@
 import type { University } from "@/data/universities/types";
 import type { Scholarship } from "@/data/scholarships";
 
-/** Shared by the search chips and subject exploration cards. */
-export const popularSearchTerms = ["Computer Science", "Business", "Nursing", "Engineering"] as const;
+/** Editorial queries for featured course cards; hero intents come from the catalogue search API. */
+export const featuredCourseQueries = ["Computer Science", "Business", "Nursing", "Engineering"] as const;
 
 /** Missing fees are unknown, not free tuition. Only complete published ranges count. */
 export function publishedTuitionRange(universities: Pick<University, "tuition">[]): { min: number; max: number } | null {
@@ -14,7 +14,7 @@ export function publishedTuitionRange(universities: Pick<University, "tuition">[
 }
 
 /**
- * Four universities to lead with, picked by a rule rather than an editorial
+ * Up to seven universities to explore, picked by a rule rather than an editorial
  * list — nothing in the catalogue is flagged "popular", so a hand-picked
  * order would silently go stale the moment the underlying records change.
  * Graduate outcomes are the strongest single signal of a well-documented,
@@ -28,7 +28,7 @@ export function pickPopularUniversities(universities: University[]): University[
     return (university.rankings?.length ?? 0) + (university.awards?.length ?? 0);
   }
 
-  return [...universities].sort((a, b) => score(b) - score(a)).slice(0, 4);
+  return [...universities].sort((a, b) => score(b) - score(a)).slice(0, 7);
 }
 
 /**

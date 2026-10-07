@@ -2,28 +2,23 @@ import type { Metadata } from "next";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { JourneyClose } from "@/components/apply/JourneyClose";
+import { getSearchSuggestions } from "@/lib/search/api";
 import { Hero } from "@/components/home/Hero";
 import { CourseSearch } from "@/components/home/CourseSearch";
 import { PopularCourses } from "@/components/home/PopularCourses";
 import { PopularUniversities } from "@/components/home/PopularUniversities";
-import { CostAndScholarships } from "@/components/home/CostAndScholarships";
 import { WhyUk } from "@/components/home/WhyUk";
 import { WhyIgnition } from "@/components/home/WhyIgnition";
-import { IntentCards } from "@/components/home/IntentCards";
 import { CommunityStat } from "@/components/home/CommunityStat";
-import { NextStep } from "@/components/journey/NextStep";
 import { LeadCapture } from "@/components/lead/LeadCapture";
-import { JourneyPipeline } from "@/components/journey/JourneyPipeline";
 import { HowToApply } from "@/components/home/HowToApply";
 import { Section } from "@/components/ui/Section";
 import { trustIntro } from "@/data/home/trust";
-import { livingCostBreakdown } from "@/data/guides/money";
 import {
-  pickFeaturedScholarships,
-  publishedTuitionRange,
+  featuredCourseQueries,
   pickPopularUniversities,
 } from "@/data/home/popular";
-import { getScholarships, getUniversities, searchOfferings } from "@/lib/api/catalogue";
+import { getUniversities, searchOfferings } from "@/lib/api/catalogue";
 import {
   JsonLd,
   organizationSchema,
@@ -52,31 +47,18 @@ export const metadata: Metadata = {
   },
 };
 
-/** Course discovery, application guidance and a persistent next-step selector. */
+/** Course discovery and a walkthrough of the self-apply journey. */
 export default async function Home() {
-  const [catalogue, scholarships, offerings] = await Promise.all([
+  const [catalogue, popularSearches, popularResults] = await Promise.all([
     getUniversities(),
-    getScholarships(),
-    searchOfferings({ limit: 1 }),
+    getSearchSuggestions(""),
+    Promise.all(featuredCourseQueries.map((q) => searchOfferings({ q, limit: 3 }))),
   ]);
 
+  const popularOfferings = [...new Map(
+    popularResults.flatMap((result) => result.items).map((offering) => [offering.slug, offering]),
+  ).values()].slice(0, 7);
   const popularUniversities = pickPopularUniversities(catalogue);
-  const featuredScholarships = pickFeaturedScholarships(scholarships);
-
-  const tuitionRange = publishedTuitionRange(catalogue);
-  const monthlyLivingRange = {
-    low: livingCostBreakdown.reduce((sum, row) => sum + row.low, 0),
-    high: livingCostBreakdown.reduce((sum, row) => sum + row.high, 0),
-  };
-
-  // Slimmed here rather than in the component: what crosses to the browser is
-  // what the search box matches on, not the records behind it.
-  const universitySuggestions = catalogue.map((university) => ({
-    id: university.id,
-    name: university.name,
-    city: university.city,
-    region: university.region,
-  }));
 
   return (
     <>
@@ -85,16 +67,19 @@ export default async function Home() {
 
       <Navbar />
       <main>
-        <Hero />
+        <Hero>
+          <CourseSearch popular={popularSearches?.items ?? []} />
+        </Hero>
 
-        <CourseSearch universities={universitySuggestions} courseCount={offerings.total} />
+        <HowToApply />
+
 
         <Section
           eyebrow="Popular searches"
           title="Or start from what others are asking for."
-          intro="Explore three popular subjects in the course catalogue, then compare the courses and universities that match."
+          intro="Explore courses matching popular searches, see the universities offering them and start your application."
         >
-          <PopularCourses />
+          <PopularCourses offerings={popularOfferings} />
         </Section>
 
         <Section
@@ -117,47 +102,6 @@ export default async function Home() {
           surface
         >
           <PopularUniversities universities={popularUniversities} />
-        </Section>
-
-        <Section
-          eyebrow="Before you go further"
-          title="What this actually costs, and what brings it down."
-          intro="The two numbers every applicant asks before anything else, and the scholarships that change them."
-        >
-          <CostAndScholarships
-            tuition={tuitionRange}
-            monthlyLiving={monthlyLivingRange}
-            scholarships={featuredScholarships}
-          />
-        </Section>
-
-        <Section
-          eyebrow="Start anywhere"
-          title="What do you need help with?"
-          intro="Five ways in. Pick whichever matches the question you actually have right now — you can come back for the rest."
-        >
-          <IntentCards />
-        </Section>
-
-        <HowToApply />
-
-        <Section
-          id="route"
-          eyebrow="End to end"
-          title="From first idea to first week."
-          intro="Mark the chapter you’re in so your next step starts from there."
-        >
-          <JourneyPipeline />
-        </Section>
-
-        <Section
-          id="journey"
-          eyebrow="Your next step"
-          title="What should you do next?"
-          intro="Ignition remembers the work you've already done — your career profile, your budget, where you are on the route — and points you at the one thing worth doing next."
-          surface
-        >
-          <NextStep />
         </Section>
 
         <CommunityStat />

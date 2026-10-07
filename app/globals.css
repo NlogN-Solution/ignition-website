@@ -4,16 +4,11 @@
   --font-sans: var(--font-plex), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-archivo), var(--font-plex), ui-sans-serif, system-ui, sans-serif;
 
-  /* Near-black, navy-tinted — the editorial "ink" that carries headlines and
-     strong text. Replaces --color-navy in that role: a saturated brand blue
-     set at headline size reads as SaaS, not as an institution. */
-  --color-ink: #0a0e1c;
-  --color-ink-soft: #363b4e;
-
-  /* Brand navy survives, demoted to a deliberate accent: kickers, the nav's
-     active state, icon fills, links — never the colour a headline is set in. */
+  /* Brand blue carries headings, default text and navigation throughout the site. */
   --color-navy: #01166f;
   --color-navy-ink: #020f53;
+  --color-ink: var(--color-navy);
+  --color-ink-soft: var(--color-navy);
 
   /* The one hue allowed to compete for attention. Every other accent in the
      old palette has been retired — a single accent is what makes it read as
@@ -33,7 +28,7 @@
   --color-violet: var(--color-ink);
 
   --color-canvas: #fbfafe;
-  --color-nav: #1f2150;
+  --color-nav: var(--color-navy);
   --color-muted: #5f637e;
   --color-muted-light: #7c7f9a;
   --color-faint: #c9cad6;

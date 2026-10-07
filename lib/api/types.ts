@@ -27,6 +27,9 @@ export type TaxonomiesDto = components["schemas"]["Taxonomies"];
  * course.
  */
 export interface Offering {
+  feeText?: string;
+  scholarshipText?: string;
+  intake?: string;
   slug: string;
   title: string;
   qualification?: string;
@@ -148,6 +151,8 @@ export interface FacetOption {
 }
 
 export interface Facets {
+  qualification: FacetOption[];
+  location: FacetOption[];
   route: FacetOption[];
   level: FacetOption[];
   subject: FacetOption[];
