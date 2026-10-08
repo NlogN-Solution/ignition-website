@@ -71,7 +71,9 @@ export function DetailTabs({
    * made with whatever the hash last said.
    */
   const idsRef = useRef(tabs.map((tab) => tab.id));
-  idsRef.current = tabs.map((tab) => tab.id);
+  useEffect(() => {
+    idsRef.current = tabs.map((tab) => tab.id);
+  }, [tabs]);
 
   useEffect(() => {
     function adopt() {
@@ -94,7 +96,9 @@ export function DetailTabs({
 
   /** Left/right move between tabs, home/end jump to the ends. */
   function onKeyDown(event: React.KeyboardEvent) {
-    const keys = ["ArrowLeft", "ArrowRight", "Home", "End"];
+    const previousKey = "ArrowLeft";
+    const nextKey = "ArrowRight";
+    const keys = [previousKey, nextKey, "Home", "End"];
     if (!keys.includes(event.key)) return;
     event.preventDefault();
 
@@ -104,7 +108,7 @@ export function DetailTabs({
         ? 0
         : event.key === "End"
           ? tabs.length - 1
-          : event.key === "ArrowLeft"
+          : event.key === previousKey
             ? (i - 1 + tabs.length) % tabs.length
             : (i + 1) % tabs.length;
 
@@ -115,6 +119,7 @@ export function DetailTabs({
   }
 
   const openTab = tabs.find((tab) => tab.id === active) ?? tabs[0];
+
 
   return (
     <>

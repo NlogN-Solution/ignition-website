@@ -94,7 +94,7 @@ test("cancels stale replies and degrades safely on API errors", async ({ page })
   await expect(page).toHaveURL(/q=error/);
 });
 
-test("search-only sidebar and responsive drawer preserve URL filters", async ({ page }, testInfo) => {
+test("course sidebar and responsive drawer preserve URL filters", async ({ page }, testInfo) => {
   await page.goto("/courses?q=Computer+Science&route=postgraduate&sort=title", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("searchbox").first()).toBeEnabled();
   const mobile = testInfo.project.name === "mobile";
@@ -122,7 +122,12 @@ test("search-only sidebar and responsive drawer preserve URL filters", async ({ 
   await expect(page.getByText("Estimated figures for illustration", { exact: false })).not.toBeVisible();
   await page.goto("/courses", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("dialog")).not.toBeVisible();
-  await expect(page.getByRole("complementary", { name: "Filters" })).not.toBeVisible();
+  if (mobile) {
+    await page.getByRole("button", { name: /^Filters/ }).click();
+    await expect(page.getByRole("dialog", { name: "Filters" })).toBeVisible();
+  } else {
+    await expect(page.getByRole("complementary", { name: "Filters" })).toBeVisible();
+  }
 });
 
 test("popular chips, filter combinations, pagination and empty results", async ({ page }, testInfo) => {

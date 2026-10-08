@@ -47,9 +47,7 @@ const gbp = new Intl.NumberFormat("en-GB", {
 /** The shared shell: one measure, one rhythm, on every tab. */
 function Panel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto w-full max-w-[1240px] px-5 py-[clamp(2.5rem,4.5vw,4rem)] sm:px-8 lg:px-12">
-      <div className="max-w-[80ch] space-y-12 sm:space-y-14">{children}</div>
-    </div>
+    <div className="space-y-10 sm:space-y-12">{children}</div>
   );
 }
 
@@ -94,7 +92,7 @@ const money = (value: number, currency?: string) =>
 
 /* --------------------------------------------------------------- Overview */
 
-export function OfferingOverviewPanel({ offering }: { offering: OfferingDetail }) {
+export function OfferingOverviewCard({ offering }: { offering: OfferingDetail }) {
   const university = offering.university;
 
   const specs: Spec[] = [];
@@ -130,12 +128,20 @@ export function OfferingOverviewPanel({ offering }: { offering: OfferingDetail }
   }
 
   return (
-    <Panel>
-      <Prose title="This course">
-        <Card className="p-5 sm:p-6">
-          <SpecList specs={specs} />
-        </Card>
+    <Card className="p-5 sm:p-6">
+      <SpecList specs={specs} />
+    </Card>
+  );
+}
 
+export function OfferingOverviewPanel({ offering }: { offering: OfferingDetail }) {
+  return (
+    <Panel>
+      <Prose title="Overview">
+        <p>
+          {offering.title}{offering.university ? ` at ${offering.university.name}` : ""}.
+          {offering.subject ? ` Explore this course in ${offering.subject}, including its admission requirements, intakes and funding.` : " Explore the admission requirements, intakes and funding for this course."}
+        </p>
         {offering.extraRequirements ? (
           <Callout tone="official">
             <strong>Additional requirement.</strong> {offering.extraRequirements}
@@ -696,10 +702,10 @@ export function OfferingRelatedPanel({ offering }: { offering: OfferingDetail })
               {university ? university.name : "this university"}. You have already chosen
               the place; this is what else it teaches.
             </p>
-            <ul className="grid gap-5 pt-2 sm:grid-cols-2">
+            <ul className="grid grid-cols-1 gap-3 pt-2">
               {offering.related.map((related) => (
-                <li key={related.slug}>
-                  <OfferingCard offering={related} />
+                <li key={related.slug} className="min-w-0">
+                  <OfferingCard offering={related} compact />
                 </li>
               ))}
             </ul>

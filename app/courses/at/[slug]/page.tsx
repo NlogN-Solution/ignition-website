@@ -1,22 +1,16 @@
 import { notFound } from "next/navigation";
-import {
-  Building2,
-  CalendarClock,
-  FileCheck2,
-  Info,
-  Layers,
-  PoundSterling,
-} from "lucide-react";
+
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ReadyToApply } from "@/components/apply/ReadyToApply";
-import { DetailTabs } from "@/components/ui/DetailTabs";
+import { CourseDetailsSidebar } from "@/components/courses/CourseDetailsSidebar";
 import { OfferingHero } from "@/components/courses/OfferingHero";
 import {
   OfferingEntryPanel,
   OfferingFeesPanel,
   OfferingIntakesPanel,
   OfferingOverviewPanel,
+  OfferingOverviewCard,
   OfferingRelatedPanel,
   OfferingUniversityPanel,
 } from "@/components/courses/offeringPanels";
@@ -70,8 +64,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
  * import, and none of it was ever served, so the page rendered what it was
  * given.
  *
- * Now it takes the same shell as the university and the subject pages
- * (`DetailTabs`) for the same reason all three do: the thing is the fixed
+ * Now it uses a sidebar beneath the overview card
+ * (`CourseDetailsSidebar`) for the same reason all three do: the thing is the fixed
  * point and the question is what changes. A student checking whether they meet
  * the requirements does not scroll past the intakes to find out.
  *
@@ -103,50 +97,40 @@ export default async function OfferingPage({
   }
   const offering = lookup.data;
 
-  const icon = { size: 15, strokeWidth: 2.2, "aria-hidden": true } as const;
-  const university = offering.university;
-
   const tabs = [
+    {
+      id: "key-information",
+      label: "Key information",
+      panel: <OfferingOverviewCard offering={offering} />,
+    },
     {
       id: "overview",
       label: "Overview",
-      hint: "What the course is, and what you come out with",
-      icon: <Info {...icon} />,
       panel: <OfferingOverviewPanel offering={offering} />,
     },
     {
       id: "entry",
       label: "Admission requirements",
-      hint: "What you need to get in",
-      icon: <FileCheck2 {...icon} />,
       panel: <OfferingEntryPanel offering={offering} />,
     },
     {
       id: "intakes",
       label: "Intakes and dates",
-      hint: "When it runs, and when to apply by",
-      icon: <CalendarClock {...icon} />,
       panel: <OfferingIntakesPanel offering={offering} />,
     },
     {
       id: "fees",
       label: "Fees and funding",
-      hint: "What it costs, and what could pay for it",
-      icon: <PoundSterling {...icon} />,
       panel: <OfferingFeesPanel offering={offering} />,
     },
     {
       id: "university",
       label: "The university",
-      hint: university ? `About ${university.name}` : "Where you would be studying",
-      icon: <Building2 {...icon} />,
       panel: <OfferingUniversityPanel offering={offering} />,
     },
     {
       id: "related",
       label: "Related courses",
-      hint: "What else this university teaches in the subject",
-      icon: <Layers {...icon} />,
       panel: <OfferingRelatedPanel offering={offering} />,
     },
   ];
@@ -154,10 +138,16 @@ export default async function OfferingPage({
   return (
     <>
       <Navbar />
-      <main>
+      <main className="bg-white">
         <OfferingHero offering={offering} />
 
-        <DetailTabs tabs={tabs} label="Course information" />
+        <div className="mx-auto w-full max-w-[908px] px-5 py-[clamp(2.5rem,4.5vw,4rem)] sm:px-8 lg:px-12">
+          <section aria-label="Course overview" className="mb-10 sm:mb-14">
+            <h2 className="mb-5 text-[24px] font-bold tracking-[-0.015em] text-navy">Course overview</h2>
+            <OfferingOverviewCard offering={offering} />
+          </section>
+          <CourseDetailsSidebar sections={tabs} />
+        </div>
       </main>
 
       <ReadyToApply

@@ -6,7 +6,6 @@ import { OfferingCard } from "./OfferingCard";
 import { CourseCompareTray } from "./CourseCompareTray";
 import { CourseCompareModal } from "./CourseCompareModal";
 import {
-  FilterBar,
   FilterFields,
   FilterFooter,
   FilterSearch,
@@ -184,7 +183,7 @@ export function CourseExplorer({
   }));
 
   const fields = (
-        <FilterFields vertical={Boolean(params.q)}>
+        <FilterFields vertical>
           <SelectField
             label="Study level"
             options={routeOptions}
@@ -312,13 +311,13 @@ export function CourseExplorer({
         />
       ) : null}
     </>;
-  return params.q ? (
+  return (
     <ExplorerShell sidebar={<FilterSidebar activeCount={barCount} onClear={clearAll} resultSummary={`Show ${total} courses`}>{fields}{footer}</FilterSidebar>}>
       {search}
-      <div className="mt-3 flex items-center justify-end gap-2"><label htmlFor="course-sort" className="text-sm text-muted">Sort</label><select id="course-sort" value={params.sort ?? "relevance"} onChange={event => commit({ sort: event.target.value })} className="rounded-md border border-hairline bg-white p-2 text-sm">{courseSortOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></div>
+      {params.q ? <div className="mt-3 flex items-center justify-end gap-2"><label htmlFor="course-sort" className="text-sm text-muted">Sort</label><select id="course-sort" value={params.sort ?? "relevance"} onChange={event => commit({ sort: event.target.value })} className="rounded-md border border-hairline bg-white p-2 text-sm">{courseSortOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></div> : null}
       {results}
     </ExplorerShell>
-  ) : <div><FilterBar>{search}{fields}{footer}</FilterBar>{results}</div>;
+  );
 }
 
 /**

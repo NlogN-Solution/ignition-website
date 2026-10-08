@@ -1,16 +1,9 @@
 import { notFound } from "next/navigation";
-import {
-  Building2,
-  Compass,
-  FileCheck2,
-  Layers,
-  PoundSterling,
-  Sparkles,
-} from "lucide-react";
+
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ReadyToApply } from "@/components/apply/ReadyToApply";
-import { DetailTabs } from "@/components/ui/DetailTabs";
+import { CourseDetailsSidebar } from "@/components/courses/CourseDetailsSidebar";
 import { CourseHero } from "@/components/courses/CourseHero";
 import {
   CourseCareersPanel,
@@ -18,6 +11,7 @@ import {
   CourseFeesPanel,
   CourseModulesPanel,
   CourseOverviewPanel,
+  CourseOverviewCard,
   CourseUniversitiesPanel,
 } from "@/components/courses/panels";
 import { getCourse, getCourses, getUniversities } from "@/lib/api/catalogue";
@@ -55,7 +49,7 @@ export async function generateMetadata({
  * whether any of the rest matters — read three sections they had not asked for
  * to reach it, and the fees were not on the page at all.
  *
- * Same shell as the university page (`DetailTabs`), for the same reason: the
+ * Body sidebar beneath the overview card (`CourseDetailsSidebar`), for the same reason: the
  * thing is the fixed point and the question is what changes. All six panels
  * are server-rendered and stay in the HTML, so nothing is hidden from search
  * or from a reader without JavaScript.
@@ -73,49 +67,41 @@ export default async function CoursePage({
   const catalogue = await getUniversities();
   const taughtAt = catalogue.filter((university) => course.universities.includes(university.id));
 
-  const icon = { size: 15, strokeWidth: 2.2, "aria-hidden": true } as const;
 
   const tabs = [
     {
+      id: "key-information",
+      label: "Key information",
+      panel: <CourseOverviewCard course={course} />,
+    },
+    {
       id: "overview",
-      label: "Course summary",
-      hint: "What it is and what you'd build",
-      icon: <Compass {...icon} />,
+      label: "Overview",
       panel: <CourseOverviewPanel course={course} />,
     },
     {
       id: "modules",
-      label: "Modules",
-      hint: "What you study, year by year",
-      icon: <Layers {...icon} />,
+      label: "Programme structure",
       panel: <CourseModulesPanel course={course} />,
     },
     {
       id: "entry",
-      label: "Entry requirements",
-      hint: "What you need to get in",
-      icon: <FileCheck2 {...icon} />,
+      label: "Admission requirements",
       panel: <CourseEntryPanel course={course} taughtAt={taughtAt} />,
     },
     {
       id: "fees",
       label: "Fees and funding",
-      hint: "Tuition where it is taught, and what is available",
-      icon: <PoundSterling {...icon} />,
       panel: <CourseFeesPanel course={course} taughtAt={taughtAt} />,
     },
     {
       id: "careers",
       label: "Where it leads",
-      hint: "The work this degree opens up",
-      icon: <Sparkles {...icon} />,
       panel: <CourseCareersPanel course={course} />,
     },
     {
       id: "universities",
       label: "Universities",
-      hint: "Where you can study it",
-      icon: <Building2 {...icon} />,
       panel: <CourseUniversitiesPanel course={course} taughtAt={taughtAt} />,
     },
   ];
@@ -123,10 +109,16 @@ export default async function CoursePage({
   return (
     <>
       <Navbar />
-      <main>
+      <main className="bg-white">
         <CourseHero course={course} />
 
-        <DetailTabs tabs={tabs} label="Course information" />
+        <div className="mx-auto w-full max-w-[908px] px-5 py-[clamp(2.5rem,4.5vw,4rem)] sm:px-8 lg:px-12">
+          <section aria-label="Course overview" className="mb-10 sm:mb-14">
+            <h2 className="mb-5 text-[24px] font-bold tracking-[-0.015em] text-navy">Course overview</h2>
+            <CourseOverviewCard course={course} />
+          </section>
+          <CourseDetailsSidebar sections={tabs} />
+        </div>
       </main>
 
       <ReadyToApply

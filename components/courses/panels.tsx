@@ -33,38 +33,38 @@ const gbp = new Intl.NumberFormat("en-GB", {
 /** The shared shell: one measure, one rhythm, on every tab. */
 function Panel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto w-full max-w-[1240px] px-5 py-[clamp(2.5rem,4.5vw,4rem)] sm:px-8 lg:px-12">
-      <div className="max-w-[80ch] space-y-12 sm:space-y-14">{children}</div>
-    </div>
+    <div className="space-y-10 sm:space-y-12">{children}</div>
   );
 }
 
 /* --------------------------------------------------------------- Overview */
+
+export function CourseOverviewCard({ course }: { course: Course }) {
+  return (
+    <Card className="p-5 sm:p-6">
+      <SpecList
+        specs={[
+          { label: "Qualification", value: course.qualification },
+          { label: "Level", value: course.level },
+          { label: "Duration", value: durationLabel(course.durationYears) },
+          {
+            label: "Placement year",
+            value: course.placement
+              ? `Available — ${durationLabel(course.durationYears + 1)} in total`
+              : "Not offered",
+          },
+          { label: "Subject area", value: course.subject },
+        ]}
+      />
+    </Card>
+  );
+}
 
 export function CourseOverviewPanel({ course }: { course: Course }) {
   return (
     <Panel>
       <Prose title="What you'll study">
         <p>{course.whatYouStudy}</p>
-
-        <div className="pt-2">
-          <Card className="p-5 sm:p-6">
-            <SpecList
-              specs={[
-                { label: "Qualification", value: course.qualification },
-                { label: "Level", value: course.level },
-                { label: "Duration", value: durationLabel(course.durationYears) },
-                {
-                  label: "Placement year",
-                  value: course.placement
-                    ? `Available — ${durationLabel(course.durationYears + 1)} in total`
-                    : "Not offered",
-                },
-                { label: "Subject area", value: course.subject },
-              ]}
-            />
-          </Card>
-        </div>
       </Prose>
 
       <Prose title="Skills you'll build">
@@ -93,7 +93,7 @@ export function CourseOverviewPanel({ course }: { course: Course }) {
 export function CourseModulesPanel({ course }: { course: Course }) {
   return (
     <Panel>
-      <Prose title="Typical modules">
+      <Prose title="Programme Structure">
         <p>
           A representative structure for a course of this kind. Module names,
           the balance between compulsory and optional, and the order they run in
