@@ -40,7 +40,7 @@ export interface Offering {
   campus?: string;
   /** The editorial explainer for this course, where one has been written. */
   profileSlug?: string;
-  university: { slug: string; name: string; city?: string; region?: string } | null;
+  university: { slug: string; name: string; city?: string; region?: string; logo?: string } | null;
   /** True while the record's figures are still placeholders. */
   demo: boolean;
 }

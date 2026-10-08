@@ -10,5 +10,6 @@ export const COURSE_FALLBACK_IMAGE = "/images/course-fallback-bg.jpg";
 export function CourseBackground({ src }: { src?: string }) {
   const [failedSrc, setFailedSrc] = useState<string>();
   const image = src && src !== failedSrc ? src : COURSE_FALLBACK_IMAGE;
-  return <Image src={image} alt="" aria-hidden fill priority sizes="100vw" unoptimized={isRemoteImage(image)} onError={() => setFailedSrc(src)} className="object-cover object-center" />;
+  const fallback = image === COURSE_FALLBACK_IMAGE;
+  return <div aria-hidden className="absolute inset-0 bg-[#bac5cd]"><Image src={image} alt="" fill priority sizes="100vw" unoptimized={fallback || isRemoteImage(image)} onError={() => setFailedSrc(src)} className={fallback ? "object-cover object-[65%_top] lg:object-contain lg:object-right-top" : "object-cover object-center"} /></div>;
 }

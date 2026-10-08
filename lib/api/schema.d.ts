@@ -6198,6 +6198,8 @@ export interface components {
             city?: string | null;
             /** Region */
             region?: string | null;
+            /** Logo Url */
+            logo_url?: string | null;
         };
         /**
          * CourseUniversityProfile

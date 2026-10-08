@@ -10,6 +10,7 @@ export const revalidate = 3600;
 /** Every indexable route. /careers/quiz/results is excluded — see robots.ts. */
 const staticPaths = [
   "/",
+  "/about",
   "/start",
   "/study-in-uk",
   "/careers",

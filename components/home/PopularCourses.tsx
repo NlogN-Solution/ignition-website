@@ -19,8 +19,8 @@ export function PopularCourses({ offerings }: { offerings: Offering[] }) {
   return (
     <HorizontalCardRail label="Popular courses">
       {offerings.map((offering) => (
-        <li key={offering.slug} dir="ltr" className="min-w-0 shrink-0 basis-[90%] sm:basis-[380px] xl:basis-[420px]">
-          <OfferingCard offering={offering} roomy />
+        <li key={offering.slug} dir="ltr" className="min-w-0 shrink-0 basis-[85%] sm:basis-[320px]">
+          <OfferingCard offering={offering} condensed realData />
         </li>
       ))}
     </HorizontalCardRail>

@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useMotionValue, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Pause, Play } from "lucide-react";
 
 const steps = [
@@ -21,7 +21,16 @@ const steps = [
   { image: "12-Receive-your-caas.png", label: "Receive your CAS", title: "Your next chapter is getting closer.", description: "View your Confirmation of Acceptance for Studies when it arrives. Keep it with your application documents as you prepare for the visa stage.", phase: "Move towards your offer" },
 ];
 
-const SLIDE_MS = 2000;
+const SLIDE_MS = 4000;
+
+function subscribeReducedMotion(update: () => void) {
+  const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+  preference.addEventListener("change", update);
+  return () => preference.removeEventListener("change", update);
+}
+
+const readReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const serverReducedMotion = () => false;
 
 export function HowToApply() {
   const [active, setActive] = useState(0);
@@ -31,8 +40,8 @@ export function HowToApply() {
   const [loaded, setLoaded] = useState<Record<number, boolean>>({});
   const root = useRef<HTMLElement>(null);
   const elapsed = useRef(0);
-  const progress = useMotionValue(0);
-  const reduce = useReducedMotion();
+  // Match the server's initial controls, then read the browser preference.
+  const reduce = useSyncExternalStore(subscribeReducedMotion, readReducedMotion, serverReducedMotion);
   const playing = !paused && !reduce;
   const step = steps[active];
 
@@ -51,8 +60,7 @@ export function HowToApply() {
 
   useEffect(() => {
     elapsed.current = 0;
-    progress.set(0);
-  }, [active, progress]);
+  }, [active]);
 
   useEffect(() => {
     if (!playing || !visible || !pageVisible || !loaded[active]) return;
@@ -61,7 +69,6 @@ export function HowToApply() {
     function tick(now: number) {
       elapsed.current += now - last;
       last = now;
-      progress.set(Math.min(1, elapsed.current / SLIDE_MS));
       if (elapsed.current >= SLIDE_MS) {
         setActive((current) => (current + 1) % steps.length);
       } else {
@@ -70,11 +77,10 @@ export function HowToApply() {
     }
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [active, playing, visible, pageVisible, loaded, progress]);
+  }, [active, playing, visible, pageVisible, loaded]);
 
   function select(index: number) {
     elapsed.current = 0;
-    progress.set(0);
     setActive((index + steps.length) % steps.length);
   }
 
@@ -131,20 +137,6 @@ export function HowToApply() {
           </div>
         </div>
 
-        <div className="mt-10 border-t border-white/15 pt-6 sm:mt-12">
-          <div className="mb-4 flex items-center justify-between gap-3"><p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45">12 steps. One connected journey.</p><span className="text-xs text-white/45">Pick any step</span></div>
-          <ol className="grid grid-cols-6 gap-2 sm:grid-cols-12 sm:gap-3">
-            {steps.map((item, index) => (
-              <li key={item.image}>
-                <button type="button" onClick={() => select(index)} aria-label={`Step ${index + 1}: ${item.label}`} aria-current={index === active ? "step" : undefined} title={item.label} className={`group w-full rounded-lg px-2 py-3 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange ${index === active ? "bg-white/10 text-white" : "text-white/40 hover:bg-white/5 hover:text-white"}`}>
-                  <span className="text-xs font-bold tabular-nums">{String(index + 1).padStart(2, "0")}</span>
-                  <span className="relative mt-3 block h-[3px] overflow-hidden rounded-full bg-white/15"><motion.span className="absolute inset-0 origin-left bg-orange" style={{ scaleX: index === active ? progress : index < active ? 1 : 0 }} /></span>
-                </button>
-              </li>
-            ))}
-          </ol>
-          <div aria-hidden className="mt-3 hidden grid-cols-12 text-[10px] font-medium uppercase tracking-wider text-white/35 sm:grid"><span className="col-span-3">01–03 · Discover</span><span className="col-span-3">04–06 · Get ready</span><span className="col-span-6">07–12 · Apply & move forward</span></div>
-        </div>
       </div>
     </section>
   );

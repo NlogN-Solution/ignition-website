@@ -45,21 +45,21 @@ export function Navbar({ dimmed = false }: { dimmed?: boolean }) {
                 <li key={item.label} className="group relative">
                   <Link
                     href={item.href}
-                    aria-haspopup="true"
+                    aria-haspopup={item.items.length ? "true" : undefined}
                     aria-current={active ? "page" : undefined}
                     className={`flex cursor-pointer items-center gap-[6px] whitespace-nowrap px-[10px] py-[8px] text-[13.5px] font-semibold tracking-[-0.005em] transition-colors duration-200 xl:px-[12px] ${
                       active ? "text-navy" : "text-nav group-hover:text-navy"
                     }`}
                   >
                     {item.label}
-                    <ChevronDown
+                    {item.items.length ? <ChevronDown
                       size={13}
                       strokeWidth={2.6}
                       aria-hidden
                       className={`mt-[1px] shrink-0 transition-[transform,color] duration-200 group-hover:rotate-180 group-hover:text-navy ${
                         active ? "text-navy/60" : "text-muted-light"
                       }`}
-                    />
+                    /> : null}
                   </Link>
 
                   {/* The marker for the section you are in — and, at lower
@@ -76,7 +76,7 @@ export function Navbar({ dimmed = false }: { dimmed?: boolean }) {
                   {/* The wrapper's top padding is a hover bridge: without it
                       the gap between label and panel is a dead strip that
                       closes the menu as the pointer crosses it. */}
-                  <div className="invisible absolute left-1/2 top-full z-10 w-[244px] -translate-x-1/2 translate-y-[6px] pt-[9px] opacity-0 transition-all duration-200 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+                  {item.items.length ? <div className="invisible absolute left-1/2 top-full z-10 w-[244px] -translate-x-1/2 translate-y-[6px] pt-[9px] opacity-0 transition-all duration-200 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
                     <div className="rounded-md border border-hairline bg-white p-[6px] shadow-[0_8px_24px_-8px_rgba(10,14,28,0.18)]">
                       {item.items.map((sub) => (
                         <Link
@@ -88,7 +88,7 @@ export function Navbar({ dimmed = false }: { dimmed?: boolean }) {
                         </Link>
                       ))}
                     </div>
-                  </div>
+                  </div> : null}
                 </li>
               );
             })}

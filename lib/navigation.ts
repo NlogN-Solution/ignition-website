@@ -35,6 +35,7 @@ export const navItems: NavItem[] = [
       { label: "Cost calculator", href: "/money/calculator" },
     ],
   },
+  { label: "About", href: "/about", items: [] },
 ];
 
 /** Grouped for the footer, which doubles as the site's internal link map. */
@@ -42,6 +43,7 @@ export const footerGroups = [
   {
     label: "Start here",
     items: [
+      { label: "About Ignition", href: "/about" },
       { label: "Why study in the UK", href: "/study-in-uk" },
       { label: "Where are you in your journey?", href: "/start" },
       { label: "Take the career quiz", href: "/careers/quiz" },

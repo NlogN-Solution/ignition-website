@@ -7,7 +7,6 @@ import { trackSearch } from "@/lib/search/analytics";
 import { normalizeQuery } from "@/lib/search/query";
 import { UniversityCard } from "./UniversityCard";
 import {
-  FilterBar,
   FilterFields,
   FilterFooter,
   FilterSearch,
@@ -51,13 +50,8 @@ function toOptions<T extends string>(
 /**
  * The university catalogue, filtered client-side.
  *
- * It shares its chrome with the course explorer: one horizontal `FilterBar`
- * above the results, with option counts drawn from a leave-one-out pool per
- * facet. It used to run its facets down a rail on the left instead — the same
- * filters, operated a different way from the other half of the same decision,
- * and costing the grid a third of its width on every visit for a set of
- * controls most students touch once. See `CourseExplorer` for why the counts
- * are built the way they are.
+ * Filters stay in the left rail, with a filter sheet on smaller screens.
+ * Option counts are drawn from a leave-one-out pool per facet.
  *
  * The records arrive as a prop from the server rather than being imported:
  * they come from the API now. Filtering stays here — 44 records is nothing,
@@ -189,7 +183,7 @@ export function UniversityExplorer({ universities, params }: { universities: Uni
   ].filter((entry): entry is { key: string; label: string } => Boolean(entry.label));
 
   const fields = (
-        <FilterFields vertical={Boolean(params.q)}>
+        <FilterFields vertical>
           <SelectField
             label="Location"
             options={toOptions(regions, counts.region)}
@@ -254,12 +248,7 @@ export function UniversityExplorer({ universities, params }: { universities: Uni
 
       {results.length ? (
         <ul
-          /* Three across from `lg`, where the two-column grid used to sit
-             beside a filter rail. With the rail gone the same two columns
-             would stretch each card past 500px, which the three-photo header
-             was never drawn for — and this is the width the course grid
-             uses. */
-          className={`mt-4 grid gap-4 sm:grid-cols-2 ${params.q ? "xl:grid-cols-2" : "lg:grid-cols-3"}`}
+          className="mt-4 grid gap-4 sm:grid-cols-2"
         >
           {results.map((university) => (
             <li key={university.id} className="min-w-0">
@@ -276,6 +265,5 @@ export function UniversityExplorer({ universities, params }: { universities: Uni
         </div>
       )}
     </>;
-  return params.q ? <ExplorerShell sidebar={<FilterSidebar activeCount={barCount} onClear={clearAll} resultSummary={`Show ${results.length} universities`}>{fields}{footer}</FilterSidebar>}>{search}{resultContent}</ExplorerShell>
-    : <div><FilterBar>{search}{fields}{footer}</FilterBar>{resultContent}</div>;
+  return <ExplorerShell sidebar={<FilterSidebar activeCount={barCount} onClear={clearAll} resultSummary={`Show ${results.length} universities`}>{fields}{footer}</FilterSidebar>}>{search}{resultContent}</ExplorerShell>;
 }

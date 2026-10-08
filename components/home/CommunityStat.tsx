@@ -16,7 +16,7 @@ import { communityStat } from "@/data/home/community";
  * text-block/photo-block split `WorkInUk`'s intro already uses.
  */
 export function CommunityStat({ id }: { id?: string }) {
-  const { enrolled, visaGrant } = communityStat;
+  const { enrolled, mobilityGrowth } = communityStat;
 
   return (
     <section
@@ -36,7 +36,7 @@ export function CommunityStat({ id }: { id?: string }) {
               {communityStat.body}
             </p>
 
-            <div className="mt-[clamp(1.5rem,2.5vw,2rem)] grid grid-cols-2 gap-[20px] sm:gap-[28px]">
+            <div className="mt-[clamp(1.5rem,2.5vw,2rem)] grid gap-[20px] sm:grid-cols-2 sm:gap-[28px]">
               <div>
                 <p className="font-display text-[clamp(2rem,4vw,2.75rem)] font-extrabold leading-[1] tracking-[-0.025em] tabular-nums">
                   {enrolled.figure}
@@ -51,13 +51,13 @@ export function CommunityStat({ id }: { id?: string }) {
 
               <div>
                 <p className="font-display text-[clamp(2rem,4vw,2.75rem)] font-extrabold leading-[1] tracking-[-0.025em] tabular-nums">
-                  {visaGrant.figure}
+                  {mobilityGrowth.figure}
                 </p>
                 <p className="mt-[8px] text-[13.5px] font-semibold leading-[1.4]">
-                  {visaGrant.label}
+                  {mobilityGrowth.label}
                 </p>
                 <p className="mt-[4px] text-[12.5px] font-medium leading-[1.4] text-white/70">
-                  {visaGrant.detail}
+                  {mobilityGrowth.detail}
                 </p>
               </div>
             </div>
@@ -74,12 +74,12 @@ export function CommunityStat({ id }: { id?: string }) {
               </a>{" "}
               ·{" "}
               <a
-                href={visaGrant.href}
+                href={mobilityGrowth.href}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-semibold underline underline-offset-2 hover:text-white"
               >
-                {visaGrant.source}
+                {mobilityGrowth.source}
               </a>
             </p>
           </div>

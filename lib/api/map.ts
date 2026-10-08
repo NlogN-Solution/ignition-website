@@ -307,6 +307,7 @@ export function toOffering(dto: OfferingDto): Offering {
           name: dto.university.name,
           ...(dto.university.city ? { city: dto.university.city } : {}),
           ...(dto.university.region ? { region: dto.university.region } : {}),
+          ...(dto.university.logo_url ? { logo: dto.university.logo_url } : {}),
         }
       : null,
     demo: dto.is_example ?? false,

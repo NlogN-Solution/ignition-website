@@ -11,8 +11,8 @@ export function PopularUniversities({ universities }: { universities: University
   return (
     <HorizontalCardRail label="Universities" reverse>
       {universities.map((university) => (
-        <li key={university.id} dir="ltr" className="min-w-0 shrink-0 basis-[90%] sm:basis-[380px] xl:basis-[420px]">
-          <UniversityCard university={university} roomy />
+        <li key={university.id} dir="ltr" className="min-w-0 shrink-0 basis-[85%] sm:basis-[320px]">
+          <UniversityCard university={university} condensed />
         </li>
       ))}
     </HorizontalCardRail>

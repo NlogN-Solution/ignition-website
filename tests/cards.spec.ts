@@ -6,14 +6,14 @@ test.beforeEach(async ({ page }) => {
   await page.route(/https:\/\/[^/]*(?:google-analytics|googletagmanager)\.com\//, route => route.abort());
 });
 
-test("compact results are image-free, one column, dense and retain comparison and detail links", async ({ page }, testInfo) => {
+test("compact results show only university logos, stay dense and retain comparison and detail links", async ({ page }, testInfo) => {
   if (testInfo.project.name === "desktop") await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/courses?q=Engineering", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("searchbox").first()).toBeEnabled();
   const results = page.getByRole("list", { name: "Course results" });
   const cards = results.getByRole("article");
   await expect(cards).toHaveCount(24);
-  await expect(results.locator("img")).toHaveCount(0);
+  await expect(results.locator('img:not([alt$=" logo"])')).toHaveCount(0);
   await expect(results.getByRole("button", { name: /application|apply/i })).toHaveCount(0);
   const boxes = await cards.evaluateAll(elements => elements.map(element => {
     const box = element.getBoundingClientRect();

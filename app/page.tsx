@@ -8,12 +8,13 @@ import { CourseSearch } from "@/components/home/CourseSearch";
 import { PopularCourses } from "@/components/home/PopularCourses";
 import { PopularUniversities } from "@/components/home/PopularUniversities";
 import { WhyUk } from "@/components/home/WhyUk";
-import { WhyIgnition } from "@/components/home/WhyIgnition";
 import { CommunityStat } from "@/components/home/CommunityStat";
 import { LeadCapture } from "@/components/lead/LeadCapture";
 import { HowToApply } from "@/components/home/HowToApply";
+import { PopularGuides } from "@/components/home/PopularGuides";
+import { StudentVoices } from "@/components/home/StudentVoices";
+import { getContentIndex } from "@/lib/api/content";
 import { Section } from "@/components/ui/Section";
-import { trustIntro } from "@/data/home/trust";
 import {
   featuredCourseQueries,
   pickPopularUniversities,
@@ -49,10 +50,11 @@ export const metadata: Metadata = {
 
 /** Course discovery and a walkthrough of the self-apply journey. */
 export default async function Home() {
-  const [catalogue, popularSearches, popularResults] = await Promise.all([
+  const [catalogue, popularSearches, popularResults, guides] = await Promise.all([
     getUniversities(),
     getSearchSuggestions(""),
     Promise.all(featuredCourseQueries.map((q) => searchOfferings({ q, limit: 3 }))),
+    getContentIndex("guide"),
   ]);
 
   const popularOfferings = [...new Map(
@@ -71,15 +73,13 @@ export default async function Home() {
           <CourseSearch popular={popularSearches?.items ?? []} />
         </Hero>
 
-        <HowToApply />
-
-
         <Section
-          eyebrow="Popular searches"
-          title="Or start from what others are asking for."
-          intro="Explore courses matching popular searches, see the universities offering them and start your application."
+          eyebrow="Where to go"
+          title="Discover popular universities in the UK."
+          intro="Picked by graduate outcomes and recognition where we have them on record — not a ranking, just a reasonable place to start looking."
+          surface
         >
-          <PopularCourses offerings={popularOfferings} />
+          <PopularUniversities universities={popularUniversities} />
         </Section>
 
         <Section
@@ -91,20 +91,22 @@ export default async function Home() {
           <WhyUk />
         </Section>
 
-        <Section eyebrow={trustIntro.eyebrow} title={trustIntro.title} intro={trustIntro.intro}>
-          <WhyIgnition />
+        <Section eyebrow="Study guides" title="A little guidance for your next step." intro="Explore practical guides from the Ignition team to help you understand studying in the UK and prepare for your journey.">
+          <PopularGuides guides={guides} />
         </Section>
 
+        <HowToApply />
+
         <Section
-          eyebrow="Where to go"
-          title="Some of the universities already in our catalogue."
-          intro="Picked by graduate outcomes and recognition where we have them on record — not a ranking, just a reasonable place to start looking."
-          surface
+          eyebrow="Popular searches"
+          title="Or start from what others are asking for."
+          intro="Explore courses matching popular searches, see the universities offering them and start your application."
         >
-          <PopularUniversities universities={popularUniversities} />
+          <PopularCourses offerings={popularOfferings} />
         </Section>
 
         <CommunityStat />
+        <StudentVoices />
 
         <Section
           id="adviser"
