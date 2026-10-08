@@ -119,6 +119,9 @@ export interface RequirementSection {
  * only because `University` requires fields this subset deliberately omits.
  */
 export interface OfferingUniversity {
+  logo?: string;
+  heroImage?: string;
+  cardImage?: string;
   slug: string;
   name: string;
   city?: string;

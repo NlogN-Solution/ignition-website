@@ -5,6 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { ReadyToApply } from "@/components/apply/ReadyToApply";
 import { CourseDetailsSidebar } from "@/components/courses/CourseDetailsSidebar";
 import { OfferingHero } from "@/components/courses/OfferingHero";
+import { OfferingSummary } from "@/components/courses/OfferingSummary";
 import {
   OfferingEntryPanel,
   OfferingFeesPanel,
@@ -14,7 +15,7 @@ import {
   OfferingRelatedPanel,
   OfferingUniversityPanel,
 } from "@/components/courses/offeringPanels";
-import { getOffering, getOfferingResult } from "@/lib/api/catalogue";
+import { getCourseOverview, getOffering, getOfferingResult } from "@/lib/api/catalogue";
 import { durationLabel } from "@/data/courses";
 import { pageMetadata } from "@/lib/seo";
 
@@ -96,6 +97,7 @@ export default async function OfferingPage({
     throw new Error(`The catalogue is unreachable, so /courses/at/${slug} cannot be rendered.`);
   }
   const offering = lookup.data;
+  const overview = offering.profileSlug ? await getCourseOverview(offering.profileSlug) : undefined;
 
   const tabs = [
     {
@@ -141,11 +143,8 @@ export default async function OfferingPage({
       <main className="bg-white">
         <OfferingHero offering={offering} />
 
-        <div className="mx-auto w-full max-w-[908px] px-5 py-[clamp(2.5rem,4.5vw,4rem)] sm:px-8 lg:px-12">
-          <section aria-label="Course overview" className="mb-10 sm:mb-14">
-            <h2 className="mb-5 text-[24px] font-bold tracking-[-0.015em] text-navy">Course overview</h2>
-            <OfferingOverviewCard offering={offering} />
-          </section>
+        <div className="mx-auto w-full max-w-[1320px] px-5 pb-[clamp(2.5rem,4.5vw,4rem)] sm:px-8 lg:px-12">
+          <OfferingSummary offering={offering} overview={overview} />
           <CourseDetailsSidebar sections={tabs} />
         </div>
       </main>

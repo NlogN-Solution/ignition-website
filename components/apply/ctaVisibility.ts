@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 
 /**
  * Tracks whether an in-page "ready to apply" block is currently on screen.
@@ -36,13 +36,14 @@ function subscribe(onChange: () => void) {
 }
 
 /** Attach to the conversion block's outermost element. */
-export function useReportCtaVisibility<T extends HTMLElement>() {
+export function useReportCtaVisibility<T extends HTMLElement>(active = true) {
   const ref = useRef<T>(null);
   // Whether this particular block is currently counted, so unmounting while
   // visible decrements exactly once.
   const counted = useRef(false);
 
   useEffect(() => {
+    if (!active) return;
     const element = ref.current;
     if (!element) return;
 
@@ -65,7 +66,7 @@ export function useReportCtaVisibility<T extends HTMLElement>() {
       observer.disconnect();
       setVisible(false);
     };
-  }, []);
+  }, [active]);
 
   return ref;
 }
@@ -74,7 +75,7 @@ const NOT_VISIBLE = false;
 
 export function useCtaOnScreen(): boolean {
   return useSyncExternalStore(
-    useCallback(subscribe, []),
+    subscribe,
     () => visibleCount > 0,
     () => NOT_VISIBLE,
   );

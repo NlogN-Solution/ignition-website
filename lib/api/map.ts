@@ -437,6 +437,11 @@ function toOfferingUniversity(
 
   const university: OfferingUniversity = { slug: dto.slug, name: dto.name };
 
+  set(university, "logo", dto.logo_url);
+  const imagery = (dto.imagery ?? null) as Record<string, unknown> | null;
+  set(university, "heroImage", text(imagery, "hero"));
+  set(university, "cardImage", text(imagery, "card"));
+
   set(university, "city", dto.city ?? undefined);
   set(university, "region", dto.region ?? undefined);
   set(university, "monogram", dto.monogram ?? undefined);

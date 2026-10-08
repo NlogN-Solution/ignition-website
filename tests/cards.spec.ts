@@ -38,13 +38,17 @@ test("compact results are image-free, one column, dense and retain comparison an
   await expect(first.getByRole("button", { name: /Remove .* from comparison/ })).toHaveAttribute("aria-pressed", "true");
   await cards.nth(1).getByRole("button", { name: /Add .* to comparison/ }).click();
   await expect(page.getByRole("button", { name: "Compare", exact: true })).toBeEnabled();
+  await expect(page.getByRole("complementary", { name: "Contact Ignition" })).toHaveCount(0);
   await page.getByRole("button", { name: "Compare", exact: true }).click();
   await expect(page.getByRole("dialog", { name: "Compare courses" })).toBeVisible();
   await page.getByRole("dialog", { name: "Compare courses" }).getByRole("button", { name: "Close", exact: true }).click();
   await page.getByRole("button", { name: "Clear", exact: true }).click();
   await first.getByRole("link", { name: "View course" }).click();
   await expect(page).toHaveURL(new RegExp(detailHref!));
-  await expect(page.getByRole("button", { name: "Apply for this course", exact: true })).toBeVisible();
+  await expect(page.locator("header").getByRole("button", { name: "Apply for this course", exact: true })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Course key facts" })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+  await page.screenshot({ path: testInfo.outputPath("course-detail-header.png") });
 });
 
 test("university refinement and clearing preserve the compact results", async ({ page }, testInfo) => {

@@ -1,8 +1,8 @@
-import Image from "next/image";
 import { Clock, GraduationCap, Layers } from "lucide-react";
 import { Container } from "../ui/Container";
 import { Breadcrumbs } from "../layout/Breadcrumbs";
-import { courseImage } from "@/data/courses/imagery";
+import { CourseBackground } from "./CourseBackground";
+import { StartApplicationButton } from "../apply/StartApplicationButton";
 import { durationLabel, type Course } from "@/data/courses";
 
 /**
@@ -10,21 +10,13 @@ import { durationLabel, type Course } from "@/data/courses";
  *
  * Same reasoning, same construction: one bottom-weighted gradient for the type
  * and a soft one from the left, over a photograph at full strength. The
- * picture is chosen by subject rather than by course — see
- * data/courses/imagery.ts for why that is the right grain.
+ * picture comes from a university that teaches the course, with a shared
+ * fallback when no university photograph has been supplied.
  */
-export function CourseHero({ course }: { course: Course }) {
+export function CourseHero({ course, universityImage }: { course: Course; universityImage?: string }) {
   return (
     <header className="relative isolate flex min-h-[clamp(340px,34vw,420px)] flex-col overflow-hidden bg-navy-ink">
-      <Image
-        src={courseImage(course.subject)}
-        alt=""
-        aria-hidden
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover object-center"
-      />
+      <CourseBackground src={universityImage} />
 
       <div
         aria-hidden
@@ -76,6 +68,7 @@ export function CourseHero({ course }: { course: Course }) {
             Example data
           </span>
         </div>
+        <StartApplicationButton tone="accent" className="mt-5 min-h-[48px] w-fit gap-3 rounded-md px-5 py-3 text-[15px]">Apply for this course</StartApplicationButton>
       </Container>
     </header>
   );

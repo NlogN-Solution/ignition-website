@@ -297,6 +297,15 @@ export async function getCourse(slug: string): Promise<Course | null> {
   return toCourse(dto, slugs);
 }
 
+/** Supplied programme copy only; never substitute an editorial fixture. */
+export async function getCourseOverview(slug: string): Promise<string | undefined> {
+  const dto = await get<CourseProfileDto>(`/public/course-profiles/${encodeURIComponent(slug)}`, {
+    revalidate: REVALIDATE.universities,
+    tags: [TAG_CATALOGUE],
+  });
+  return dto?.overview || undefined;
+}
+
 /**
  * One offering, by slug.
  *

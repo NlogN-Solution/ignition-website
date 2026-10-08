@@ -29,7 +29,7 @@ export function CourseCompareTray({
   onClear: () => void;
   onCompare: () => void;
 }) {
-  const ctaRef = useReportCtaVisibility<HTMLDivElement>();
+  const ctaRef = useReportCtaVisibility<HTMLDivElement>(count > 0);
 
   if (count === 0) return null;
 
@@ -38,7 +38,7 @@ export function CourseCompareTray({
   return (
     <div
       ref={ctaRef}
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-white/97 backdrop-blur-sm shadow-[0_-14px_32px_-22px_rgba(1,22,111,0.35)]"
+      className="fixed inset-x-0 bottom-0 z-[60] border-t border-hairline bg-white/97 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm shadow-[0_-14px_32px_-22px_rgba(1,22,111,0.35)]"
     >
       <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-3 px-5 py-[14px] sm:px-8">
         <div className="flex items-center gap-3">

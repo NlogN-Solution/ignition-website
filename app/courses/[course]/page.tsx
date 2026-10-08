@@ -66,6 +66,7 @@ export default async function CoursePage({
   // university: 44 records is a single call the whole site already makes.
   const catalogue = await getUniversities();
   const taughtAt = catalogue.filter((university) => course.universities.includes(university.id));
+  const picturedUniversity = taughtAt.find((university) => university.heroImage || university.cardImage);
 
 
   const tabs = [
@@ -110,7 +111,7 @@ export default async function CoursePage({
     <>
       <Navbar />
       <main className="bg-white">
-        <CourseHero course={course} />
+        <CourseHero course={course} universityImage={picturedUniversity?.heroImage || picturedUniversity?.cardImage} />
 
         <div className="mx-auto w-full max-w-[908px] px-5 py-[clamp(2.5rem,4.5vw,4rem)] sm:px-8 lg:px-12">
           <section aria-label="Course overview" className="mb-10 sm:mb-14">
