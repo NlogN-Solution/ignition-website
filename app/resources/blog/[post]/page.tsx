@@ -33,6 +33,7 @@ export async function generateMetadata({
     title: post.title,
     description: post.excerpt,
     path: `/resources/blog/${post.id}`,
+    seo: post.seo,
   });
 }
 
@@ -59,7 +60,7 @@ export default async function BlogPostPage({
   return (
     <>
       <Navbar />
-      <main>
+      <main className="editorial-content">
         <header className="border-b border-hairline bg-white/55">
           <Container className="pb-[clamp(1.75rem,3vw,2.5rem)] pt-6 lg:pt-7">
             <Breadcrumbs

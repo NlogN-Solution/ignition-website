@@ -603,6 +603,7 @@ export function toBlogPost(page: ContentPage): BlogPost {
   if (page.tag) post.tag = page.tag;
   if (page.coverImage) post.coverImage = page.coverImage;
   if (page.bodyHtml) post.bodyHtml = page.bodyHtml;
+  if (page.seo) post.seo = page.seo;
 
   if (page.source?.label && page.source.href) {
     post.source = { label: page.source.label, href: page.source.href };

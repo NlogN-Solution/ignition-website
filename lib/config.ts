@@ -41,7 +41,11 @@ function withScheme(url: string): string {
 }
 
 export const apiBaseUrl = trimSlash(
-  withScheme(process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8001/api/v1"),
+  withScheme(process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || (
+    process.env.NODE_ENV === "production"
+      ? "https://ignition-backend-2ste.onrender.com/api/v1"
+      : "http://localhost:8001/api/v1"
+  )),
 );
 
 export const portalRoutes = {

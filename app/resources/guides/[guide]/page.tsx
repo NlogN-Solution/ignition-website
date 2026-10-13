@@ -29,6 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ guide: st
     title: guide.title,
     description: guide.excerpt ?? "",
     path: `/resources/guides/${guide.slug}`,
+    seo: guide.seo,
   });
 }
 
@@ -46,7 +47,7 @@ export default async function GuidePage({ params }: { params: Promise<{ guide: s
   return (
     <>
       <Navbar />
-      <main>
+      <main className="editorial-content">
         <header className="border-b border-hairline bg-white/55">
           <Container className="pb-[clamp(1.75rem,3vw,2.5rem)] pt-6 lg:pt-7">
             <Breadcrumbs

@@ -24,6 +24,7 @@ export type BlogPost = {
   coverImage?: string;
   /** The body written in the admin's editor, sanitised. Preferred when set. */
   bodyHtml?: string;
+  seo?: Record<string, unknown>;
   /** Older block-built articles: the lead paragraph, then headed sections. */
   standfirst: string;
   sections: BlogSection[];

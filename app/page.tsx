@@ -11,7 +11,7 @@ import { WhyUk } from "@/components/home/WhyUk";
 import { CommunityStat } from "@/components/home/CommunityStat";
 import { LeadCapture } from "@/components/lead/LeadCapture";
 import { HowToApply } from "@/components/home/HowToApply";
-import { PopularGuides } from "@/components/home/PopularGuides";
+import { PopularArticles } from "@/components/home/PopularArticles";
 import { StudentVoices } from "@/components/home/StudentVoices";
 import { getContentIndex } from "@/lib/api/content";
 import { Section } from "@/components/ui/Section";
@@ -50,11 +50,11 @@ export const metadata: Metadata = {
 
 /** Course discovery and a walkthrough of the self-apply journey. */
 export default async function Home() {
-  const [catalogue, popularSearches, popularResults, guides] = await Promise.all([
+  const [catalogue, popularSearches, popularResults, articles] = await Promise.all([
     getUniversities(),
     getSearchSuggestions(""),
     Promise.all(featuredCourseQueries.map((q) => searchOfferings({ q, limit: 3 }))),
-    getContentIndex("guide"),
+    getContentIndex("post"),
   ]);
 
   const popularOfferings = [...new Map(
@@ -91,8 +91,12 @@ export default async function Home() {
           <WhyUk />
         </Section>
 
-        <Section eyebrow="Study guides" title="A little guidance for your next step." intro="Explore practical guides from the Ignition team to help you understand studying in the UK and prepare for your journey.">
-          <PopularGuides guides={guides} />
+        <Section
+          eyebrow="FROM THE IGNITION BLOG"
+          title="Good decisions start with the right information."
+          intro="Explore expert insights, practical advice, and fresh perspectives on studying, applying, and building your future in the UK."
+        >
+          <PopularArticles articles={articles} />
         </Section>
 
         <HowToApply />

@@ -30,17 +30,24 @@ export function pageMetadata({
   title,
   description,
   path,
+  seo,
 }: {
   title: string;
   description: string;
   path: string;
+  seo?: Record<string, unknown>;
 }): Metadata {
+  const seoText = (key: string) => typeof seo?.[key] === "string" ? (seo[key] as string).trim() : "";
+  title = seoText("title") || title;
+  description = seoText("description") || description;
+  const image = seoText("ogImage");
   const url = path === "/" ? siteUrl : `${siteUrl}${path}`;
 
   return {
     title,
     description,
     alternates: { canonical: url },
+    ...(seo?.noindex === true ? { robots: { index: false, follow: true } } : {}),
     openGraph: {
       title: `${title} — ${siteName}`,
       description,
@@ -48,6 +55,7 @@ export function pageMetadata({
       siteName,
       locale: "en_GB",
       type: "website",
+      ...(image ? { images: [image] } : {}),
     },
   };
 }
