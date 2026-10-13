@@ -8,6 +8,10 @@ import type { University } from "@/data/universities";
  * "here are some universities" everywhere it appears on the site.
  */
 export function PopularUniversities({ universities }: { universities: University[] }) {
+  if (universities.length === 0) {
+    return <p className="text-sm text-muted">University listings are temporarily unavailable. Please try again shortly.</p>;
+  }
+
   return (
     <HorizontalCardRail label="Universities" reverse>
       {universities.map((university) => (

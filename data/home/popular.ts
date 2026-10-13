@@ -13,22 +13,9 @@ export function publishedTuitionRange(universities: Pick<University, "tuition">[
   return { min: Math.min(...ranges.map((range) => range.min)), max: Math.max(...ranges.map((range) => range.max)) };
 }
 
-/**
- * Up to seven universities to explore, picked by a rule rather than an editorial
- * list — nothing in the catalogue is flagged "popular", so a hand-picked
- * order would silently go stale the moment the underlying records change.
- * Graduate outcomes are the strongest single signal of a well-documented,
- * prominent institution; rankings/awards count is the fallback for records
- * that don't carry employability data yet.
- */
+/** The first six real universities, preserving the public API's order. */
 export function pickPopularUniversities(universities: University[]): University[] {
-  function score(university: University): number {
-    const rate = Number.parseFloat(university.employability?.employedRate ?? "");
-    if (Number.isFinite(rate)) return 1000 + rate;
-    return (university.rankings?.length ?? 0) + (university.awards?.length ?? 0);
-  }
-
-  return [...universities].sort((a, b) => score(b) - score(a)).slice(0, 7);
+  return universities.filter((university) => !university.id.startsWith("example-")).slice(0, 6);
 }
 
 /**

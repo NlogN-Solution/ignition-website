@@ -76,7 +76,7 @@ export default async function Home() {
         <Section
           eyebrow="Where to go"
           title="Discover popular universities in the UK."
-          intro="Picked by graduate outcomes and recognition where we have them on record — not a ranking, just a reasonable place to start looking."
+          intro="Explore universities from our UK catalogue and find the right place for your studies."
           surface
         >
           <PopularUniversities universities={popularUniversities} />
